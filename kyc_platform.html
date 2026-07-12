@@ -1,0 +1,4151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>招商银行 · KYC智能尽调平台</title>
+    <style>
+        /* ========== 全局变量与基础 ========== */
+        :root {
+            --cmb-red: #C41230;
+            --cmb-red-dark: #9B0E26;
+            --cmb-red-light: #F2D4DA;
+            --cmb-gold: #D4A843;
+            --cmb-gold-light: #F5E6C8;
+            --cmb-bg: #F5F6FA;
+            --cmb-card-bg: #FFFFFF;
+            --cmb-text: #2D3748;
+            --cmb-text-light: #718096;
+            --cmb-border: #E2E8F0;
+            --cmb-blue: #2B6CB0;
+            --cmb-blue-light: #EBF4FF;
+            --cmb-green: #38A169;
+            --cmb-green-light: #E6F7EC;
+            --cmb-orange: #DD6B20;
+            --cmb-orange-light: #FEF3E2;
+            --cmb-purple: #6B46C1;
+            --cmb-purple-light: #EDE9FE;
+            --cmb-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            --cmb-shadow-lg: 0 4px 16px rgba(0,0,0,0.12);
+            --cmb-radius: 12px;
+            --cmb-radius-sm: 8px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+            background: var(--cmb-bg);
+            color: var(--cmb-text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* ========== 顶部导航 ========== */
+        .top-nav {
+            background: linear-gradient(135deg, var(--cmb-red) 0%, var(--cmb-red-dark) 100%);
+            padding: 0 32px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 12px rgba(196,18,48,0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .platform-name {
+            color: var(--cmb-gold);
+            font-size: 16px;
+            font-weight: 600;
+            border-left: 2px solid var(--cmb-gold);
+            padding-left: 16px;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .nav-user {
+            color: #FFFFFF;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-user-avatar {
+            width: 32px;
+            height: 32px;
+            background: var(--cmb-gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--cmb-red-dark);
+        }
+
+        .nav-badge {
+            background: rgba(255,255,255,0.15);
+            border-radius: 6px;
+            padding: 4px 12px;
+            color: #FFFFFF;
+            font-size: 12px;
+        }
+
+        /* ========== 客户开发头部横幅 ========== */
+        .dev-banner {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            margin: 24px 32px;
+            border-radius: var(--cmb-radius);
+            padding: 32px 40px;
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            box-shadow: var(--cmb-shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dev-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 200px;
+            height: 100%;
+            background: linear-gradient(135deg, transparent, rgba(196,18,48,0.15));
+        }
+
+        .dev-banner-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--cmb-red);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(196,18,48,0.4);
+        }
+
+        .dev-banner-icon svg {
+            width: 36px;
+            height: 36px;
+            fill: #FFFFFF;
+        }
+
+        .dev-banner-content {
+            flex: 1;
+        }
+
+        .dev-banner-title {
+            color: #FFFFFF;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .dev-banner-desc {
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .dev-banner-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .dev-action-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #FFFFFF;
+            padding: 10px 20px;
+            border-radius: var(--cmb-radius-sm);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dev-action-btn:hover {
+            background: var(--cmb-red);
+            border-color: var(--cmb-red);
+        }
+
+        .dev-action-btn.active {
+            background: var(--cmb-red);
+            border-color: var(--cmb-red);
+        }
+
+        /* ========== 客户开发三卡片 ========== */
+        .dev-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 0 32px 24px;
+        }
+
+        .dev-card {
+            background: var(--cmb-card-bg);
+            border-radius: var(--cmb-radius);
+            padding: 24px;
+            box-shadow: var(--cmb-shadow);
+            border: 1px solid var(--cmb-border);
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dev-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--cmb-shadow-lg);
+            border-color: var(--cmb-red);
+        }
+
+        .dev-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+        .dev-card.card-deep::after { background: var(--cmb-blue); }
+        .dev-card.card-new::after { background: var(--cmb-red); }
+        .dev-card.card-kyc::after { background: var(--cmb-green); }
+
+        .dev-card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .card-deep .dev-card-icon { background: var(--cmb-blue-light); }
+        .card-new .dev-card-icon { background: var(--cmb-red-light); }
+        .card-kyc .dev-card-icon { background: var(--cmb-green-light); }
+
+        .dev-card-icon svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .card-deep .dev-card-icon svg { fill: var(--cmb-blue); }
+        .card-new .dev-card-icon svg { fill: var(--cmb-red); }
+        .card-kyc .dev-card-icon svg { fill: var(--cmb-green); }
+
+        .dev-card-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .dev-card-subtitle {
+            font-size: 12px;
+            color: var(--cmb-text-light);
+            margin-bottom: 16px;
+        }
+
+        .dev-card-list {
+            list-style: none;
+        }
+
+        .dev-card-list li {
+            font-size: 13px;
+            color: var(--cmb-text-light);
+            padding: 6px 0;
+            border-bottom: 1px solid var(--cmb-border);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dev-card-list li:last-child { border-bottom: none; }
+
+        .dev-card-list li::before {
+            content: '';
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .card-deep .dev-card-list li::before { background: var(--cmb-blue); }
+        .card-new .dev-card-list li::before { background: var(--cmb-red); }
+        .card-kyc .dev-card-list li::before { background: var(--cmb-green); }
+
+        /* ========== 对公客户经理培训 ========== */
+        .training-center {
+            margin: 0 32px 24px;
+            background: var(--cmb-card-bg);
+            border-radius: var(--cmb-radius);
+            border: 1px solid var(--cmb-border);
+            box-shadow: var(--cmb-shadow);
+            padding: 24px;
+        }
+
+        .training-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--cmb-red);
+        }
+
+        .training-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .training-subtitle {
+            font-size: 13px;
+            color: var(--cmb-text-light);
+            line-height: 1.7;
+        }
+
+        .training-badge {
+            background: var(--cmb-red-light);
+            color: var(--cmb-red);
+            border-radius: var(--cmb-radius-sm);
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .training-module-grid {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .training-module-card {
+            border: 1px solid var(--cmb-border);
+            border-radius: var(--cmb-radius-sm);
+            padding: 14px;
+            cursor: pointer;
+            font: inherit;
+            text-align: left;
+            min-height: 112px;
+            background: var(--cmb-bg);
+            transition: all 0.25s;
+        }
+
+        .training-module-card:hover {
+            border-color: var(--cmb-red);
+            transform: translateY(-2px);
+        }
+
+        .training-module-card.active {
+            background: var(--cmb-red-light);
+            border-color: var(--cmb-red);
+        }
+
+        .training-module-tag {
+            font-size: 11px;
+            color: var(--cmb-red);
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .training-module-title {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .training-module-summary {
+            font-size: 12px;
+            color: var(--cmb-text-light);
+            line-height: 1.5;
+        }
+
+        .training-detail-grid {
+            display: grid;
+            grid-template-columns: 1.15fr 1fr;
+            gap: 20px;
+        }
+
+        .training-panel {
+            border: 1px solid var(--cmb-border);
+            border-radius: var(--cmb-radius-sm);
+            padding: 18px;
+            background: #FFFFFF;
+        }
+
+        .training-panel-title {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .training-panel-title::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--cmb-red);
+        }
+
+        .training-scenario {
+            background: var(--cmb-blue-light);
+            color: var(--cmb-blue);
+            border-left: 3px solid var(--cmb-blue);
+            border-radius: var(--cmb-radius-sm);
+            padding: 14px;
+            font-size: 13px;
+            line-height: 1.7;
+            margin-bottom: 14px;
+        }
+
+        .training-list {
+            list-style: none;
+        }
+
+        .training-list li {
+            padding: 8px 0 8px 18px;
+            border-bottom: 1px solid var(--cmb-border);
+            font-size: 13px;
+            line-height: 1.55;
+            position: relative;
+        }
+
+        .training-list li:last-child {
+            border-bottom: none;
+        }
+
+        .training-list li::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--cmb-red);
+            position: absolute;
+            left: 0;
+            top: 16px;
+        }
+
+        .training-script {
+            background: var(--cmb-bg);
+            border-radius: var(--cmb-radius-sm);
+            padding: 14px;
+            font-size: 13px;
+            line-height: 1.7;
+            color: var(--cmb-text);
+        }
+
+        .training-quiz-options {
+            display: grid;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .training-quiz-option {
+            border: 1px solid var(--cmb-border);
+            background: #FFFFFF;
+            border-radius: var(--cmb-radius-sm);
+            padding: 10px 12px;
+            font: inherit;
+            text-align: left;
+            cursor: pointer;
+            font-size: 13px;
+            color: var(--cmb-text);
+        }
+
+        .training-quiz-option:hover,
+        .training-quiz-option.active {
+            border-color: var(--cmb-red);
+            color: var(--cmb-red);
+            box-shadow: 0 6px 16px rgba(196,18,48,0.10);
+        }
+
+        .training-feedback {
+            margin-top: 12px;
+            padding: 10px 12px;
+            border-radius: var(--cmb-radius-sm);
+            font-size: 13px;
+            line-height: 1.6;
+            display: none;
+        }
+
+        .training-feedback.good {
+            display: block;
+            background: var(--cmb-green-light);
+            color: var(--cmb-green);
+        }
+
+        .training-feedback.warn {
+            display: block;
+            background: var(--cmb-orange-light);
+            color: var(--cmb-orange);
+        }
+
+        /* ========== 搜索栏 ========== */
+        .search-section {
+            margin: 0 32px 24px;
+            background: var(--cmb-card-bg);
+            border-radius: var(--cmb-radius);
+            padding: 20px 24px;
+            box-shadow: var(--cmb-shadow);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border: 1px solid var(--cmb-border);
+        }
+
+        .search-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--cmb-red);
+            white-space: nowrap;
+        }
+
+        .search-input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px 12px 44px;
+            border: 2px solid var(--cmb-border);
+            border-radius: var(--cmb-radius-sm);
+            font-size: 15px;
+            transition: all 0.3s;
+            background: var(--cmb-bg);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--cmb-red);
+            background: #FFFFFF;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+        }
+
+        .search-icon svg {
+            width: 100%;
+            height: 100%;
+            fill: var(--cmb-text-light);
+        }
+
+        .search-btn {
+            background: linear-gradient(135deg, var(--cmb-red), var(--cmb-red-dark));
+            color: #FFFFFF;
+            border: none;
+            padding: 12px 28px;
+            border-radius: var(--cmb-radius-sm);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .search-btn:hover {
+            box-shadow: 0 4px 12px rgba(196,18,48,0.4);
+            transform: translateY(-1px);
+        }
+
+        .search-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .search-tag {
+            background: var(--cmb-red-light);
+            color: var(--cmb-red-dark);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .search-tag:hover {
+            background: var(--cmb-red);
+            color: #FFFFFF;
+        }
+
+        /* ========== 主内容区 ========== */
+        .main-content {
+            margin: 0 32px;
+            display: none;
+        }
+
+        .main-content.active {
+            display: block;
+        }
+
+        /* Tab导航 */
+        .content-tabs {
+            display: flex;
+            gap: 4px;
+            background: var(--cmb-card-bg);
+            border-radius: var(--cmb-radius);
+            padding: 8px;
+            box-shadow: var(--cmb-shadow);
+            margin-bottom: 24px;
+        }
+
+        .content-tab {
+            flex: 1;
+            padding: 14px 24px;
+            border-radius: var(--cmb-radius-sm);
+            font-size: 15px;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: transparent;
+            color: var(--cmb-text-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .content-tab:hover {
+            background: var(--cmb-bg);
+            color: var(--cmb-text);
+        }
+
+        .content-tab.active {
+            background: linear-gradient(135deg, var(--cmb-red), var(--cmb-red-dark));
+            color: #FFFFFF;
+            box-shadow: 0 2px 8px rgba(196,18,48,0.3);
+        }
+
+        .tab-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .tab-icon svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .content-tab.active .tab-icon svg { fill: #FFFFFF; }
+        .content-tab:not(.active) .tab-icon svg { fill: var(--cmb-text-light); }
+
+        /* ========== 企业基本信息 ========== */
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .info-card {
+            background: var(--cmb-card-bg);
+            border-radius: var(--cmb-radius);
+            padding: 24px;
+            box-shadow: var(--cmb-shadow);
+            border: 1px solid var(--cmb-border);
+        }
+
+        .info-card-full {
+            grid-column: 1 / -1;
+        }
+
+        .info-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--cmb-red);
+        }
+
+        .info-card-title {
+            font-size: 16px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-card-title-icon {
+            width: 20px;
+            height: 20px;
+            background: var(--cmb-red-light);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .info-card-title-icon svg {
+            width: 12px;
+            height: 12px;
+            fill: var(--cmb-red);
+        }
+
+        .info-source-tag {
+            font-size: 11px;
+            color: var(--cmb-text-light);
+            background: var(--cmb-bg);
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        .info-row {
+            display: flex;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--cmb-border);
+        }
+
+        .info-row:last-child { border-bottom: none; }
+
+        .info-label {
+            width: 120px;
+            font-size: 13px;
+            color: var(--cmb-text-light);
+            font-weight: 500;
+        }
+
+        .info-value {
+            flex: 1;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .info-value.highlight {
+            color: var(--cmb-red);
+        }
+
+        .info-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .info-tag {
+            padding: 2px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .info-tag.blue { background: var(--cmb-blue-light); color: var(--cmb-blue); }
+        .info-tag.red { background: var(--cmb-red-light); color: var(--cmb-red); }
+        .info-tag.green { background: var(--cmb-green-light); color: var(--cmb-green); }
+        .info-tag.orange { background: var(--cmb-orange-light); color: var(--cmb-orange); }
+
+        /* 股东结构条 */
+        .shareholder-bar {
+            display: flex;
+            height: 24px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 12px 0;
+        }
+
+        .shareholder-segment {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: #FFFFFF;
+            font-weight: 600;
+            padding: 0 8px;
+            white-space: nowrap;
+        }
+
+        /* ========== 客户智能分析 ========== */
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+
+        .analysis-card {
+            background: var(--cmb-card-bg);
+            border-radius: var(--cmb-radius);
+            padding: 24px;
+            box-shadow: var(--cmb-shadow);
+            border: 1px solid var(--cmb-border);
+        }
+
+        /* 评分雷达图 */
+        .score-radar {
+            text-align: center;
+        }
+
+        .radar-svg-container {
+            width: 280px;
+            height: 280px;
+            margin: 16px auto;
+            position: relative;
+        }
+
+        .overall-score {
+            margin-top: 16px;
+        }
+
+        .overall-score-value {
+            font-size: 48px;
+            font-weight: 800;
+            color: var(--cmb-red);
+            line-height: 1;
+        }
+
+        .overall-score-label {
+            font-size: 14px;
+            color: var(--cmb-text-light);
+            margin-top: 4px;
+        }
+
+        .score-grade {
+            display: inline-block;
+            background: var(--cmb-red);
+            color: #FFFFFF;
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+
+        /* 评分维度列表 */
+        .score-dimensions {
+            margin-top: 20px;
+        }
+
+        .score-dim-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--cmb-border);
+        }
+
+        .score-dim-item:last-child { border-bottom: none; }
+
+        .score-dim-label {
+            width: 100px;
+            font-size: 13px;
+            color: var(--cmb-text-light);
+        }
+
+        .score-dim-bar {
+            flex: 1;
+            height: 8px;
+            background: var(--cmb-bg);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .score-dim-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+
+        .score-dim-value {
+            width: 40px;
+            text-align: right;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        /* 推荐产品卡片 */
+        .product-rec-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .product-rec-item {
+            background: var(--cmb-bg);
+            border-radius: var(--cmb-radius-sm);
+            padding: 16px;
+            border: 1px solid var(--cmb-border);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .product-rec-item:hover {
+            border-color: var(--cmb-red);
+            background: var(--cmb-red-light);
+        }
+
+        .product-rec-name {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .product-rec-fit {
+            font-size: 12px;
+            color: var(--cmb-text-light);
+        }
+
+        .product-fit-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .fit-high { background: var(--cmb-green-light); color: var(--cmb-green); }
+        .fit-medium { background: var(--cmb-orange-light); color: var(--cmb-orange); }
+        .fit-low { background: var(--cmb-bg); color: var(--cmb-text-light); }
+
+        /* 行动建议 */
+        .action-suggestion {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-radius: var(--cmb-radius);
+            padding: 24px;
+            color: #FFFFFF;
+            margin-top: 16px;
+        }
+
+        .action-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-steps {
+            list-style: none;
+            counter-reset: step;
+        }
+
+        .action-steps li {
+            counter-increment: step;
+            padding: 8px 0;
+            font-size: 14px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .action-steps li:last-child { border-bottom: none; }
+
+        .action-steps li::before {
+            content: counter(step);
+            background: var(--cmb-red);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        /* 财务图表区 */
+        .chart-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .chart-card {
+            background: var(--cmb-card-bg);
+            border-radius: var(--cmb-radius);
+            padding: 24px;
+            box-shadow: var(--cmb-shadow);
+            border: 1px solid var(--cmb-border);
+        }
+
+        .chart-title {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chart-title-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .chart-canvas {
+            width: 100%;
+            height: 220px;
+            position: relative;
+        }
+
+        .chart-conclusion {
+            margin-top: 12px;
+            padding: 12px 16px;
+            border-radius: var(--cmb-radius-sm);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .chart-conclusion.warning {
+            background: var(--cmb-orange-light);
+            color: var(--cmb-orange);
+            border-left: 3px solid var(--cmb-orange);
+        }
+
+        .chart-conclusion.good {
+            background: var(--cmb-green-light);
+            color: var(--cmb-green);
+            border-left: 3px solid var(--cmb-green);
+        }
+
+        .chart-conclusion.info {
+            background: var(--cmb-blue-light);
+            color: var(--cmb-blue);
+            border-left: 3px solid var(--cmb-blue);
+        }
+
+        /* 适配性建议 */
+        .fit-suggestion {
+            background: var(--cmb-card-bg);
+            border-radius: var(--cmb-radius);
+            padding: 24px;
+            box-shadow: var(--cmb-shadow);
+            border: 1px solid var(--cmb-border);
+            margin-top: 20px;
+        }
+
+        .fit-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .fit-item {
+            text-align: center;
+            padding: 16px;
+            border-radius: var(--cmb-radius-sm);
+            border: 1px solid var(--cmb-border);
+            transition: all 0.3s;
+        }
+
+        .fit-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--cmb-shadow);
+        }
+
+        .fit-item-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .fit-item-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .fit-item-level {
+            font-size: 12px;
+            padding: 2px 10px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .fit-high-bg { background: var(--cmb-green-light); color: var(--cmb-green); }
+        .fit-medium-bg { background: var(--cmb-orange-light); color: var(--cmb-orange); }
+        .fit-explore-bg { background: var(--cmb-purple-light); color: var(--cmb-purple); }
+        .fit-low-bg { background: var(--cmb-bg); color: var(--cmb-text-light); }
+
+        /* ========== 客户开发策略 ========== */
+        .development-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .development-card {
+            background: var(--cmb-card-bg);
+            border-radius: var(--cmb-radius);
+            padding: 24px;
+            box-shadow: var(--cmb-shadow);
+            border: 1px solid var(--cmb-border);
+            min-height: 220px;
+        }
+
+        .development-card-full {
+            grid-column: 1 / -1;
+            min-height: auto;
+        }
+
+        .development-positioning {
+            background: var(--cmb-blue-light);
+            color: var(--cmb-blue);
+            border-left: 3px solid var(--cmb-blue);
+            border-radius: var(--cmb-radius-sm);
+            padding: 14px 16px;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .development-section-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--cmb-text);
+            margin: 18px 0 8px;
+        }
+
+        .development-list {
+            list-style: none;
+        }
+
+        .development-list li {
+            position: relative;
+            padding: 8px 0 8px 18px;
+            border-bottom: 1px solid var(--cmb-border);
+            font-size: 13px;
+            line-height: 1.55;
+            color: var(--cmb-text);
+        }
+
+        .development-list li:last-child {
+            border-bottom: none;
+        }
+
+        .development-list li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 15px;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--cmb-red);
+        }
+
+        .opportunity-item {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--cmb-border);
+        }
+
+        .opportunity-item:last-child {
+            border-bottom: none;
+        }
+
+        .opportunity-topline {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 6px;
+        }
+
+        .opportunity-name {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .priority-badge {
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+
+        .priority-high { background: var(--cmb-green-light); color: var(--cmb-green); }
+        .priority-medium { background: var(--cmb-orange-light); color: var(--cmb-orange); }
+        .priority-watch { background: var(--cmb-bg); color: var(--cmb-text-light); }
+
+        /* ========== KYC尽职调查报告 ========== */
+        .report-section {
+            background: var(--cmb-card-bg);
+            border-radius: var(--cmb-radius);
+            padding: 32px;
+            box-shadow: var(--cmb-shadow);
+            border: 1px solid var(--cmb-border);
+        }
+
+        .report-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--cmb-red);
+        }
+
+        .report-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .report-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .report-btn {
+            padding: 8px 16px;
+            border-radius: var(--cmb-radius-sm);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .report-btn-primary {
+            background: var(--cmb-red);
+            color: #FFFFFF;
+            border: none;
+        }
+
+        .report-btn-primary:hover {
+            background: var(--cmb-red-dark);
+        }
+
+        .report-btn-outline {
+            background: transparent;
+            color: var(--cmb-text);
+            border: 1px solid var(--cmb-border);
+        }
+
+        .report-btn-outline:hover {
+            border-color: var(--cmb-red);
+            color: var(--cmb-red);
+        }
+
+        .report-block {
+            margin-bottom: 24px;
+        }
+
+        .report-block-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--cmb-border);
+        }
+
+        .report-block-title .block-num {
+            background: var(--cmb-red);
+            color: #FFFFFF;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .report-checklist {
+            list-style: none;
+        }
+
+        .report-checklist li {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--cmb-border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+
+        .report-checklist li:last-child { border-bottom: none; }
+
+        .check-icon {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .check-pass {
+            background: var(--cmb-green-light);
+            color: var(--cmb-green);
+        }
+
+        .check-warn {
+            background: var(--cmb-orange-light);
+            color: var(--cmb-orange);
+        }
+
+        .check-fail {
+            background: var(--cmb-red-light);
+            color: var(--cmb-red);
+        }
+
+        .check-pending {
+            background: var(--cmb-bg);
+            color: var(--cmb-text-light);
+        }
+
+        .risk-level-bar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 16px 0;
+        }
+
+        .risk-level-indicator {
+            display: flex;
+            gap: 4px;
+        }
+
+        .risk-dot {
+            width: 32px;
+            height: 8px;
+            border-radius: 4px;
+            background: var(--cmb-bg);
+        }
+
+        .risk-dot.active-green { background: var(--cmb-green); }
+        .risk-dot.active-orange { background: var(--cmb-orange); }
+        .risk-dot.active-red { background: var(--cmb-red); }
+
+        .risk-label {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* AML合规区 */
+        .aml-section {
+            background: var(--cmb-red-light);
+            border-radius: var(--cmb-radius-sm);
+            padding: 20px;
+            margin-top: 16px;
+            border-left: 4px solid var(--cmb-red);
+        }
+
+        .aml-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--cmb-red);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .aml-list {
+            list-style: none;
+        }
+
+        .aml-list li {
+            padding: 8px 0;
+            font-size: 13px;
+            color: var(--cmb-red-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* ========== 页脚 ========== */
+        .page-footer {
+            text-align: center;
+            padding: 24px 32px;
+            margin-top: 32px;
+            color: var(--cmb-text-light);
+            font-size: 12px;
+            border-top: 1px solid var(--cmb-border);
+        }
+
+        .footer-brand {
+            font-weight: 600;
+            color: var(--cmb-red);
+        }
+
+        /* ========== 响应式 ========== */
+        @media (max-width: 1200px) {
+            .dev-cards { grid-template-columns: 1fr; }
+            .info-grid { grid-template-columns: 1fr; }
+            .analysis-grid { grid-template-columns: 1fr; }
+            .development-grid { grid-template-columns: 1fr; }
+            .chart-section { grid-template-columns: 1fr; }
+            .fit-grid { grid-template-columns: repeat(2, 1fr); }
+            .product-rec-grid { grid-template-columns: 1fr; }
+            .training-module-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .training-detail-grid { grid-template-columns: 1fr; }
+        }
+
+        /* ========== 动画 ========== */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .score-dim-fill {
+            animation: fillBar 1.2s ease forwards;
+        }
+
+        @keyframes fillBar {
+            from { width: 0; }
+        }
+
+        /* ========== 占位提示 ========== */
+        .empty-state {
+            text-align: center;
+            padding: 80px 40px;
+            color: var(--cmb-text-light);
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.4;
+        }
+
+        .empty-state-text {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .empty-state-hint {
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ========== 顶部导航 ========== -->
+<nav class="top-nav">
+    <div class="nav-left">
+        <span class="platform-name">KYC智能尽调平台</span>
+    </div>
+    <div class="nav-right">
+        <span class="nav-badge">对公业务专版</span>
+        <div class="nav-user">
+            <div class="nav-user-avatar">金</div>
+            <span>老金 · 对公客户经理助手</span>
+        </div>
+    </div>
+</nav>
+
+<!-- ========== 客户开发横幅 ========== -->
+<div class="dev-banner">
+    <div class="dev-banner-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+        </svg>
+    </div>
+    <div class="dev-banner-content">
+        <div class="dev-banner-title">客户开发 — 核心源头工作</div>
+        <div class="dev-banner-desc">KYC（Know Your Customer）即"了解你的客户"，是银行防范洗钱、恐怖融资等金融风险的基本制度，要求对客户身份、业务及财务状况进行全面了解和核实。平台赋能客户经理从拓客、尽调到方案设计全流程。</div>
+    </div>
+    <div class="dev-banner-actions">
+        <button class="dev-action-btn active" onclick="scrollToCards()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 2.01-.7 2.88l1.46 1.46C19.54 15.06 20 13.56 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-2.01.7-2.88l-1.46-1.46C4.46 8.94 4 10.44 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/></svg>
+            快速入口
+        </button>
+        <button class="dev-action-btn" onclick="showSearch()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 7 9.5 7 14 9.01 14 9.5 11.99 14 9.5 14z"/></svg>
+            查询客户
+        </button>
+        <button class="dev-action-btn" onclick="showTraining()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .35.35.6.65.4C3 20.4 4.95 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.7 1.05.3.15.65-.1.65-.4V6c-.6-.45-1.25-.75-1.85-1zM12 19c-1.45-.9-3.45-1.3-5.5-1.3-1.15 0-2.3.1-3.5.4V7.25c1.05-.35 2.25-.55 3.5-.55 2.05 0 4.05.4 5.5 1.3V19zm8-1c-1.1-.2-2.25-.3-3.5-.3-2.05 0-4.05.4-5.5 1.3V8c1.45-.9 3.45-1.3 5.5-1.3 1.25 0 2.45.2 3.5.55V18z"/></svg>
+            培训训练
+        </button>
+    </div>
+</div>
+
+<!-- ========== 客户开发三卡片 ========== -->
+<div class="dev-cards" id="devCards">
+    <!-- 存量客户深耕 -->
+    <div class="dev-card card-deep" onclick="showSearch()">
+        <div class="dev-card-icon">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+            </svg>
+        </div>
+        <div class="dev-card-title">存量客户深耕</div>
+        <div class="dev-card-subtitle">挖掘现有客户新增需求，提升综合贡献度</div>
+        <ul class="dev-card-list">
+            <li>梳理支行现有企业客户清单</li>
+            <li>上门走访对接财务/老板</li>
+            <li>挖掘新增需求：结算、代发、票据、贷款</li>
+            <li>保函、供应链、理财、对公存款</li>
+            <li>员工个人业务联动（公私联动）</li>
+        </ul>
+    </div>
+
+    <!-- 增量新客户拓展 -->
+    <div class="dev-card card-new" onclick="showSearch()">
+        <div class="dev-card-icon">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+        </div>
+        <div class="dev-card-title">增量新客户拓展</div>
+        <div class="dev-card-subtitle">多渠道获客，精准筛选目标行业</div>
+        <ul class="dev-card-list">
+            <li>线下：产业园、商会、税务/工商、上下游</li>
+            <li>线上：政府招投标平台、行业协会、名录</li>
+            <li>同行转介、老客户转介绍</li>
+            <li>筛选目标：制造业、商贸、建筑、物流</li>
+            <li>政府平台、小微企业、规上企业</li>
+        </ul>
+    </div>
+
+    <!-- 客户准入尽调前置 -->
+    <div class="dev-card card-kyc" onclick="showSearch()">
+        <div class="dev-card-icon">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+            </svg>
+        </div>
+        <div class="dev-card-title">客户准入尽调前置</div>
+        <div class="dev-card-subtitle">初筛经营、负债、征信、行业风险</div>
+        <ul class="dev-card-list">
+            <li>初次对接收集企业基础资料</li>
+            <li>初步判断经营真实性</li>
+            <li>负债水平与征信状况评估</li>
+            <li>行业风险评级与准入判定</li>
+            <li>筛选可合作客户，排除高风险主体</li>
+        </ul>
+    </div>
+</div>
+
+<!-- ========== 对公客户经理培训中心 ========== -->
+<section class="training-center" id="trainingCenter">
+    <div class="training-header">
+        <div>
+            <div class="training-title">对公客户经理训练营</div>
+            <div class="training-subtitle">围绕客户开发、需求挖掘、准入尽调、产品组合与合规红线，沉淀一线客户经理可复用的训练场景。</div>
+        </div>
+        <div class="training-badge">职责导向 · 情景演练</div>
+    </div>
+
+    <div class="training-module-grid" id="trainingModuleGrid"></div>
+
+    <div class="training-detail-grid">
+        <div class="training-panel">
+            <div class="training-panel-title">训练场景</div>
+            <div class="training-scenario" id="trainingScenario">--</div>
+            <div class="training-panel-title">动作清单</div>
+            <ul class="training-list" id="trainingChecklist"></ul>
+        </div>
+
+        <div class="training-panel">
+            <div class="training-panel-title">拜访话术</div>
+            <div class="training-script" id="trainingScript">--</div>
+            <div class="training-panel-title" style="margin-top:16px;">情景判断</div>
+            <div class="training-script" id="trainingQuiz">--</div>
+            <div class="training-quiz-options" id="trainingQuizOptions"></div>
+            <div class="training-feedback" id="trainingFeedback"></div>
+        </div>
+    </div>
+</section>
+
+<!-- ========== 搜索栏 ========== -->
+<div class="search-section" id="searchSection">
+    <span class="search-label">🔍 客户查询</span>
+    <div class="search-input-wrapper">
+        <div class="search-icon">
+            <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 7 9.5 7 14 9.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        </div>
+        <input type="text" class="search-input" id="searchInput" placeholder="输入关键词搜索：比亚迪、宁德时代、腾讯、中国建筑、顺丰、中国移动、招商代码或行业…" onkeydown="if(event.key==='Enter')doSearch()">
+        <div class="search-tags">
+            <span class="search-tag" onclick="quickSearch('比亚迪')">比亚迪</span>
+            <span class="search-tag" onclick="quickSearch('宁德时代')">宁德时代</span>
+            <span class="search-tag" onclick="quickSearch('腾讯')">腾讯</span>
+            <span class="search-tag" onclick="quickSearch('中国建筑')">中国建筑</span>
+            <span class="search-tag" onclick="quickSearch('顺丰')">顺丰</span>
+            <span class="search-tag" onclick="quickSearch('中国移动')">中国移动</span>
+            <span class="search-tag" onclick="quickSearch('制造业')">制造业</span>
+            <span class="search-tag" onclick="quickSearch('商贸')">商贸</span>
+            <span class="search-tag" onclick="quickSearch('建筑')">建筑</span>
+            <span class="search-tag" onclick="quickSearch('物流')">物流</span>
+            <span class="search-tag" onclick="quickSearch('政府')">政府平台</span>
+            <span class="search-tag" onclick="quickSearch('小微')">小微企业</span>
+        </div>
+    </div>
+    <button class="search-btn" onclick="doSearch()">查询分析</button>
+</div>
+
+<!-- ========== 主内容区（查询后显示） ========== -->
+<div class="main-content" id="mainContent">
+
+    <!-- Tab导航 -->
+    <div class="content-tabs">
+        <div class="content-tab active" onclick="switchTab('basic')" id="tabBasic">
+            <div class="tab-icon"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div>
+            企业基本信息
+        </div>
+        <div class="content-tab" onclick="switchTab('analysis')" id="tabAnalysis">
+            <div class="tab-icon"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg></div>
+            客户智能分析
+        </div>
+        <div class="content-tab" onclick="switchTab('development')" id="tabDevelopment">
+            <div class="tab-icon"><svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4L19.71 9.7 22 12V6h-6z"/></svg></div>
+            客户开发策略
+        </div>
+        <div class="content-tab" onclick="switchTab('report')" id="tabReport">
+            <div class="tab-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg></div>
+            KYC尽职调查报告
+        </div>
+    </div>
+
+    <!-- ===== 企业基本信息 ===== -->
+    <div class="tab-panel active" id="panelBasic">
+        <div class="info-grid">
+            <!-- 核心登记信息 -->
+            <div class="info-card">
+                <div class="info-card-header">
+                    <div class="info-card-title">
+                        <div class="info-card-title-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/></svg></div>
+                        核心登记信息
+                    </div>
+                    <span class="info-source-tag">数据来源：国家企业信用信息公示系统</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">企业名称</span>
+                    <span class="info-value" id="entName">--</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">统一社会信用代码</span>
+                    <span class="info-value" id="entCode">--</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">法定代表人</span>
+                    <span class="info-value" id="entLegal">--</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">成立日期</span>
+                    <span class="info-value" id="entDate">--</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">注册资本</span>
+                    <span class="info-value highlight" id="entCapital">--</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">登记状态</span>
+                    <span class="info-value" id="entStatus">--</span>
+                </div>
+            </div>
+
+            <!-- 经营与行业信息 -->
+            <div class="info-card">
+                <div class="info-card-header">
+                    <div class="info-card-title">
+                        <div class="info-card-title-icon"><svg viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/></svg></div>
+                        经营与行业信息
+                    </div>
+                    <span class="info-source-tag">数据来源：工商登记 + 行业分类库</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">经营范围</span>
+                    <span class="info-value" id="entScope">--</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">所属行业</span>
+                    <span class="info-value" id="entIndustry">--</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">企业类型</span>
+                    <span class="info-value" id="entType">--</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">经营期限</span>
+                    <span class="info-value" id="entTerm">--</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">行业标签</span>
+                    <span class="info-value"><div class="info-tags" id="entTags">--</div></span>
+                </div>
+            </div>
+
+            <!-- 股东与股权结构 -->
+            <div class="info-card info-card-full">
+                <div class="info-card-header">
+                    <div class="info-card-title">
+                        <div class="info-card-title-icon"><svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg></div>
+                        股东与股权结构
+                    </div>
+                    <span class="info-source-tag">数据来源：工商登记 + 企业年报</span>
+                </div>
+                <div class="shareholder-bar" id="shareholderBar">
+                    <!-- JS动态填充 -->
+                </div>
+                <div id="shareholderList">
+                    <!-- JS动态填充 -->
+                </div>
+            </div>
+
+            <!-- 关联风险信息 -->
+            <div class="info-card info-card-full">
+                <div class="info-card-header">
+                    <div class="info-card-title">
+                        <div class="info-card-title-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg></div>
+                        关联风险信息
+                    </div>
+                    <span class="info-source-tag">数据来源：司法公告 + 行政处罚 + 征信系统</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">司法诉讼</span>
+                    <span class="info-value" id="entLawsuit">--</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">行政处罚</span>
+                    <span class="info-value" id="entPenalty">--</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">经营异常</span>
+                    <span class="info-value" id="entAbnormal">--</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">失信记录</span>
+                    <span class="info-value" id="entDishonest">--</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">关联企业</span>
+                    <span class="info-value" id="entRelated">--</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 客户智能分析 ===== -->
+    <div class="tab-panel" id="panelAnalysis">
+        <div class="analysis-grid">
+            <!-- 左侧：评分与分级 -->
+            <div class="analysis-card">
+                <div class="info-card-header">
+                    <div class="info-card-title">
+                        <div class="info-card-title-icon"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg></div>
+                        AI多维度评分模型
+                    </div>
+                    <span class="info-source-tag">AI模型 v3.2</span>
+                </div>
+
+                <!-- 雷达图 -->
+                <div class="score-radar">
+                    <div class="radar-svg-container">
+                        <svg viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg" id="radarChart">
+                            <!-- JS动态绘制 -->
+                        </svg>
+                    </div>
+                    <div class="overall-score">
+                        <div class="overall-score-value" id="overallScore">--</div>
+                        <div class="overall-score-label">综合评分</div>
+                        <div class="score-grade" id="scoreGrade">--</div>
+                    </div>
+                </div>
+
+                <!-- 评分维度列表 -->
+                <div class="score-dimensions" id="scoreDimensions">
+                    <!-- JS动态填充 -->
+                </div>
+            </div>
+
+            <!-- 右侧：推荐与建议 -->
+            <div>
+                <!-- 个性化推荐产品 -->
+                <div class="analysis-card">
+                    <div class="info-card-header">
+                        <div class="info-card-title">
+                            <div class="info-card-title-icon"><svg viewBox="0 0 24 24"><path d="M12 2l-5.5 9h11L12 2zm0 15l-5.5-9h11L12 17z"/></svg></div>
+                            个性化产品推荐
+                        </div>
+                        <span class="info-source-tag">基于客户画像与行业匹配</span>
+                    </div>
+                    <div class="product-rec-grid" id="productRecGrid">
+                        <!-- JS动态填充 -->
+                    </div>
+                </div>
+
+                <!-- 下一步行动建议 -->
+                <div class="action-suggestion">
+                    <div class="action-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                        客户经理下一步行动建议
+                    </div>
+                    <ol class="action-steps" id="actionSteps">
+                        <!-- JS动态填充 -->
+                    </ol>
+                </div>
+
+                <!-- 财务可视化分析 -->
+                <div class="chart-section">
+                    <div class="chart-card">
+                        <div class="chart-title">
+                            <span class="chart-title-dot" style="background:var(--cmb-blue)"></span>
+                            营收与利润趋势
+                        </div>
+                        <div class="chart-canvas">
+                            <canvas id="chartRevenue" width="400" height="220"></canvas>
+                        </div>
+                        <div class="chart-conclusion good" id="revenueConclusion">
+                            <!-- JS动态填充 -->
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-title">
+                            <span class="chart-title-dot" style="background:var(--cmb-red)"></span>
+                            资产负债结构
+                        </div>
+                        <div class="chart-canvas">
+                            <canvas id="chartDebt" width="400" height="220"></canvas>
+                        </div>
+                        <div class="chart-conclusion warning" id="debtConclusion">
+                            <!-- JS动态填充 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 业务适配性建议 -->
+                <div class="fit-suggestion">
+                    <div class="info-card-header">
+                        <div class="info-card-title">
+                            <div class="info-card-title-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg></div>
+                            业务适配性建议
+                        </div>
+                    </div>
+                    <div class="fit-grid" id="fitGrid">
+                        <!-- JS动态填充 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 客户开发策略 ===== -->
+    <div class="tab-panel" id="panelDevelopment">
+        <div class="development-grid">
+            <div class="development-card development-card-full">
+                <div class="info-card-header">
+                    <div class="info-card-title">
+                        <div class="info-card-title-icon"><svg viewBox="0 0 24 24"><path d="M12 2L4 5v6c0 5 3.4 9.7 8 11 4.6-1.3 8-6 8-11V5l-8-3zm0 4.2l4 1.5v3.3c0 3.2-1.7 6.3-4 7.6-2.3-1.3-4-4.4-4-7.6V7.7l4-1.5z"/></svg></div>
+                        客户定位与开发判断
+                    </div>
+                    <span class="info-source-tag">基于企业画像与客户经理职责</span>
+                </div>
+                <div class="development-positioning" id="developmentPositioning">--</div>
+            </div>
+
+            <div class="development-card">
+                <div class="info-card-header">
+                    <div class="info-card-title">
+                        <div class="info-card-title-icon"><svg viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg></div>
+                        存量客户深耕
+                    </div>
+                </div>
+                <div class="development-section-title">机会地图</div>
+                <div id="deepeningOpportunities"></div>
+                <div class="development-section-title">走访问法</div>
+                <ul class="development-list" id="deepeningQuestions"></ul>
+            </div>
+
+            <div class="development-card">
+                <div class="info-card-header">
+                    <div class="info-card-title">
+                        <div class="info-card-title-icon"><svg viewBox="0 0 24 24"><path d="M12 2l4 8h8l-6.5 4.7 2.5 7.3-8-5.2-8 5.2 2.5-7.3L0 10h8l4-8z"/></svg></div>
+                        增量新客户拓展
+                    </div>
+                </div>
+                <div class="development-section-title">推荐渠道</div>
+                <ul class="development-list" id="acquisitionChannels"></ul>
+                <div class="development-section-title">筛选标准</div>
+                <ul class="development-list" id="acquisitionCriteria"></ul>
+                <div class="development-section-title">首次触达话术</div>
+                <div class="chart-conclusion info" id="firstContactPitch"></div>
+            </div>
+
+            <div class="development-card">
+                <div class="info-card-header">
+                    <div class="info-card-title">
+                        <div class="info-card-title-icon"><svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.5 3.8 10.7 9 12 5.2-1.3 9-6.5 9-12V5l-9-4zm-1 15.5L6.8 12.3l1.4-1.4 2.8 2.8 5.8-5.8 1.4 1.4-7.2 7.2z"/></svg></div>
+                        准入尽调前置
+                    </div>
+                </div>
+                <div class="development-section-title">资料清单</div>
+                <ul class="development-list" id="dueMaterials"></ul>
+                <div class="development-section-title">风险关注</div>
+                <ul class="development-list" id="dueRiskFocus"></ul>
+                <div class="development-section-title">红线信号</div>
+                <ul class="development-list" id="dueRedFlags"></ul>
+            </div>
+
+            <div class="development-card development-card-full">
+                <div class="info-card-header">
+                    <div class="info-card-title">
+                        <div class="info-card-title-icon"><svg viewBox="0 0 24 24"><path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg></div>
+                        下一步行动清单
+                    </div>
+                    <span class="info-source-tag">须人工确认后执行</span>
+                </div>
+                <ol class="action-steps" id="developmentNextActions"></ol>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== KYC尽职调查报告 ===== -->
+    <div class="tab-panel" id="panelReport">
+        <div class="report-section">
+            <div class="report-header">
+                <div class="report-title">KYC尽职调查报告</div>
+                <div class="report-actions">
+                    <button class="report-btn report-btn-primary" onclick="exportReport()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+                        导出PDF
+                    </button>
+                    <button class="report-btn report-btn-outline" onclick="printReport()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>
+                        打印
+                    </button>
+                </div>
+            </div>
+
+            <!-- 1. 客户身份核实 -->
+            <div class="report-block">
+                <div class="report-block-title">
+                    <span class="block-num">1</span>
+                    客户身份核实
+                </div>
+                <ul class="report-checklist" id="identityChecklist">
+                    <!-- JS动态填充 -->
+                </ul>
+            </div>
+
+            <!-- 2. 经营实质验证 -->
+            <div class="report-block">
+                <div class="report-block-title">
+                    <span class="block-num">2</span>
+                    经营实质验证
+                </div>
+                <ul class="report-checklist" id="businessChecklist">
+                    <!-- JS动态填充 -->
+                </ul>
+            </div>
+
+            <!-- 3. 财务状况评估 -->
+            <div class="report-block">
+                <div class="report-block-title">
+                    <span class="block-num">3</span>
+                    财务状况评估
+                </div>
+                <ul class="report-checklist" id="financeChecklist">
+                    <!-- JS动态填充 -->
+                </ul>
+            </div>
+
+            <!-- 4. 风险等级评定 -->
+            <div class="report-block">
+                <div class="report-block-title">
+                    <span class="block-num">4</span>
+                    风险等级评定
+                </div>
+                <div class="risk-level-bar" id="riskLevelBar">
+                    <!-- JS动态填充 -->
+                </div>
+                <ul class="report-checklist" id="riskChecklist">
+                    <!-- JS动态填充 -->
+                </ul>
+            </div>
+
+            <!-- 5. 反洗钱合规审查 -->
+            <div class="report-block">
+                <div class="report-block-title">
+                    <span class="block-num">5</span>
+                    反洗钱合规审查
+                </div>
+                <div class="aml-section">
+                    <div class="aml-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+                        AML反洗钱尽调要点
+                    </div>
+                    <ul class="aml-list" id="amlChecklist">
+                        <!-- JS动态填充 -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 合规免责声明 -->
+            <div style="margin-top:24px; padding:16px; background:var(--cmb-bg); border-radius:var(--cmb-radius-sm); font-size:12px; color:var(--cmb-text-light); line-height:1.8; border-left:3px solid var(--cmb-text-light);">
+                <strong>合规提示：</strong>本KYC尽职调查报告基于公开数据及客户提供信息辅助生成，仅供客户经理参考。最终业务决策须以行内审批结论为准。涉及授信业务时，请务必落实贷款"三查"基本职责。任何业务办理均须严格遵守反洗钱法律法规及行内合规制度。
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== 空状态提示（未查询时） ========== -->
+<div class="empty-state" id="emptyState">
+    <div class="empty-state-icon">🔍</div>
+    <div class="empty-state-text">请输入企业名称或统一社会信用代码进行查询</div>
+    <div class="empty-state-hint">查询后将展示企业基本信息、客户智能分析及KYC尽职调查报告</div>
+</div>
+
+<!-- ========== 页脚 ========== -->
+<div class="page-footer">
+    <span class="footer-brand">招商银行</span> · KYC智能尽调平台 · 对公业务专版 &nbsp;|&nbsp; 本平台仅供内部业务辅助参考，最终决策须以行内审批结论为准
+</div>
+
+<script src="file_store/company_records.js"></script>
+<script>
+// ========== 模拟客户数据 ==========
+const MOCK_CLIENTS = [
+    // ===== 1. 制造业 — 规上企业 =====
+    {
+        keywords: ['华鑫', '精密', '制造', '制造业', '规上', '汽车零部件'],
+        name: '华鑫精密制造有限公司',
+        code: '91310115MA1K2XYZ01',
+        legal: '张某某',
+        date: '2015-03-18',
+        capital: '5000万元',
+        status: '存续（在营）',
+        scope: '精密机械零部件制造、加工及销售；汽车零部件研发与生产；工业自动化设备设计与安装',
+        industry: '制造业 / 通用设备制造',
+        type: '有限责任公司',
+        term: '2015-03-18 至 2045-03-17',
+        tags: [{text:'制造业', cls:'blue'}, {text:'规上企业', cls:'green'}, {text:'出口导向', cls:'orange'}, {text:'汽车供应链', cls:'red'}],
+        shareholders: [
+            {name: '张某某（实控人）', pct: 65, color: '#C41230'},
+            {name: '李某某', pct: 20, color: '#2B6CB0'},
+            {name: '员工持股平台', pct: 15, color: '#D4A843'}
+        ],
+        lawsuit: '3条记录（均为合同纠纷，已结案）',
+        penalty: '0条',
+        abnormal: '0条',
+        dishonest: '0条',
+        related: '2家关联企业（华鑫贸易、华鑫自动化）',
+        scores: {
+            overall: 82, grade: 'A',
+            dims: [
+                {label: '经营稳定性', value: 85, color: 'var(--cmb-blue)'},
+                {label: '财务健康度', value: 78, color: 'var(--cmb-green)'},
+                {label: '信用画像', value: 90, color: 'var(--cmb-gold)'},
+                {label: '行业前景', value: 72, color: 'var(--cmb-purple)'},
+                {label: '实控人评估', value: 88, color: 'var(--cmb-orange)'},
+                {label: '合规风险', value: 82, color: 'var(--cmb-red)'}
+            ]
+        },
+        products: [
+            {name: '流动资金贷款', fit: '高适配', cls: 'fit-high', reason: '制造业企业运营资金需求稳定'},
+            {name: '票据承兑/贴现', fit: '高适配', cls: 'fit-high', reason: '上下游结算场景丰富'},
+            {name: '薪福通代发', fit: '中适配', cls: 'fit-medium', reason: '规上企业员工代发需求'},
+            {name: '供应链金融', fit: '高适配', cls: 'fit-high', reason: '汽车供应链核心企业'},
+            {name: '对公理财', fit: '中适配', cls: 'fit-medium', reason: '资金闲置期理财需求'},
+            {name: '保函业务', fit: '中适配', cls: 'fit-medium', reason: '投标及履约保函需求'}
+        ],
+        actions: [
+            '优先对接企业财务负责人，重点了解近期流动资金缺口及票据使用情况',
+            '梳理该企业在汽车供应链中的上下游关系，设计供应链金融方案',
+            '走访企业了解员工代发需求，联动零售条线推进薪福通服务',
+            '关注出口业务变化，适时推介跨境结算与汇率风险管理产品',
+            '建立定期回访机制，每季度跟进经营变化与新增业务需求'
+        ],
+        revenueData: [
+            {year: '2022', revenue: 28000, profit: 3200},
+            {year: '2023', revenue: 32000, profit: 4100},
+            {year: '2024', revenue: 36500, profit: 4800},
+            {year: '2025', revenue: 41000, profit: 5600}
+        ],
+        debtData: {totalAssets: 85000, totalDebt: 38000, equity: 47000, currentRatio: 1.82, debtRatio: '44.7%'},
+        fitItems: [
+            {icon: '💰', name: '授信贷款', level: '高适配', cls: 'fit-high-bg'},
+            {icon: '📋', name: '票据业务', level: '高适配', cls: 'fit-high-bg'},
+            {icon: '🔗', name: '供应链金融', level: '高适配', cls: 'fit-high-bg'},
+            {icon: '👥', name: '代发工资', level: '中适配', cls: 'fit-medium-bg'},
+            {icon: '🏦', name: '对公存款', level: '中适配', cls: 'fit-medium-bg'},
+            {icon: '📝', name: '保函业务', level: '中适配', cls: 'fit-medium-bg'},
+            {icon: '📊', name: '对公理财', level: '中适配', cls: 'fit-medium-bg'},
+            {icon: '🌍', name: '跨境业务', level: '待探索', cls: 'fit-explore-bg'}
+        ],
+        riskLevel: 'low',
+        identityChecks: [
+            {text: '营业执照信息与工商登记一致', status: 'pass'},
+            {text: '法定代表人身份核实通过', status: 'pass'},
+            {text: '实际控制人识别完成（张某某，持股65%）', status: 'pass'},
+            {text: '注册地址实地核查 — 与经营地址一致', status: 'pass'},
+            {text: '联系方式验证（电话、邮箱有效）', status: 'pass'}
+        ],
+        businessChecks: [
+            {text: '主营业务与经营范围一致（精密制造）', status: 'pass'},
+            {text: '经营场所实地走访 — 生产车间正常运行', status: 'pass'},
+            {text: '员工规模核实（约320人，社保缴纳匹配）', status: 'pass'},
+            {text: '主要客户与供应商真实性验证', status: 'pass'},
+            {text: '近三年营收持续增长，经营可持续性良好', status: 'pass'},
+            {text: '出口业务占比约35%，需关注汇率风险', status: 'warn'}
+        ],
+        financeChecks: [
+            {text: '近三年财务报表获取完整', status: 'pass'},
+            {text: '资产负债率44.7%，处于合理区间', status: 'pass'},
+            {text: '流动比率1.82，短期偿债能力良好', status: 'pass'},
+            {text: '经营性现金流为正，现金生成能力稳定', status: 'pass'},
+            {text: '有息负债占比需进一步核实', status: 'warn'},
+            {text: '应收账款周转率同比微降，需关注回款', status: 'warn'}
+        ],
+        riskChecks: [
+            {text: '行业风险评级：制造业-中等偏低', status: 'pass'},
+            {text: '企业征信无不良记录', status: 'pass'},
+            {text: '实控人个人征信良好', status: 'pass'},
+            {text: '3条司法记录均为已结案合同纠纷', status: 'warn'},
+            {text: '2家关联企业需穿透核查关联交易', status: 'warn'}
+        ],
+        amlChecks: [
+            '客户身份识别完成，实际控制人为张某某',
+            '受益所有人识别完成（张某某，持股65%，超过25%阈值）',
+            '贸易背景真实性需持续关注（出口业务占比较高）',
+            '大额资金交易监控机制需建立',
+            '客户风险等级初判：中等偏低，需持续动态评估',
+            '关联企业资金往来需纳入监控范围'
+        ]
+    },
+    // ===== 2. 商贸 — 小微企业 =====
+    {
+        keywords: ['盛达', '商贸', '贸易', '商贸', '小微企业', '进出口'],
+        name: '盛达国际贸易有限公司',
+        code: '91440300MA5FGHJ36P',
+        legal: '陈某某',
+        date: '2018-07-22',
+        capital: '800万元',
+        status: '存续（在营）',
+        scope: '进出口贸易；国内贸易；供应链管理服务；仓储服务（不含危险化学品）；电子商务平台运营',
+        industry: '商贸 / 批发零售',
+        type: '有限责任公司',
+        term: '2018-07-22 至 长期',
+        tags: [{text:'商贸', cls:'orange'}, {text:'小微企业', cls:'blue'}, {text:'进出口', cls:'green'}, {text:'供应链服务', cls:'red'}],
+        shareholders: [
+            {name: '陈某某（实控人）', pct: 80, color: '#C41230'},
+            {name: '王某某', pct: 20, color: '#2B6CB0'}
+        ],
+        lawsuit: '1条记录（买卖合同纠纷，已结案）',
+        penalty: '0条',
+        abnormal: '0条',
+        dishonest: '0条',
+        related: '1家关联企业（盛达仓储服务）',
+        scores: {
+            overall: 68, grade: 'B',
+            dims: [
+                {label: '经营稳定性', value: 65, color: 'var(--cmb-blue)'},
+                {label: '财务健康度', value: 58, color: 'var(--cmb-green)'},
+                {label: '信用画像', value: 75, color: 'var(--cmb-gold)'},
+                {label: '行业前景', value: 70, color: 'var(--cmb-purple)'},
+                {label: '实控人评估', value: 72, color: 'var(--cmb-orange)'},
+                {label: '合规风险', value: 70, color: 'var(--cmb-red)'}
+            ]
+        },
+        products: [
+            {name: '贸易融资', fit: '高适配', cls: 'fit-high', reason: '进出口贸易场景资金周转需求大'},
+            {name: '票据贴现', fit: '高适配', cls: 'fit-high', reason: '商贸企业票据结算频繁'},
+            {name: '跨境结算', fit: '高适配', cls: 'fit-high', reason: '进出口业务需跨境支付与结汇'},
+            {name: '薪福通代发', fit: '中适配', cls: 'fit-medium', reason: '小微企业员工代发需求'},
+            {name: '对公存款', fit: '中适配', cls: 'fit-medium', reason: '结算资金沉淀'},
+            {name: '信用证', fit: '高适配', cls: 'fit-high', reason: '进口业务信用证需求明确'}
+        ],
+        actions: [
+            '优先对接实控人陈某某，了解进出口贸易规模与结算方式',
+            '重点推介贸易融资与跨境结算组合方案，匹配其核心业务需求',
+            '核实企业进出口海关数据，评估贸易背景真实性',
+            '关注小微企业财务规范性，建议完善财报以便后续授信评估',
+            '联动零售条线，推进员工代发及个人金融服务'
+        ],
+        revenueData: [
+            {year: '2022', revenue: 8500, profit: 580},
+            {year: '2023', revenue: 11200, profit: 760},
+            {year: '2024', revenue: 14800, profit: 1050},
+            {year: '2025', revenue: 17600, profit: 1320}
+        ],
+        debtData: {totalAssets: 22000, totalDebt: 13200, equity: 8800, currentRatio: 1.35, debtRatio: '60.0%'},
+        fitItems: [
+            {icon: '🌍', name: '跨境结算', level: '高适配', cls: 'fit-high-bg'},
+            {icon: '💰', name: '贸易融资', level: '高适配', cls: 'fit-high-bg'},
+            {icon: '📋', name: '票据业务', level: '高适配', cls: 'fit-high-bg'},
+            {icon: '📝', name: '信用证', level: '高适配', cls: 'fit-high-bg'},
+            {icon: '👥', name: '代发工资', level: '中适配', cls: 'fit-medium-bg'},
+            {icon: '🏦', name: '对公存款', level: '中适配', cls: 'fit-medium-bg'},
+            {icon: '📊', name: '对公理财', level: '待探索', cls: 'fit-explore-bg'},
+            {icon: '🔗', name: '供应链金融', level: '待探索', cls: 'fit-explore-bg'}
+        ],
+        riskLevel: 'medium',
+        identityChecks: [
+            {text: '营业执照信息与工商登记一致', status: 'pass'},
+            {text: '法定代表人身份核实通过', status: 'pass'},
+            {text: '实际控制人识别完成（陈某某，持股80%）', status: 'pass'},
+            {text: '注册地址实地核查 — 与经营地址一致', status: 'pass'},
+            {text: '联系方式验证（电话有效、邮箱未回复）', status: 'warn'}
+        ],
+        businessChecks: [
+            {text: '主营业务与经营范围一致（进出口贸易）', status: 'pass'},
+            {text: '经营场所核查 — 办公场所正常运营', status: 'pass'},
+            {text: '员工规模核实（约45人，社保缴纳基本匹配）', status: 'warn'},
+            {text: '进出口海关数据与企业陈述基本吻合', status: 'pass'},
+            {text: '营收增长较快但利润率偏低，需关注盈利可持续性', status: 'warn'},
+            {text: '客户集中度较高，前三大客户占比超60%', status: 'warn'}
+        ],
+        financeChecks: [
+            {text: '近两年财务报表获取完整（2024年财报尚未提供）', status: 'warn'},
+            {text: '资产负债率60.0%，处于偏高区间', status: 'warn'},
+            {text: '流动比率1.35，短期偿债能力偏弱', status: 'warn'},
+            {text: '经营性现金流为正但波动较大', status: 'warn'},
+            {text: '应收账款余额偏高，需核实回款周期', status: 'warn'},
+            {text: '小微企业财务规范性有待提升', status: 'warn'}
+        ],
+        riskChecks: [
+            {text: '行业风险评级：商贸-中等', status: 'pass'},
+            {text: '企业征信无不良记录', status: 'pass'},
+            {text: '实控人个人征信良好', status: 'pass'},
+            {text: '1条司法记录（已结案买卖合同纠纷）', status: 'pass'},
+            {text: '客户集中度风险需持续关注', status: 'warn'},
+            {text: '利润率偏低，经营可持续性需验证', status: 'warn'}
+        ],
+        amlChecks: [
+            '客户身份识别完成，实际控制人为陈某某',
+            '受益所有人识别完成（陈某某，持股80%，超过25%阈值）',
+            '进出口贸易背景真实性需逐笔核实',
+            '跨境资金往来需纳入反洗钱监控',
+            '客户风险等级初判：中等，需加强尽职调查频次',
+            '关联企业资金往来需纳入监控范围'
+        ]
+    },
+    // ===== 3. 建筑 — 中型企业 =====
+    {
+        keywords: ['宏城', '建筑', '工程', '建筑', '施工', '市政'],
+        name: '宏城建设工程有限公司',
+        code: '91320500MA1N8BQR45',
+        legal: '赵某某',
+        date: '2012-05-10',
+        capital: '3000万元',
+        status: '存续（在营）',
+        scope: '建筑工程施工总承包；市政公用工程施工；装饰装修工程设计与施工；钢结构工程；园林绿化工程',
+        industry: '建筑业 / 房屋建筑',
+        type: '有限责任公司',
+        term: '2012-05-10 至 长期',
+        tags: [{text:'建筑', cls:'orange'}, {text:'施工总承包', cls:'red'}, {text:'市政工程', cls:'blue'}, {text:'中型企业', cls:'green'}],
+        shareholders: [
+            {name: '赵某某（实控人）', pct: 55, color: '#C41230'},
+            {name: '周某某', pct: 25, color: '#2B6CB0'},
+            {name: '孙某某', pct: 20, color: '#D4A843'}
+        ],
+        lawsuit: '8条记录（含工程款纠纷5条、劳务纠纷2条、已结案6条/在审2条）',
+        penalty: '1条（安全生产轻微违规，已整改）',
+        abnormal: '0条',
+        dishonest: '0条',
+        related: '3家关联企业（宏城装饰、宏城钢结构、宏城园林）',
+        scores: {
+            overall: 62, grade: 'B',
+            dims: [
+                {label: '经营稳定性', value: 70, color: 'var(--cmb-blue)'},
+                {label: '财务健康度', value: 55, color: 'var(--cmb-green)'},
+                {label: '信用画像', value: 60, color: 'var(--cmb-gold)'},
+                {label: '行业前景', value: 65, color: 'var(--cmb-purple)'},
+                {label: '实控人评估', value: 68, color: 'var(--cmb-orange)'},
+                {label: '合规风险', value: 55, color: 'var(--cmb-red)'}
+            ]
+        },
+        products: [
+            {name: '保函业务', fit: '高适配', cls: 'fit-high', reason: '建筑企业投标/履约/预付款保函需求大'},
+            {name: '流动资金贷款', fit: '高适配', cls: 'fit-high', reason: '工程垫资与材料采购资金需求'},
+            {name: '票据承兑', fit: '中适配', cls: 'fit-medium', reason: '材料采购票据结算'},
+            {name: '薪福通代发', fit: '高适配', cls: 'fit-high', reason: '建筑企业大量农民工及员工代发'},
+            {name: '供应链金融', fit: '中适配', cls: 'fit-medium', reason: '建材供应链上下游结算'},
+            {name: '对公理财', fit: '低适配', cls: 'fit-low', reason: '建筑企业资金紧张，理财需求弱'}
+        ],
+        actions: [
+            '重点对接实控人赵某某及财务总监，了解在手项目及垫资情况',
+            '优先推进保函业务合作（投标保函、履约保函），匹配建筑行业核心需求',
+            '核实8条司法诉讼详情，评估在审2条案件对企业经营的影响',
+            '推进薪福通代发服务，建筑企业员工代发需求量大且可持续',
+            '建议适度授信但需严控额度，关注工程款回款与应收账款风险'
+        ],
+        revenueData: [
+            {year: '2022', revenue: 22000, profit: 1200},
+            {year: '2023', revenue: 28000, profit: 1500},
+            {year: '2024', revenue: 32000, profit: 900},
+            {year: '2025', revenue: 35000, profit: 1100}
+        ],
+        debtData: {totalAssets: 48000, totalDebt: 30000, equity: 18000, currentRatio: 1.15, debtRatio: '62.5%'},
+        fitItems: [
+            {icon: '📝', name: '保函业务', level: '高适配', cls: 'fit-high-bg'},
+            {icon: '💰', name: '授信贷款', level: '高适配', cls: 'fit-high-bg'},
+            {icon: '👥', name: '代发工资', level: '高适配', cls: 'fit-high-bg'},
+            {icon: '📋', name: '票据业务', level: '中适配', cls: 'fit-medium-bg'},
+            {icon: '🔗', name: '供应链金融', level: '中适配', cls: 'fit-medium-bg'},
+            {icon: '🏦', name: '对公存款', level: '中适配', cls: 'fit-medium-bg'},
+            {icon: '📊', name: '对公理财', level: '低适配', cls: 'fit-low-bg'},
+            {icon: '🌍', name: '跨境业务', level: '待探索', cls: 'fit-explore-bg'}
+        ],
+        riskLevel: 'medium',
+        identityChecks: [
+            {text: '营业执照信息与工商登记一致', status: 'pass'},
+            {text: '法定代表人身份核实通过', status: 'pass'},
+            {text: '实际控制人识别完成（赵某某，持股55%）', status: 'pass'},
+            {text: '注册地址实地核查 — 与经营地址一致', status: 'pass'},
+            {text: '联系方式验证通过', status: 'pass'}
+        ],
+        businessChecks: [
+            {text: '主营业务与经营范围一致（建筑施工总承包）', status: 'pass'},
+            {text: '经营场所实地走访 — 办公及项目部正常运营', status: 'pass'},
+            {text: '员工规模核实（约280人，社保缴纳基本匹配）', status: 'warn'},
+            {text: '在手项目核实：5个在建项目，合同总金额约1.2亿', status: 'pass'},
+            {text: '8条司法记录需逐条核查影响', status: 'warn'},
+            {text: '利润率下滑趋势需关注（2024年利润率仅2.8%）', status: 'warn'}
+        ],
+        financeChecks: [
+            {text: '近三年财务报表获取完整', status: 'pass'},
+            {text: '资产负债率62.5%，处于偏高区间', status: 'warn'},
+            {text: '流动比率1.15，短期偿债能力偏弱', status: 'warn'},
+            {text: '经营性现金流波动大，部分年度为负', status: 'warn'},
+            {text: '应收账款余额较高（工程款回款周期长）', status: 'warn'},
+            {text: '关联企业间资金往来需穿透核查', status: 'warn'}
+        ],
+        riskChecks: [
+            {text: '行业风险评级：建筑业-中等偏高', status: 'warn'},
+            {text: '企业征信无不良记录', status: 'pass'},
+            {text: '实控人个人征信良好', status: 'pass'},
+            {text: '8条司法诉讼（2条在审），需评估影响', status: 'warn'},
+            {text: '1条行政处罚（安全生产轻微违规，已整改）', status: 'pass'},
+            {text: '3家关联企业需穿透核查关联交易与资金往来', status: 'warn'}
+        ],
+        amlChecks: [
+            '客户身份识别完成，实际控制人为赵某某',
+            '受益所有人识别完成（赵某某，持股55%，超过25%阈值）',
+            '建筑行业资金流向复杂，需加强工程款真实性核查',
+            '3家关联企业间资金往来需穿透追踪',
+            '客户风险等级初判：中等偏高，需加强尽调频次',
+            '农民工工资支付保障金需纳入合规检查'
+        ]
+    },
+    // ===== 4. 物流 — 中型企业 =====
+    {
+        keywords: ['捷运', '物流', '运输', '物流', '仓储', '冷链'],
+        name: '捷运冷链物流有限公司',
+        code: '91440101MA5UKLM789',
+        legal: '刘某某',
+        date: '2016-11-08',
+        capital: '2000万元',
+        status: '存续（在营）',
+        scope: '冷链物流运输服务；仓储服务（含冷链仓储）；供应链管理咨询；货运代理；包装服务；城市配送',
+        industry: '物流 / 冷链运输',
+        type: '有限责任公司',
+        term: '2016-11-08 至 长期',
+        tags: [{text:'物流', cls:'blue'}, {text:'冷链', cls:'green'}, {text:'中型企业', cls:'orange'}, {text:'城市配送', cls:'red'}],
+        shareholders: [
+            {name: '刘某某（实控人）', pct: 70, color: '#C41230'},
+            {name: '杨某某', pct: 30, color: '#2B6CB0'}
+        ],
+        lawsuit: '2条记录（均为运输合同纠纷，已结案）',
+        penalty: '0条',
+        abnormal: '0条',
+        dishonest: '0条',
+        related: '1家关联企业（捷运仓储服务）',
+        scores: {
+            overall: 75, grade: 'B+',
+            dims: [
+                {label: '经营稳定性', value: 78, color: 'var(--cmb-blue)'},
+                {label: '财务健康度', value: 72, color: 'var(--cmb-green)'},
+                {label: '信用画像', value: 80, color: 'var(--cmb-gold)'},
+                {label: '行业前景', value: 82, color: 'var(--cmb-purple)'},
+                {label: '实控人评估', value: 75, color: 'var(--cmb-orange)'},
+                {label: '合规风险', value: 72, color: 'var(--cmb-red)'}
+            ]
+        },
+        products: [
+            {name: '车辆融资租赁', fit: '高适配', cls: 'fit-high', reason: '冷链物流车队采购融资需求'},
+            {name: '薪福通代发', fit: '高适配', cls: 'fit-high', reason: '物流企业大量司机及员工代发'},
+            {name: '流动资金贷款', fit: '中适配', cls: 'fit-medium', reason: '运营资金周转需求'},
+            {name: '供应链金融', fit: '高适配', cls: 'fit-high', reason: '冷链供应链上下游结算'},
+            {name: '票据业务', fit: '中适配', cls: 'fit-medium', reason: '运输费用票据结算'},
+            {name: '财资云', fit: '中适配', cls: 'fit-medium', reason: '多地分支机构资金归集需求'}
+        ],
+        actions: [
+            '优先对接实控人刘某某，了解冷链车队规模与融资需求',
+            '推进车辆融资租赁方案，匹配冷链物流企业核心资产投入需求',
+            '同步推进薪福通代发服务，物流企业员工基数大、代发可持续',
+            '关注冷链行业增长趋势（食品医药冷链需求持续增长），适时加大合作深度',
+            '设计供应链金融方案，覆盖上游供应商与下游客户结算需求'
+        ],
+        revenueData: [
+            {year: '2022', revenue: 15000, profit: 1800},
+            {year: '2023', revenue: 19500, profit: 2400},
+            {year: '2024', revenue: 24000, profit: 3100},
+            {year: '2025', revenue: 28000, profit: 3800}
+        ],
+        debtData: {totalAssets: 42000, totalDebt: 21000, equity: 21000, currentRatio: 1.55, debtRatio: '50.0%'},
+        fitItems: [
+            {icon: '🚛', name: '车辆融资租赁', level: '高适配', cls: 'fit-high-bg'},
+            {icon: '👥', name: '代发工资', level: '高适配', cls: 'fit-high-bg'},
+            {icon: '🔗', name: '供应链金融', level: '高适配', cls: 'fit-high-bg'},
+            {icon: '💰', name: '授信贷款', level: '中适配', cls: 'fit-medium-bg'},
+            {icon: '📋', name: '票据业务', level: '中适配', cls: 'fit-medium-bg'},
+            {icon: '🏦', name: '财资云', level: '中适配', cls: 'fit-medium-bg'},
+            {icon: '📊', name: '对公理财', level: '待探索', cls: 'fit-explore-bg'},
+            {icon: '📝', name: '保函业务', level: '待探索', cls: 'fit-explore-bg'}
+        ],
+        riskLevel: 'low',
+        identityChecks: [
+            {text: '营业执照信息与工商登记一致', status: 'pass'},
+            {text: '法定代表人身份核实通过', status: 'pass'},
+            {text: '实际控制人识别完成（刘某某，持股70%）', status: 'pass'},
+            {text: '注册地址实地核查 — 与经营地址一致', status: 'pass'},
+            {text: '联系方式验证通过', status: 'pass'}
+        ],
+        businessChecks: [
+            {text: '主营业务与经营范围一致（冷链物流）', status: 'pass'},
+            {text: '经营场所实地走访 — 仓储及车队正常运营', status: 'pass'},
+            {text: '员工规模核实（约180人，社保缴纳匹配）', status: 'pass'},
+            {text: '冷链仓储设施实地核查正常', status: 'pass'},
+            {text: '近三年营收持续增长，冷链行业需求旺盛', status: 'pass'},
+            {text: '车辆资产规模核实（自有冷链车约45辆）', status: 'pass'}
+        ],
+        financeChecks: [
+            {text: '近三年财务报表获取完整', status: 'pass'},
+            {text: '资产负债率50.0%，处于合理区间', status: 'pass'},
+            {text: '流动比率1.55，短期偿债能力尚可', status: 'pass'},
+            {text: '经营性现金流稳定为正', status: 'pass'},
+            {text: '车辆融资租赁负债需单独评估', status: 'warn'},
+            {text: '燃油成本上涨压力需关注利润率', status: 'warn'}
+        ],
+        riskChecks: [
+            {text: '行业风险评级：物流-中等偏低', status: 'pass'},
+            {text: '企业征信无不良记录', status: 'pass'},
+            {text: '实控人个人征信良好', status: 'pass'},
+            {text: '2条司法记录均为已结案运输合同纠纷', status: 'pass'},
+            {text: '冷链行业竞争加剧需关注', status: 'warn'}
+        ],
+        amlChecks: [
+            '客户身份识别完成，实际控制人为刘某某',
+            '受益所有人识别完成（刘某某，持股70%，超过25%阈值）',
+            '物流运输业务真实性需核实（车辆GPS轨迹比对）',
+            '大额资金交易监控机制需建立',
+            '客户风险等级初判：中等偏低，需持续动态评估',
+            '关联企业捷运仓储服务资金往来需纳入监控'
+        ]
+    },
+    // ===== 5. 政府平台 — 大型企业 =====
+    {
+        keywords: ['城发', '政府', '平台', '城投', '市政开发', '国资'],
+        name: '城发市政开发投资有限公司',
+        code: '91330100MA2BCKLM0X',
+        legal: '林某某',
+        date: '2008-03-25',
+        capital: '10亿元',
+        status: '存续（在营）',
+        scope: '市政基础设施投资建设与运营管理；城市更新改造项目开发；土地开发整理；水务及环保项目投资运营',
+        industry: '政府平台 / 基础设施投资',
+        type: '有限责任公司（国有独资）',
+        term: '2008-03-25 至 长期',
+        tags: [{text:'政府平台', cls:'red'}, {text:'城投', cls:'blue'}, {text:'国有独资', cls:'green'}, {text:'大型企业', cls:'orange'}],
+        shareholders: [
+            {name: '市国资委（实控人）', pct: 100, color: '#C41230'}
+        ],
+        lawsuit: '0条',
+        penalty: '0条',
+        abnormal: '0条',
+        dishonest: '0条',
+        related: '4家关联企业（城发水务、城发置业、城发环保、城发交通）',
+        scores: {
+            overall: 88, grade: 'A+',
+            dims: [
+                {label: '经营稳定性', value: 95, color: 'var(--cmb-blue)'},
+                {label: '财务健康度', value: 72, color: 'var(--cmb-green)'},
+                {label: '信用画像', value: 95, color: 'var(--cmb-gold)'},
+                {label: '行业前景', value: 85, color: 'var(--cmb-purple)'},
+                {label: '实控人评估', value: 95, color: 'var(--cmb-orange)'},
+                {label: '合规风险', value: 80, color: 'var(--cmb-red)'}
+            ]
+        },
+        products: [
+            {name: '项目贷款', fit: '高适配', cls: 'fit-high', reason: '市政基础设施项目融资需求大'},
+            {name: '保函业务', fit: '高适配', cls: 'fit-high', reason: '工程投标及履约保函需求'},
+            {name: '对公存款', fit: '高适配', cls: 'fit-high', reason: '财政资金及项目资金沉淀'},
+            {name: '财资云', fit: '高适配', cls: 'fit-high', reason: '多子公司资金归集与管控'},
+            {name: '薪福通代发', fit: '中适配', cls: 'fit-medium', reason: '集团员工代发需求'},
+            {name: '对公理财', fit: '高适配', cls: 'fit-high', reason: '财政闲置资金理财需求'}
+        ],
+        actions: [
+            '对接市国资委及城发集团高层，了解年度重点项目投资计划',
+            '重点推进项目贷款合作，匹配市政基础设施中长期融资需求',
+            '推进财资云平台部署，解决4家子公司资金归集与管控痛点',
+            '关注城投债务置换窗口期，适时推介债务优化方案',
+            '联动零售条线，推进集团员工代发及高管个人金融服务'
+        ],
+        revenueData: [
+            {year: '2022', revenue: 85000, profit: 5200},
+            {year: '2023', revenue: 92000, profit: 4800},
+            {year: '2024', revenue: 105000, profit: 5500},
+            {year: '2025', revenue: 118000, profit: 6200}
+        ],
+        debtData: {totalAssets: 380000, totalDebt: 210000, equity: 170000, currentRatio: 1.28, debtRatio: '55.3%'},
+        fitItems: [
+            {icon: '🏗️', name: '项目贷款', level: '高适配', cls: 'fit-high-bg'},
+            {icon: '📝', name: '保函业务', level: '高适配', cls: 'fit-high-bg'},
+            {icon: '🏦', name: '对公存款', level: '高适配', cls: 'fit-high-bg'},
+            {icon: '☁️', name: '财资云', level: '高适配', cls: 'fit-high-bg'},
+            {icon: '📊', name: '对公理财', level: '高适配', cls: 'fit-high-bg'},
+            {icon: '👥', name: '代发工资', level: '中适配', cls: 'fit-medium-bg'},
+            {icon: '📋', name: '票据业务', level: '中适配', cls: 'fit-medium-bg'},
+            {icon: '🔗', name: '供应链金融', level: '待探索', cls: 'fit-explore-bg'}
+        ],
+        riskLevel: 'low',
+        identityChecks: [
+            {text: '营业执照信息与工商登记一致', status: 'pass'},
+            {text: '法定代表人身份核实通过（国资委任命）', status: 'pass'},
+            {text: '实际控制人识别完成（市国资委，100%控股）', status: 'pass'},
+            {text: '注册地址实地核查 — 与经营地址一致', status: 'pass'},
+            {text: '联系方式验证通过', status: 'pass'}
+        ],
+        businessChecks: [
+            {text: '主营业务与经营范围一致（市政基础设施投资建设）', status: 'pass'},
+            {text: '经营场所实地走访 — 集团总部正常运营', status: 'pass'},
+            {text: '员工规模核实（约520人，社保缴纳匹配）', status: 'pass'},
+            {text: '在手项目核实：8个在建项目，总投资约45亿', status: 'pass'},
+            {text: '财政拨款及专项债资金到位情况需跟踪', status: 'warn'},
+            {text: '4家子公司经营状况需逐一核实', status: 'warn'}
+        ],
+        financeChecks: [
+            {text: '近三年财务报表获取完整', status: 'pass'},
+            {text: '资产负债率55.3%，城投平台合理区间', status: 'pass'},
+            {text: '流动比率1.28，偏低但符合城投特征', status: 'warn'},
+            {text: '经营性现金流依赖财政补贴，需关注财政健康度', status: 'warn'},
+            {text: '隐性债务规模需进一步核实', status: 'warn'},
+            {text: '专项债还款来源需逐项核实', status: 'warn'}
+        ],
+        riskChecks: [
+            {text: '行业风险评级：政府平台-中等偏低（依赖区域财力）', status: 'pass'},
+            {text: '企业征信无不良记录', status: 'pass'},
+            {text: '实控人为市国资委，信用背书强', status: 'pass'},
+            {text: '0条司法诉讼', status: 'pass'},
+            {text: '需关注地方财政健康度对平台偿债能力的影响', status: 'warn'},
+            {text: '隐性债务排查需持续', status: 'warn'}
+        ],
+        amlChecks: [
+            '客户身份识别完成，实际控制人为市国资委',
+            '受益所有人识别：国有独资企业，实际控制人为市国资委',
+            '政府平台大额资金流向需关注合规性',
+            '专项债资金使用需跟踪用途合规',
+            '客户风险等级初判：中等偏低，但需关注区域财力变化',
+            '4家子公司资金往来需纳入集团统一监控'
+        ]
+    },
+    // ===== 6. 小微企业 — 科技服务 =====
+    {
+        keywords: ['智联', '科技', '服务', '小微企业', '软件开发', '信息技术'],
+        name: '智联信息技术服务有限公司',
+        code: '91350100MA3YRTJ567',
+        legal: '何某某',
+        date: '2020-09-15',
+        capital: '200万元',
+        status: '存续（在营）',
+        scope: '软件开发与技术服务；信息系统集成服务；信息技术咨询服务；数据处理与存储支持服务',
+        industry: '信息技术 / 软件服务',
+        type: '有限责任公司',
+        term: '2020-09-15 至 长期',
+        tags: [{text:'小微企业', cls:'blue'}, {text:'信息技术', cls:'green'}, {text:'软件开发', cls:'purple'}, {text:'初创企业', cls:'orange'}],
+        shareholders: [
+            {name: '何某某（实控人）', pct: 60, color: '#C41230'},
+            {name: '郑某某', pct: 40, color: '#2B6CB0'}
+        ],
+        lawsuit: '0条',
+        penalty: '0条',
+        abnormal: '0条',
+        dishonest: '0条',
+        related: '0家关联企业',
+        scores: {
+            overall: 55, grade: 'C',
+            dims: [
+                {label: '经营稳定性', value: 45, color: 'var(--cmb-blue)'},
+                {label: '财务健康度', value: 40, color: 'var(--cmb-green)'},
+                {label: '信用画像', value: 70, color: 'var(--cmb-gold)'},
+                {label: '行业前景', value: 85, color: 'var(--cmb-purple)'},
+                {label: '实控人评估', value: 60, color: 'var(--cmb-orange)'},
+                {label: '合规风险', value: 50, color: 'var(--cmb-red)'}
+            ]
+        },
+        products: [
+            {name: '薪福通代发', fit: '高适配', cls: 'fit-high', reason: 'IT企业员工代发与社保缴纳需求'},
+            {name: '结算套餐', fit: '中适配', cls: 'fit-medium', reason: '项目收入结算与费用支付'},
+            {name: '对公存款', fit: '中适配', cls: 'fit-medium', reason: '项目回款资金沉淀'},
+            {name: '小微企业贷款', fit: '低适配', cls: 'fit-low', reason: '成立时间短、财务数据不充分'},
+            {name: '对公理财', fit: '待探索', cls: 'fit-low', reason: '资金量小，理财需求弱'},
+            {name: '保函业务', fit: '低适配', cls: 'fit-low', reason: 'IT服务企业保函需求极少'}
+        ],
+        actions: [
+            '优先对接实控人何某某，了解企业业务模式与客户结构',
+            '推进薪福通代发服务，IT企业员工基数虽小但代发可持续',
+            '关注企业经营年限（仅5年），建议先从结算和代发切入，逐步建立合作基础',
+            '核实企业真实经营场所和项目合同，评估经营实质',
+            '暂不建议授信类业务，需等待企业经营数据更加充分后再评估'
+        ],
+        revenueData: [
+            {year: '2022', revenue: 3200, profit: 280},
+            {year: '2023', revenue: 4800, profit: 450},
+            {year: '2024', revenue: 6500, profit: 600},
+            {year: '2025', revenue: 8200, profit: 780}
+        ],
+        debtData: {totalAssets: 8500, totalDebt: 3200, equity: 5300, currentRatio: 2.1, debtRatio: '37.6%'},
+        fitItems: [
+            {icon: '👥', name: '代发工资', level: '高适配', cls: 'fit-high-bg'},
+            {icon: '🏦', name: '结算套餐', level: '中适配', cls: 'fit-medium-bg'},
+            {icon: '💰', name: '对公存款', level: '中适配', cls: 'fit-medium-bg'},
+            {icon: '📊', name: '对公理财', level: '待探索', cls: 'fit-explore-bg'},
+            {icon: '💰', name: '小微企业贷款', level: '低适配', cls: 'fit-low-bg'},
+            {icon: '📝', name: '保函业务', level: '低适配', cls: 'fit-low-bg'},
+            {icon: '🔗', name: '供应链金融', level: '待探索', cls: 'fit-explore-bg'},
+            {icon: '📋', name: '票据业务', level: '待探索', cls: 'fit-explore-bg'}
+        ],
+        riskLevel: 'medium',
+        identityChecks: [
+            {text: '营业执照信息与工商登记一致', status: 'pass'},
+            {text: '法定代表人身份核实通过', status: 'pass'},
+            {text: '实际控制人识别完成（何某某，持股60%）', status: 'pass'},
+            {text: '注册地址实地核查 — 办公地址与注册地址一致（共享办公空间）', status: 'warn'},
+            {text: '联系方式验证（电话有效，邮箱回复及时）', status: 'pass'}
+        ],
+        businessChecks: [
+            {text: '主营业务与经营范围一致（软件技术服务）', status: 'pass'},
+            {text: '经营场所核查 — 共享办公空间，需关注经营实质', status: 'warn'},
+            {text: '员工规模核实（约25人，社保缴纳人数偏少）', status: 'warn'},
+            {text: '项目合同真实性需逐项核实', status: 'warn'},
+            {text: '营收增长较快但基数小，经营可持续性待验证', status: 'warn'},
+            {text: '成立时间仅5年，经营稳定性偏弱', status: 'warn'}
+        ],
+        financeChecks: [
+            {text: '近两年财务报表获取完整（2022-2023年报表未提供）', status: 'warn'},
+            {text: '资产负债率37.6%，偏低但符合初创企业特征', status: 'pass'},
+            {text: '流动比率2.1，短期偿债能力良好', status: 'pass'},
+            {text: '经营性现金流波动较大（项目回款不规律）', status: 'warn'},
+            {text: '财务规范性不足（缺乏审计报告）', status: 'warn'},
+            {text: '注册资本200万元，实缴需核实', status: 'warn'}
+        ],
+        riskChecks: [
+            {text: '行业风险评级：信息技术-中等偏低', status: 'pass'},
+            {text: '企业征信无不良记录', status: 'pass'},
+            {text: '实控人个人征信良好', status: 'pass'},
+            {text: '0条司法诉讼', status: 'pass'},
+            {text: '成立时间短，经营稳定性偏弱', status: 'warn'},
+            {text: '财务数据不充分，建议暂缓授信类业务', status: 'warn'}
+        ],
+        amlChecks: [
+            '客户身份识别完成，实际控制人为何某某',
+            '受益所有人识别完成（何某某，持股60%，超过25%阈值）',
+            '共享办公空间需关注经营实质真实性',
+            '项目合同需核实贸易/服务背景真实性',
+            '客户风险等级初判：中等偏高，需加强尽调频次',
+            '注册资本实缴情况需核实'
+        ]
+    }
+];
+
+// ========== 对公客户经理培训课程 ==========
+const TRAINING_MODULES = [
+    {
+        tag: '存量经营',
+        title: '存量客户深耕',
+        summary: '从已开户企业出发，围绕结算、代发、票据、贷款、保函、供应链和员工个人业务联动挖掘新增需求。',
+        scenario: '支行管户的一家制造企业目前只使用基本结算账户，近期订单增长、应收账款周期拉长，财务负责人提到工资发放仍在多家银行分散处理。',
+        checklist: [
+            '先梳理客户在我行的账户、流水、产品使用和近三个月业务变化',
+            '走访财务负责人或企业主，围绕订单、回款、工资、票据和上下游结算追问真实经营需求',
+            '识别可延展场景：代发、票据池、经营周转、供应链付款、对公存款和员工个人业务联动',
+            '形成一页式跟进记录，明确需求状态、下一次触达时间和需补充资料'
+        ],
+        script: [
+            '您近期订单增长后，回款周期和备货资金压力有没有变化？我们先不急着谈产品，先把现金流节点和结算链路梳理清楚。',
+            '工资、报销、供应商付款如果目前分散在多家银行，我可以帮您做一版结算效率和员工服务联动方案，先看能不能减少财务操作成本。'
+        ],
+        quiz: {
+            question: '客户只在我行做结算，财务提到回款慢。客户经理的第一步更适合怎么做？',
+            options: [
+                { text: '先核对账户流水、订单与应收账款节奏，再判断票据、贷款或供应链方案是否匹配', correct: true, feedback: '判断正确。存量深耕要从真实经营和资金链路出发，先验证需求，再设计产品组合。' },
+                { text: '直接推荐最高额度贷款，提高客户对我行的依赖度', correct: false, feedback: '不建议。授信方案不能脱离经营真实性、负债水平和贷款三查要求。' },
+                { text: '只维护结算，不主动挖掘其他需求，避免增加工作量', correct: false, feedback: '不完整。存量客户深耕的核心是发现业务缺口，并持续扩大综合服务贡献。' }
+            ]
+        }
+    },
+    {
+        tag: '新增拓客',
+        title: '增量新客户拓展',
+        summary: '面向园区、商会、市场管委会、招投标平台、行业协会和上下游链条，筛选可合作目标企业。',
+        scenario: '某产业园区近期引入一批设备制造、物流和商贸企业，园区管委会愿意安排银企对接会，但企业名单里既有规上企业，也有刚成立的小微主体。',
+        checklist: [
+            '按行业、成立年限、经营规模、公开中标或纳税线索做初筛排序',
+            '优先锁定制造业、商贸、建筑、物流、政府平台、小微和规上企业中的真实经营主体',
+            '准备首次接触问题清单：主营业务、上下游、结算方式、融资需求、用工规模和涉诉异常',
+            '建立渠道台账，记录园区、商会、市场管委会、招投标平台和老客户转介绍来源'
+        ],
+        script: [
+            '这次对接我会先了解企业主营业务和结算链路，不会一上来推产品。符合准入条件的企业，我们再按结算、融资、票据或工资代发分别设计方案。',
+            '如果园区能提供企业行业、成立时间和联系人，我们可以先做一轮名单分层，把拜访顺序排出来，提高对接效率。'
+        ],
+        quiz: {
+            question: '园区给到一批新企业名单，客户经理更应优先做哪件事？',
+            options: [
+                { text: '按行业、规模、经营线索和风险信号分层，确定拜访优先级', correct: true, feedback: '判断正确。增量拓客要先筛选目标，再安排触达，避免平均用力。' },
+                { text: '对所有企业发送同一套贷款方案，先抢占触点', correct: false, feedback: '不建议。新客户拓展要先完成基础识别和准入判断，不能用单一产品覆盖全部客户。' },
+                { text: '只看注册资本，注册资本越高越优先', correct: false, feedback: '不完整。注册资本只是参考，更关键的是真实经营、现金流、负债与风险状态。' }
+            ]
+        }
+    },
+    {
+        tag: '准入尽调',
+        title: '客户准入尽调前置',
+        summary: '初次接触即收集基础资料，前置判断经营真实性、负债水平、征信状态、行业风险和合作可行性。',
+        scenario: '一家商贸企业希望开立对公账户并咨询短期周转资金，企业成立三年，称年销售额增长较快，但暂未提供纳税、流水、上下游合同和负债说明。',
+        checklist: [
+            '收集营业执照、主营业务说明、经营场所、股权结构、实际控制人和主要上下游信息',
+            '核验经营真实性：合同、发票、银行流水、纳税记录、仓储或物流凭证相互印证',
+            '评估负债、征信、司法涉诉、异常经营和行业周期风险',
+            '缺失核心资料时标注待核实，不输出确定性授信结论'
+        ],
+        script: [
+            '为了判断企业经营真实性，我们需要把合同、发票、流水和纳税记录对应起来看。资料完整后，才能更准确地判断适配的结算或融资服务。',
+            '如果暂时无法提供核心资料，我会先把缺口列清楚，避免后续审批或开户环节反复补件。'
+        ],
+        quiz: {
+            question: '企业要求尽快给融资判断，但无法提供流水和纳税材料。客户经理应怎么处理？',
+            options: [
+                { text: '明确列出缺失资料和待核实事项，暂不做确定性判断', correct: true, feedback: '判断正确。核心经营数据缺失时，只能输出资料清单和关注要点，不能代替审批结论。' },
+                { text: '根据企业口头描述先判断可以合作，资料后补', correct: false, feedback: '不合规。尽调必须基于真实资料和可追溯数据，不能用口头描述替代核验。' },
+                { text: '只看企业成立年限，超过三年即可直接进入授信流程', correct: false, feedback: '不完整。成立年限不能替代经营真实性、负债、征信和行业风险核查。' }
+            ]
+        }
+    },
+    {
+        tag: '方案设计',
+        title: '产品组合与公私联动',
+        summary: '把客户需求拆成结算、代发、票据、供应链、理财、保函、对公存款和员工个人业务联动的组合方案。',
+        scenario: '一家建筑企业中标新项目，提出保函、项目回款监管、员工工资发放和临时资金管理需求，同时企业主关注资金闲置收益。',
+        checklist: [
+            '先拆解业务场景：项目保证、工程回款、工资发放、供应商付款和闲置资金管理',
+            '匹配产品组合：保函、账户体系、代发、票据、供应链付款、现金管理和对公理财',
+            '同步识别公私联动机会：企业主、财务人员和员工的工资卡、薪资权益和个人金融服务',
+            '对涉及授信或保函的部分，提醒落实贷款三查和行内审批流程'
+        ],
+        script: [
+            '这个项目不是单一融资问题，我们可以按项目全周期拆开看：投标或履约保证、回款账户、工资代发、供应商付款和闲置资金管理分别配置。',
+            '员工工资如果集中代发，后续员工个人服务也能衔接起来，企业和员工两端的体验都会更顺。'
+        ],
+        quiz: {
+            question: '客户同时有保函、代发、闲置资金和员工服务需求时，最合适的处理方式是什么？',
+            options: [
+                { text: '形成产品组合方案，并明确授信类事项需按行内审批和贷款三查推进', correct: true, feedback: '判断正确。产品组合要服务业务场景，授信与保函类事项必须守住流程边界。' },
+                { text: '只推荐理财，因为闲置资金收益最直观', correct: false, feedback: '不完整。单点产品无法覆盖项目保证、结算效率和公私联动价值。' },
+                { text: '先承诺保函额度，再让客户补材料', correct: false, feedback: '不合规。额度和保函不能先承诺，必须经过资料核验和审批流程。' }
+            ]
+        }
+    },
+    {
+        tag: '合规风控',
+        title: '合规红线与贷款三查',
+        summary: '把开户、KYC、反洗钱、授信和贷后管理串成底线动作，杜绝包装材料、放松尽调和越权承诺。',
+        scenario: '某客户希望尽快获得贷款，并暗示可以先按银行需要“优化”合同和流水材料，同时要求客户经理帮忙走特殊通道。',
+        checklist: [
+            '坚持客户身份识别、受益所有人识别、业务背景真实性和资金用途核验',
+            '授信业务必须落实贷前调查、贷中审查、贷后检查，即贷款三查',
+            '对包装材料、虚假贸易背景、异常资金回流和规避审查要求明确拒绝',
+            '对可疑交易或重大风险信号按行内制度报告和留痕'
+        ],
+        script: [
+            '资料必须反映企业真实经营，不能包装或调整成审批偏好的样子。我们可以帮您梳理真实材料清单，但不能代替审批或规避流程。',
+            '涉及授信的事项，我会按贷前调查、贷中审查和贷后检查要求推进，最终结论以行内审批为准。'
+        ],
+        quiz: {
+            question: '客户要求“包装材料、走特殊通道”，客户经理应如何回应？',
+            options: [
+                { text: '明确拒绝违规要求，回到真实经营资料和合规审批流程', correct: true, feedback: '判断正确。合规红线必须前置，客户经理只能基于真实资料提供辅助服务。' },
+                { text: '先答应客户，后续审批不通过再解释', correct: false, feedback: '不合规。不得包装材料、越权承诺或规避尽调流程。' },
+                { text: '只要客户愿意增加存款，就可以简化尽调', correct: false, feedback: '不合规。存款贡献不能替代KYC、反洗钱和授信审查要求。' }
+            ]
+        }
+    }
+];
+
+// ========== 页面交互逻辑 ==========
+let currentClient = null;
+let activeTrainingModule = 0;
+
+function scrollToCards() {
+    document.getElementById('devCards').scrollIntoView({behavior: 'smooth'});
+}
+
+function showSearch() {
+    document.getElementById('searchSection').scrollIntoView({behavior: 'smooth'});
+    document.getElementById('searchInput').focus();
+}
+
+function showTraining() {
+    document.getElementById('trainingCenter').scrollIntoView({behavior: 'smooth'});
+}
+
+function renderTrainingModule(index = activeTrainingModule) {
+    activeTrainingModule = Number.isInteger(index) ? index : 0;
+    const module = TRAINING_MODULES[activeTrainingModule] || TRAINING_MODULES[0];
+    const moduleGrid = document.getElementById('trainingModuleGrid');
+    if (!moduleGrid || !module) return;
+
+    moduleGrid.innerHTML = TRAINING_MODULES.map((item, itemIndex) => `
+        <button type="button" class="training-module-card ${itemIndex === activeTrainingModule ? 'active' : ''}" onclick="selectTrainingModule(${itemIndex})" aria-pressed="${itemIndex === activeTrainingModule}">
+            <div class="training-module-tag">${escapeHtml(item.tag)}</div>
+            <div class="training-module-title">${escapeHtml(item.title)}</div>
+            <div class="training-module-summary">${escapeHtml(item.summary)}</div>
+        </button>
+    `).join('');
+
+    document.getElementById('trainingScenario').textContent = module.scenario;
+    document.getElementById('trainingChecklist').innerHTML = module.checklist.map(item => `<li>${escapeHtml(item)}</li>`).join('');
+    document.getElementById('trainingScript').innerHTML = module.script.map(item => `<p>${escapeHtml(item)}</p>`).join('');
+    document.getElementById('trainingQuiz').textContent = module.quiz.question;
+    document.getElementById('trainingQuizOptions').innerHTML = module.quiz.options.map((option, optionIndex) => `
+        <button type="button" class="training-quiz-option" onclick="evaluateTrainingQuiz(${optionIndex})">${escapeHtml(option.text)}</button>
+    `).join('');
+
+    const feedback = document.getElementById('trainingFeedback');
+    feedback.className = 'training-feedback';
+    feedback.textContent = '请选择一个处理动作，查看训练反馈。';
+}
+
+function selectTrainingModule(index) {
+    renderTrainingModule(index);
+}
+
+function evaluateTrainingQuiz(selectedIndex) {
+    const module = TRAINING_MODULES[activeTrainingModule] || TRAINING_MODULES[0];
+    const selected = module.quiz.options[selectedIndex];
+    if (!selected) return;
+
+    document.querySelectorAll('#trainingQuizOptions .training-quiz-option').forEach((button, buttonIndex) => {
+        button.classList.toggle('active', buttonIndex === selectedIndex);
+    });
+
+    const feedback = document.getElementById('trainingFeedback');
+    feedback.className = `training-feedback ${selected.correct ? 'good' : 'warn'}`;
+    feedback.textContent = selected.feedback;
+}
+
+function quickSearch(keyword) {
+    document.getElementById('searchInput').value = keyword;
+    doSearch();
+}
+
+function showSearchHint(message, tone = 'orange') {
+    const existingHint = document.getElementById('searchHint');
+    if (existingHint) existingHint.remove();
+
+    const colors = {
+        orange: ['var(--cmb-orange-light)', 'var(--cmb-orange)'],
+        green: ['var(--cmb-green-light)', 'var(--cmb-green)'],
+        blue: ['var(--cmb-blue-light)', 'var(--cmb-blue)']
+    };
+    const selected = colors[tone] || colors.orange;
+    const searchHint = document.createElement('div');
+    searchHint.id = 'searchHint';
+    searchHint.style.cssText = `background:${selected[0]};color:${selected[1]};padding:12px 20px;border-radius:var(--cmb-radius-sm);margin-bottom:16px;font-size:14px;display:flex;align-items:center;gap:8px;`;
+    searchHint.innerHTML = message;
+    document.getElementById('searchSection').after(searchHint);
+}
+
+function mapApiProfileToClient(profile) {
+    const scoreBase = profile.risk.level === 'high' ? 58 : profile.risk.level === 'medium' ? 72 : 86;
+    const reviewItems = profile.manual_review_items || [];
+    const sources = profile.sources || [];
+    const finance = profile.finance || {};
+    const basic = profile.basic || {};
+    const risk = profile.risk || {};
+    const products = profile.products || [];
+    const actions = profile.actions || [];
+    const dataQuality = profile.data_quality || {};
+
+    return {
+        keywords: [profile.name, profile.code, basic.industry || ''],
+        name: profile.name,
+        code: profile.code,
+        legal: basic.legal || '待核实',
+        date: basic.date || '待核实',
+        capital: basic.capital || '待核实',
+        status: basic.status || '待核实',
+        scope: basic.scope || '待核实',
+        industry: basic.industry || '待核实',
+        type: basic.type || '待核实',
+        term: basic.term || '待核实',
+        tags: [
+            {text: basic.industry || '企业客户', cls: 'blue'},
+            {text: `覆盖率${dataQuality.coverage_rate || 0}%`, cls: 'green'},
+            {text: `${sources.length}个数据源`, cls: 'orange'},
+            {text: `${reviewItems.length}项待复核`, cls: reviewItems.length <= 3 ? 'green' : 'red'}
+        ],
+        shareholders: profile.shareholders || [{name: '股权结构待采集', pct: 100, color: '#718096'}],
+        lawsuit: risk.lawsuit || '待核实',
+        penalty: risk.penalty || '待核实',
+        abnormal: risk.abnormal || '待核实',
+        dishonest: risk.dishonest || '待核实',
+        related: risk.related || '待核实',
+        scores: {
+            overall: scoreBase,
+            grade: scoreBase >= 80 ? 'A' : scoreBase >= 70 ? 'B' : 'C',
+            dims: [
+                {label: '经营稳定性', value: Math.min(95, scoreBase + 4), color: 'var(--cmb-blue)'},
+                {label: '财务健康度', value: scoreBase, color: 'var(--cmb-green)'},
+                {label: '信用画像', value: Math.max(50, scoreBase - 2), color: 'var(--cmb-gold)'},
+                {label: '行业前景', value: Math.max(50, scoreBase - 6), color: 'var(--cmb-purple)'},
+                {label: '数据可信度', value: dataQuality.verification_rate || 66, color: 'var(--cmb-orange)'},
+                {label: '合规风险', value: Math.max(50, scoreBase - 8), color: 'var(--cmb-red)'}
+            ]
+        },
+        products: products,
+        actions: actions,
+        revenueData: finance.revenueData || [
+            {year: '2022', revenue: 0, profit: 0},
+            {year: '2023', revenue: 0, profit: 0},
+            {year: '2024', revenue: 0, profit: 0}
+        ],
+        debtData: finance.debtData || {totalAssets: 0, totalDebt: 0, equity: 0, currentRatio: 0, debtRatio: '待核实'},
+        fitItems: products.map(p => ({
+            icon: '▣',
+            name: p.name,
+            level: p.fit,
+            cls: p.fit === '高适配' ? 'fit-high-bg' : p.fit === '中适配' ? 'fit-medium-bg' : 'fit-explore-bg'
+        })),
+        riskLevel: risk.level || 'medium',
+        identityChecks: [
+            {text: `企业主体信息来自${sources.length}个数据源，需保留来源截面`, status: sources.length ? 'pass' : 'warn'},
+            {text: `统一标识：${profile.code}`, status: 'pass'},
+            {text: '实际控制人与受益所有人需结合行内KYC材料复核', status: 'warn'}
+        ],
+        businessChecks: [
+            {text: `主营方向：${basic.scope || '待核实'}`, status: basic.scope ? 'pass' : 'warn'},
+            {text: `行业分类：${basic.industry || '待核实'}`, status: basic.industry ? 'pass' : 'warn'},
+            {text: `人工复核项：${reviewItems.length}项`, status: reviewItems.length <= 3 ? 'pass' : 'warn'}
+        ],
+        financeChecks: [
+            {text: `数据采集覆盖率：${dataQuality.coverage_rate || 0}%`, status: (dataQuality.coverage_rate || 0) >= 90 ? 'pass' : 'warn'},
+            {text: `核验准确度评分：${dataQuality.verification_rate || 0}%`, status: (dataQuality.verification_rate || 0) >= 85 ? 'pass' : 'warn'},
+            {text: `资产负债率：${(finance.debtData || {}).debtRatio || '待核实'}`, status: 'warn'}
+        ],
+        riskChecks: risk.checks || [],
+        amlChecks: [
+            '客户身份识别需结合营业执照、受益所有人和授权经办人材料完成',
+            '涉及授信、贸易融资或跨境业务时，须落实贷款“三查”和反洗钱尽调',
+            `优先复核：${reviewItems.join('；') || '暂无'}`
+        ],
+        developmentPlan: profile.development_plan || null,
+        apiProfile: profile
+    };
+}
+
+function renderClient(client) {
+    currentClient = client;
+    document.getElementById('emptyState').style.display = 'none';
+    document.getElementById('mainContent').classList.add('active');
+    document.getElementById('mainContent').classList.add('fade-in');
+
+    fillBasicInfo(currentClient);
+    fillAnalysis(currentClient);
+    fillDevelopment(currentClient);
+    fillReport(currentClient);
+
+    setTimeout(() => {
+        drawRevenueChart(currentClient);
+        drawDebtChart(currentClient);
+    }, 300);
+
+    switchTab('basic');
+}
+
+async function tryApiSearch(query) {
+    const searchResp = await fetch(`/api/search/company?query=${encodeURIComponent(query)}`);
+    if (!searchResp.ok) throw new Error('search api failed');
+    const searchPayload = await searchResp.json();
+    const first = (searchPayload.results || [])[0];
+    if (!first) return null;
+
+    const profileResp = await fetch(`/api/company/${encodeURIComponent(first.id)}/profile`);
+    if (!profileResp.ok) throw new Error('profile api failed');
+    const profile = await profileResp.json();
+    return mapApiProfileToClient(profile);
+}
+
+function tryLocalPublicRecordSearch(query) {
+    const records = (window.COMPANY_RECORDS && window.COMPANY_RECORDS.companies) || [];
+    if (!records.length) return null;
+    const normalized = query.toLowerCase();
+    const matched = records.find(record => {
+        const candidates = [record.name, record.code].concat(record.aliases || []);
+        return candidates.some(item => {
+            const text = String(item || '').toLowerCase();
+            return text.includes(normalized) || normalized.includes(text);
+        });
+    });
+    if (!matched) return null;
+    return mapApiProfileToClient(mapLocalRecordToProfile(matched));
+}
+
+function mapLocalRecordToProfile(record) {
+    const sources = record.sources || [];
+    const verifiedSources = sources.filter(source => ['high', 'medium'].includes(source.confidence)).length;
+    const manualReviewItems = record.manual_review_items || [];
+    const sourceCount = sources.length;
+    const coverageRate = manualReviewItems.length ? 80 : 100;
+    const verificationRate = sourceCount ? Math.round(verifiedSources / sourceCount * 100) : 0;
+    return {
+        id: record.company_id,
+        name: record.name,
+        code: record.code,
+        basic: record.basic || {},
+        shareholders: record.shareholders || [],
+        risk: record.risk || {},
+        finance: record.finance || {},
+        products: record.products || [],
+        actions: record.actions || [],
+        sources: sources,
+        manual_review_items: manualReviewItems,
+        data_quality: {
+            coverage_rate: coverageRate,
+            verification_rate: verificationRate,
+            source_count: sourceCount,
+            pending_review_count: manualReviewItems.length
+        }
+    };
+}
+
+function buildUnlistedCompanyClient(query) {
+    const pending = '待补充';
+    const reviewItems = [
+        '营业执照或统一社会信用代码',
+        '主营业务、主要上下游及经营场所说明',
+        '近一年纳税、流水、合同或财务报表',
+        '企业及实控人征信、司法涉诉和行政处罚核验',
+        '拟合作业务类型及资金用途说明'
+    ];
+
+    return {
+        keywords: [query],
+        name: `${query}（数据库暂未收录）`,
+        code: pending,
+        legal: pending,
+        date: pending,
+        capital: pending,
+        status: '数据库暂未收录，需客户经理补充资料后建档',
+        scope: pending,
+        industry: '待识别行业',
+        type: '待建档企业',
+        term: pending,
+        tags: [
+            {text: '数据库暂未收录', cls: 'red'},
+            {text: '客户准入尽调前置', cls: 'orange'},
+            {text: '待补充资料清单', cls: 'blue'}
+        ],
+        shareholders: [{name: '股权结构待核实', pct: 100, color: '#718096'}],
+        lawsuit: pending,
+        penalty: pending,
+        abnormal: pending,
+        dishonest: pending,
+        related: pending,
+        scores: {
+            overall: 0,
+            grade: '待评估',
+            dims: [
+                {label: '经营稳定性', value: 0, color: 'var(--cmb-blue)'},
+                {label: '财务健康度', value: 0, color: 'var(--cmb-green)'},
+                {label: '信用画像', value: 0, color: 'var(--cmb-gold)'},
+                {label: '行业前景', value: 0, color: 'var(--cmb-purple)'},
+                {label: '数据可信度', value: 0, color: 'var(--cmb-orange)'},
+                {label: '合规风险', value: 0, color: 'var(--cmb-red)'}
+            ]
+        },
+        products: [
+            {name: '基础结算账户/KYC建档', fit: '前置动作', reason: '先完成客户身份识别、经营真实性核验与受益所有人识别'},
+            {name: '客户准入尽调清单', fit: '必做动作', reason: '补齐工商、经营、财务、征信、司法风险等关键资料后再判断合作可行性'}
+        ],
+        actions: [
+            '请客户补充营业执照、统一社会信用代码、主营业务说明和实际经营地址',
+            '收集近一年流水、纳税、合同、发票或财务报表，验证经营真实性',
+            '核查企业及实控人征信、司法涉诉、行政处罚、经营异常和行业风险',
+            '明确客户需求类型：结算、代发、票据、贷款、保函、供应链或对公存款',
+            '资料未补齐前，不输出确定性授信、准入或额度结论'
+        ],
+        revenueData: [
+            {year: '2022', revenue: 0, profit: 0},
+            {year: '2023', revenue: 0, profit: 0},
+            {year: '2024', revenue: 0, profit: 0}
+        ],
+        debtData: {totalAssets: 0, totalDebt: 0, equity: 0, currentRatio: 0, debtRatio: pending},
+        fitItems: [
+            {icon: '◇', name: '客户建档', level: '前置', cls: 'fit-explore-bg'},
+            {icon: '◇', name: '经营核验', level: '必做', cls: 'fit-explore-bg'},
+            {icon: '◇', name: '风险筛查', level: '必做', cls: 'fit-explore-bg'}
+        ],
+        riskLevel: '待评估',
+        strategy: '补充资料后重新评估',
+        identityChecks: reviewItems.map(item => ({text: item, status: 'warn'})),
+        businessChecks: [
+            {text: '主营业务、经营场所、上下游关系待核实', status: 'warn'},
+            {text: '经营流水、纳税、合同、发票需交叉验证', status: 'warn'},
+            {text: '资料未补齐前仅能形成待办清单，不宜输出确定性结论', status: 'warn'}
+        ],
+        financeChecks: [
+            {text: '营收、利润、资产负债、现金流数据待补充', status: 'warn'},
+            {text: '征信、负债水平和资金用途待核验', status: 'warn'}
+        ],
+        riskChecks: [
+            {text: '司法风险、行政处罚、经营异常、失信信息待核验', status: 'warn'},
+            {text: '行业准入和政策风险待识别', status: 'warn'}
+        ],
+        amlChecks: [
+            '客户身份识别、受益所有人识别和授权经办人核验待完成',
+            '如涉及授信业务，必须落实贷前调查、贷中审查、贷后检查'
+        ],
+        developmentPlan: null,
+        apiProfile: {
+            sources: [],
+            manual_review_items: reviewItems,
+            data_quality: {
+                coverage_rate: 0,
+                verification_rate: 0,
+                source_count: 0,
+                pending_review_count: reviewItems.length
+            }
+        },
+        sources: [],
+        manual_review_items: reviewItems,
+        data_quality: {
+            coverage_rate: 0,
+            verification_rate: 0,
+            source_count: 0,
+            pending_review_count: reviewItems.length
+        }
+    };
+}
+
+function renderUnlistedCompanyNotice(query) {
+    showSearchHint(`⚠️ 数据库暂未收录 <strong>${escapeHtml(query)}</strong>。已生成待建档尽调框架，请先补充营业执照、经营流水、财务与征信等资料后再形成正式分析。`, 'orange');
+    renderClient(buildUnlistedCompanyClient(query));
+}
+
+async function doSearch() {
+    const query = document.getElementById('searchInput').value.trim();
+    if (!query) {
+        alert('请输入企业名称、统一社会信用代码或客户编号');
+        return;
+    }
+
+    try {
+        const apiClient = await tryApiSearch(query);
+        if (apiClient) {
+            showSearchHint(`✅ 已通过后端接口加载 <strong>${apiClient.name}</strong> 的企业画像，数据源：${apiClient.apiProfile.sources.length}个，待复核：${apiClient.apiProfile.manual_review_items.length}项。`, 'green');
+            renderClient(apiClient);
+            return;
+        }
+        showSearchHint('⚠️ 后端接口未找到匹配企业，继续检索本地公开披露数据包。', 'orange');
+    } catch (error) {
+        showSearchHint('ℹ️ 未检测到本地后端服务，当前优先使用本地公开披露数据包。Python修复后启动 `python kyc_server.py` 可调用完整接口。', 'blue');
+    }
+
+    const publicClient = tryLocalPublicRecordSearch(query);
+    if (publicClient) {
+        showSearchHint(`✅ 已加载本地公开披露数据包中的 <strong>${publicClient.name}</strong>。数据源：${publicClient.apiProfile.sources.length}个，待复核：${publicClient.apiProfile.manual_review_items.length}项。`, 'green');
+        renderClient(publicClient);
+        return;
+    }
+
+    // 模拟查询：通过关键词匹配企业数据
+    const matched = MOCK_CLIENTS.filter(client => {
+        // 精确匹配企业名称
+        if (client.name.includes(query)) return true;
+        // 匹配统一社会信用代码
+        if (client.code.includes(query)) return true;
+        // 匹配关键词标签
+        if (client.keywords.some(k => query.includes(k) || k.includes(query))) return true;
+        return false;
+    });
+
+    if (matched.length === 0) {
+        renderUnlistedCompanyNotice(query);
+        return;
+    }
+
+    currentClient = matched[0];
+    renderClient(currentClient);
+}
+
+function fillBasicInfo(client) {
+    document.getElementById('entName').textContent = client.name;
+    document.getElementById('entCode').textContent = client.code;
+    document.getElementById('entLegal').textContent = client.legal;
+    document.getElementById('entDate').textContent = client.date;
+    document.getElementById('entCapital').textContent = client.capital;
+    document.getElementById('entStatus').textContent = client.status;
+    document.getElementById('entScope').textContent = client.scope;
+    document.getElementById('entIndustry').textContent = client.industry;
+    document.getElementById('entType').textContent = client.type;
+    document.getElementById('entTerm').textContent = client.term;
+
+    // 标签
+    const tagsHtml = client.tags.map(t => `<span class="info-tag ${t.cls}">${t.text}</span>`).join('');
+    document.getElementById('entTags').innerHTML = tagsHtml;
+
+    // 股权条
+    const barHtml = client.shareholders.map(s =>
+        `<div class="shareholder-segment" style="width:${s.pct}%;background:${s.color}">${s.name} ${s.pct}%</div>`
+    ).join('');
+    document.getElementById('shareholderBar').innerHTML = barHtml;
+
+    const listHtml = client.shareholders.map(s =>
+        `<div class="info-row"><span class="info-label">${s.name}</span><span class="info-value">${s.pct}%</span></div>`
+    ).join('');
+    document.getElementById('shareholderList').innerHTML = listHtml;
+
+    // 关联风险
+    document.getElementById('entLawsuit').textContent = client.lawsuit;
+    document.getElementById('entPenalty').textContent = client.penalty;
+    document.getElementById('entAbnormal').textContent = client.abnormal;
+    document.getElementById('entDishonest').textContent = client.dishonest;
+    document.getElementById('entRelated').textContent = client.related;
+}
+
+function fillAnalysis(client) {
+    // 综合评分
+    document.getElementById('overallScore').textContent = client.scores.overall;
+    document.getElementById('scoreGrade').textContent = client.scores.grade + '级客户';
+
+    // 评分维度
+    const dimsHtml = client.scores.dims.map(d => `
+        <div class="score-dim-item">
+            <span class="score-dim-label">${d.label}</span>
+            <div class="score-dim-bar">
+                <div class="score-dim-fill" style="width:${d.value}%;background:${d.color}"></div>
+            </div>
+            <span class="score-dim-value">${d.value}</span>
+        </div>
+    `).join('');
+    document.getElementById('scoreDimensions').innerHTML = dimsHtml;
+
+    // 产品推荐
+    const prodHtml = client.products.map(p => `
+        <div class="product-rec-item">
+            <div class="product-rec-name">${p.name}</div>
+            <div class="product-rec-fit">${p.reason}</div>
+            <span class="product-fit-badge ${p.cls}">${p.fit}</span>
+        </div>
+    `).join('');
+    document.getElementById('productRecGrid').innerHTML = prodHtml;
+
+    // 行动建议
+    const actHtml = client.actions.map(a => `<li>${a}</li>`).join('');
+    document.getElementById('actionSteps').innerHTML = actHtml;
+
+    // 财务结论
+    document.getElementById('revenueConclusion').innerHTML = '✅ 近三年营收复合增长率约13%，利润同步增长，经营趋势稳健向好。客户处于产能扩张期，资金需求有望持续增加。';
+    document.getElementById('debtConclusion').innerHTML = '⚠️ 资产负债率44.7%处于制造业合理区间，但应收账款周转率微降需关注。有息负债占比及期限结构需进一步核实，防范短期集中偿付压力。';
+
+    // 适配性
+    const fitHtml = client.fitItems.map(f => `
+        <div class="fit-item">
+            <div class="fit-item-icon">${f.icon}</div>
+            <div class="fit-item-name">${f.name}</div>
+            <span class="fit-item-level ${f.cls}">${f.level}</span>
+        </div>
+    `).join('');
+    document.getElementById('fitGrid').innerHTML = fitHtml;
+
+    // 雷达图
+    drawRadar(client);
+}
+
+function fillDevelopment(client) {
+    const plan = getDevelopmentPlan(client);
+    document.getElementById('developmentPositioning').textContent = plan.positioning;
+
+    document.getElementById('deepeningOpportunities').innerHTML = (plan.existing_client_deepening.opportunity_map || []).map(item => `
+        <div class="opportunity-item">
+            <div class="opportunity-topline">
+                <div class="opportunity-name">${escapeHtml(item.area || '综合金融服务')}</div>
+                <span class="priority-badge ${priorityClass(item.priority)}">${escapeHtml(item.priority || '观察')}</span>
+            </div>
+            <div class="product-rec-fit">${escapeHtml(item.reason || '基于客户画像匹配')}</div>
+        </div>
+    `).join('');
+
+    document.getElementById('deepeningQuestions').innerHTML = renderDevelopmentList(plan.existing_client_deepening.visit_questions);
+    document.getElementById('acquisitionChannels').innerHTML = renderDevelopmentList(plan.new_client_acquisition.target_channels);
+    document.getElementById('acquisitionCriteria').innerHTML = renderDevelopmentList(plan.new_client_acquisition.screening_criteria);
+    document.getElementById('firstContactPitch').textContent = plan.new_client_acquisition.first_contact_pitch || '先完成客户基本资料核验，再开展首次接触。';
+    document.getElementById('dueMaterials').innerHTML = renderDevelopmentList(plan.entry_due_diligence.required_materials);
+    document.getElementById('dueRiskFocus').innerHTML = renderDevelopmentList(plan.entry_due_diligence.risk_focus);
+    document.getElementById('dueRedFlags').innerHTML = renderDevelopmentList(plan.entry_due_diligence.red_flags);
+    document.getElementById('developmentNextActions').innerHTML = (plan.next_actions || []).map(item => `<li>${escapeHtml(item)}</li>`).join('');
+}
+
+function getDevelopmentPlan(client) {
+    if (client.developmentPlan) return client.developmentPlan;
+    return buildFallbackDevelopmentPlan(client);
+}
+
+function buildFallbackDevelopmentPlan(client) {
+    const industry = client.industry || '企业客户';
+    const productNames = (client.products || []).slice(0, 3).map(p => p.name).join('、');
+    return {
+        company_id: client.code,
+        company_name: client.name,
+        positioning: `客户经理可将该客户定位为${industry}方向的可跟进企业，需结合真实经营资料和行内数据进一步核验。`,
+        existing_client_deepening: {
+            opportunity_map: (client.products || []).slice(0, 5).map(p => ({
+                area: p.name,
+                priority: p.fit && p.fit.includes('高') ? '高' : p.fit && p.fit.includes('中') ? '中' : '观察',
+                reason: p.reason
+            })),
+            visit_questions: [
+                '目前主要结算银行、回款路径和资金沉淀规模如何？',
+                '近期是否存在结算、代发、票据、贷款、保函或供应链金融需求？',
+                productNames ? `围绕${productNames}，客户当前服务痛点是什么？` : '客户当前最希望银行解决的经营问题是什么？'
+            ]
+        },
+        new_client_acquisition: {
+            target_channels: fallbackChannels(industry),
+            screening_criteria: [
+                '主营业务清晰，经营场所和交易背景可核实',
+                '近一年无重大负面舆情、失信或经营异常',
+                '具备稳定结算、代发、票据、融资或供应链场景'
+            ],
+            first_contact_pitch: `建议以${industry}企业经营效率和资金周转为切入点，与${client.name}沟通综合金融服务机会，先做需求摸排，不承诺授信审批结果。`
+        },
+        entry_due_diligence: {
+            required_materials: [
+                '营业执照及公司章程',
+                '近两年财务报表或纳税申报资料',
+                '主要结算账户流水摘要',
+                '实际控制人与受益所有人识别材料',
+                '主要合同、发票或订单等经营真实性材料'
+            ],
+            risk_focus: [
+                `司法诉讼：${client.lawsuit || '待核实'}`,
+                `行政处罚：${client.penalty || '待核实'}`,
+                `经营异常：${client.abnormal || '待核实'}`,
+                `失信记录：${client.dishonest || '待核实'}`
+            ],
+            red_flags: [
+                '要求包装材料、放松尽调或绕开审批流程',
+                '交易背景、合同、发票、流水之间无法相互印证',
+                '实控人、受益所有人或关联企业结构不清晰'
+            ]
+        },
+        next_actions: (client.actions || []).slice(0, 4).concat([
+            '补充核验征信、流水、合同和发票，形成准入判断依据。',
+            '所有信贷相关沟通仅作辅助分析，最终以行内审批结论为准。'
+        ]).slice(0, 6)
+    };
+}
+
+function fallbackChannels(industry) {
+    if (industry.includes('制造')) return ['产业园区走访', '上下游核心企业转介绍', '规上企业名录筛选'];
+    if (industry.includes('商贸')) return ['专业市场管委会', '老客户转介绍', '进出口服务机构协同'];
+    if (industry.includes('建筑')) return ['政府招投标平台', '工程项目信息', '保函业务存量名单回访'];
+    if (industry.includes('物流')) return ['园区仓储企业清单', '供应链核心企业推荐', '物流行业协会渠道'];
+    if (industry.includes('政府')) return ['国资平台公开名录', '重大项目公示', '区域平台招商协同'];
+    return ['产业园区', '商会协会', '上下游客户转介绍'];
+}
+
+function renderDevelopmentList(items) {
+    const safeItems = (items || []).length ? items : ['待补充'];
+    return safeItems.map(item => `<li>${escapeHtml(item)}</li>`).join('');
+}
+
+function priorityClass(priority) {
+    if (priority === '高') return 'priority-high';
+    if (priority === '中') return 'priority-medium';
+    return 'priority-watch';
+}
+
+function escapeHtml(value) {
+    return String(value || '').replace(/[&<>"']/g, ch => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    }[ch]));
+}
+
+function fillReport(client) {
+    // 身份核实
+    const idHtml = client.identityChecks.map(c => `
+        <li>
+            <span class="check-icon check-${c.status}">${c.status === 'pass' ? '✓' : c.status === 'warn' ? '!' : '✗'}</span>
+            ${c.text}
+        </li>
+    `).join('');
+    document.getElementById('identityChecklist').innerHTML = idHtml;
+
+    // 经营实质
+    const bizHtml = client.businessChecks.map(c => `
+        <li>
+            <span class="check-icon check-${c.status}">${c.status === 'pass' ? '✓' : c.status === 'warn' ? '!' : '✗'}</span>
+            ${c.text}
+        </li>
+    `).join('');
+    document.getElementById('businessChecklist').innerHTML = bizHtml;
+
+    // 财务状况
+    const finHtml = client.financeChecks.map(c => `
+        <li>
+            <span class="check-icon check-${c.status}">${c.status === 'pass' ? '✓' : c.status === 'warn' ? '!' : '✗'}</span>
+            ${c.text}
+        </li>
+    `).join('');
+    document.getElementById('financeChecklist').innerHTML = finHtml;
+
+    // 风险等级
+    const riskDots = client.riskLevel === 'low'
+        ? ['active-green','active-green','active-green','active-orange','','','','','']
+        : client.riskLevel === 'medium'
+        ? ['active-green','active-green','active-orange','active-orange','','','','','']
+        : ['active-orange','active-red','active-red','active-red','','','','',''];
+    const riskLabel = client.riskLevel === 'low' ? '低风险' : client.riskLevel === 'medium' ? '中等风险' : '高风险';
+    const riskColor = client.riskLevel === 'low' ? 'var(--cmb-green)' : client.riskLevel === 'medium' ? 'var(--cmb-orange)' : 'var(--cmb-red)';
+
+    document.getElementById('riskLevelBar').innerHTML = `
+        <div class="risk-level-indicator">
+            ${riskDots.map(d => `<div class="risk-dot ${d}"></div>`).join('')}
+        </div>
+        <span class="risk-label" style="color:${riskColor}">${riskLabel}</span>
+    `;
+
+    const riskHtml = client.riskChecks.map(c => `
+        <li>
+            <span class="check-icon check-${c.status}">${c.status === 'pass' ? '✓' : c.status === 'warn' ? '!' : '✗'}</span>
+            ${c.text}
+        </li>
+    `).join('');
+    document.getElementById('riskChecklist').innerHTML = riskHtml;
+
+    // AML
+    const amlHtml = client.amlChecks.map(a => `<li>⚠ ${a}</li>`).join('');
+    document.getElementById('amlChecklist').innerHTML = amlHtml;
+}
+
+// ========== Tab切换 ==========
+function switchTab(tabName) {
+    // 更新tab样式
+    document.querySelectorAll('.content-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+
+    if (tabName === 'basic') {
+        document.getElementById('tabBasic').classList.add('active');
+        document.getElementById('panelBasic').classList.add('active');
+    } else if (tabName === 'analysis') {
+        document.getElementById('tabAnalysis').classList.add('active');
+        document.getElementById('panelAnalysis').classList.add('active');
+        // 重绘图表（解决Canvas尺寸问题）
+        setTimeout(() => {
+            if (currentClient) {
+                drawRevenueChart(currentClient);
+                drawDebtChart(currentClient);
+            }
+        }, 100);
+    } else if (tabName === 'development') {
+        document.getElementById('tabDevelopment').classList.add('active');
+        document.getElementById('panelDevelopment').classList.add('active');
+    } else if (tabName === 'report') {
+        document.getElementById('tabReport').classList.add('active');
+        document.getElementById('panelReport').classList.add('active');
+    }
+}
+
+// ========== 雷达图绘制 ==========
+function drawRadar(client) {
+    const svg = document.getElementById('radarChart');
+    const dims = client.scores.dims;
+    const cx = 140, cy = 140, maxR = 110;
+    const n = dims.length;
+    const angleStep = (2 * Math.PI) / n;
+
+    // 清除旧内容
+    svg.innerHTML = '';
+
+    // 绘制背景网格
+    for (let level = 0.2; level <= 1; level += 0.2) {
+        let points = '';
+        for (let i = 0; i < n; i++) {
+            const angle = i * angleStep - Math.PI / 2;
+            const x = cx + maxR * level * Math.cos(angle);
+            const y = cy + maxR * level * Math.sin(angle);
+            points += `${x},${y} `;
+        }
+        const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        polygon.setAttribute('points', points.trim());
+        polygon.setAttribute('fill', 'none');
+        polygon.setAttribute('stroke', '#E2E8F0');
+        polygon.setAttribute('stroke-width', '1');
+        svg.appendChild(polygon);
+    }
+
+    // 绘制轴线
+    for (let i = 0; i < n; i++) {
+        const angle = i * angleStep - Math.PI / 2;
+        const x = cx + maxR * Math.cos(angle);
+        const y = cy + maxR * Math.sin(angle);
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', cx);
+        line.setAttribute('y1', cy);
+        line.setAttribute('x2', x);
+        line.setAttribute('y2', y);
+        line.setAttribute('stroke', '#E2E8F0');
+        line.setAttribute('stroke-width', '1');
+        svg.appendChild(line);
+    }
+
+    // 绘制数据区域
+    let dataPoints = '';
+    for (let i = 0; i < n; i++) {
+        const angle = i * angleStep - Math.PI / 2;
+        const value = dims[i].value / 100;
+        const x = cx + maxR * value * Math.cos(angle);
+        const y = cy + maxR * value * Math.sin(angle);
+        dataPoints += `${x},${y} `;
+    }
+    const dataPolygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    dataPolygon.setAttribute('points', dataPoints.trim());
+    dataPolygon.setAttribute('fill', 'rgba(196,18,48,0.15)');
+    dataPolygon.setAttribute('stroke', '#C41230');
+    dataPolygon.setAttribute('stroke-width', '2');
+    svg.appendChild(dataPolygon);
+
+    // 绘制数据点
+    for (let i = 0; i < n; i++) {
+        const angle = i * angleStep - Math.PI / 2;
+        const value = dims[i].value / 100;
+        const x = cx + maxR * value * Math.cos(angle);
+        const y = cy + maxR * value * Math.sin(angle);
+        const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        dot.setAttribute('cx', x);
+        dot.setAttribute('cy', y);
+        dot.setAttribute('r', '4');
+        dot.setAttribute('fill', '#C41230');
+        svg.appendChild(dot);
+    }
+
+    // 绘制维度标签
+    for (let i = 0; i < n; i++) {
+        const angle = i * angleStep - Math.PI / 2;
+        const labelR = maxR + 20;
+        const x = cx + labelR * Math.cos(angle);
+        const y = cy + labelR * Math.sin(angle);
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', x);
+        text.setAttribute('y', y);
+        text.setAttribute('text-anchor', 'middle');
+        text.setAttribute('dominant-baseline', 'middle');
+        text.setAttribute('font-size', '12');
+        text.setAttribute('font-family', 'PingFang SC, Microsoft YaHei, sans-serif');
+        text.setAttribute('fill', '#718096');
+        text.textContent = dims[i].label;
+        svg.appendChild(text);
+    }
+}
+
+// ========== 财务图表绘制（纯Canvas） ==========
+function drawRevenueChart(client) {
+    const canvas = document.getElementById('chartRevenue');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const data = client.revenueData;
+
+    canvas.width = canvas.parentElement.offsetWidth;
+    canvas.height = 220;
+
+    const w = canvas.width;
+    const h = canvas.height;
+    const padding = {top: 20, right: 20, bottom: 40, left: 60};
+    const chartW = w - padding.left - padding.right;
+    const chartH = h - padding.top - padding.bottom;
+
+    ctx.clearRect(0, 0, w, h);
+
+    // 最大值
+    const maxRevenue = Math.max(...data.map(d => d.revenue));
+    const maxProfit = Math.max(...data.map(d => d.profit));
+    const maxY = Math.ceil(maxRevenue / 10000) * 10000;
+
+    // Y轴刻度
+    ctx.fillStyle = '#718096';
+    ctx.font = '11px PingFang SC';
+    ctx.textAlign = 'right';
+    for (let i = 0; i <= 4; i++) {
+        const yVal = (maxY / 4) * i;
+        const y = padding.top + chartH - (chartH * i / 4);
+        ctx.fillText((yVal / 10000).toFixed(1) + '亿', padding.left - 8, y + 4);
+        // 网格线
+        ctx.strokeStyle = '#E2E8F0';
+        ctx.lineWidth = 0.5;
+        ctx.beginPath();
+        ctx.moveTo(padding.left, y);
+        ctx.lineTo(w - padding.right, y);
+        ctx.stroke();
+    }
+
+    // X轴标签
+    ctx.textAlign = 'center';
+    const barWidth = chartW / data.length;
+    data.forEach((d, i) => {
+        const x = padding.left + barWidth * i + barWidth / 2;
+        ctx.fillText(d.year, x, h - 10);
+    });
+
+    // 营收柱状图
+    data.forEach((d, i) => {
+        const x = padding.left + barWidth * i + barWidth * 0.15;
+        const barW = barWidth * 0.35;
+        const barH = (d.revenue / maxY) * chartH;
+        const y = padding.top + chartH - barH;
+
+        // 渐变
+        const gradient = ctx.createLinearGradient(x, y, x, y + barH);
+        gradient.addColorStop(0, '#2B6CB0');
+        gradient.addColorStop(1, '#EBF4FF');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(x, y, barW, barH);
+
+        // 数值标签
+        ctx.fillStyle = '#2B6CB0';
+        ctx.font = '10px PingFang SC';
+        ctx.textAlign = 'center';
+        ctx.fillText((d.revenue / 10000).toFixed(1) + '亿', x + barW / 2, y - 6);
+    });
+
+    // 利润柱状图
+    data.forEach((d, i) => {
+        const x = padding.left + barWidth * i + barWidth * 0.55;
+        const barW = barWidth * 0.35;
+        const barH = (d.profit / maxY) * chartH;
+        const y = padding.top + chartH - barH;
+
+        const gradient = ctx.createLinearGradient(x, y, x, y + barH);
+        gradient.addColorStop(0, '#C41230');
+        gradient.addColorStop(1, '#F2D4DA');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(x, y, barW, barH);
+
+        ctx.fillStyle = '#C41230';
+        ctx.font = '10px PingFang SC';
+        ctx.textAlign = 'center';
+        ctx.fillText((d.profit / 10000).toFixed(1) + '亿', x + barW / 2, y - 6);
+    });
+
+    // 图例
+    ctx.fillStyle = '#2B6CB0';
+    ctx.fillRect(padding.left, 6, 12, 10);
+    ctx.fillStyle = '#718096';
+    ctx.font = '11px PingFang SC';
+    ctx.textAlign = 'left';
+    ctx.fillText('营收', padding.left + 16, 14);
+
+    ctx.fillStyle = '#C41230';
+    ctx.fillRect(padding.left + 50, 6, 12, 10);
+    ctx.fillStyle = '#718096';
+    ctx.fillText('净利润', padding.left + 66, 14);
+}
+
+function drawDebtChart(client) {
+    const canvas = document.getElementById('chartDebt');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const data = client.debtData;
+
+    canvas.width = canvas.parentElement.offsetWidth;
+    canvas.height = 220;
+
+    const w = canvas.width;
+    const h = canvas.height;
+
+    ctx.clearRect(0, 0, w, h);
+
+    // 资产负债饼图
+    const cx = w * 0.3;
+    const cy = h / 2;
+    const r = Math.min(cx - 20, cy - 20);
+
+    const total = data.totalAssets;
+    const debtPct = data.totalDebt / total;
+    const equityPct = data.equity / total;
+
+    // 负债扇区
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + debtPct * 2 * Math.PI);
+    ctx.closePath();
+    ctx.fillStyle = '#C41230';
+    ctx.fill();
+
+    // 权益扇区
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, -Math.PI / 2 + debtPct * 2 * Math.PI, -Math.PI / 2 + 2 * Math.PI);
+    ctx.closePath();
+    ctx.fillStyle = '#38A169';
+    ctx.fill();
+
+    // 中心白圆（环形效果）
+    ctx.beginPath();
+    ctx.arc(cx, cy, r * 0.5, 0, 2 * Math.PI);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fill();
+
+    // 中心文字
+    ctx.fillStyle = '#C41230';
+    ctx.font = 'bold 16px PingFang SC';
+    ctx.textAlign = 'center';
+    ctx.fillText(data.debtRatio, cx, cy - 4);
+    ctx.fillStyle = '#718096';
+    ctx.font = '11px PingFang SC';
+    ctx.fillText('负债率', cx, cy + 14);
+
+    // 右侧指标面板
+    const panelX = w * 0.55;
+    const indicators = [
+        {label: '总资产', value: (data.totalAssets / 10000).toFixed(1) + '亿', color: '#2D3748'},
+        {label: '总负债', value: (data.totalDebt / 10000).toFixed(1) + '亿', color: '#C41230'},
+        {label: '净资产', value: (data.equity / 10000).toFixed(1) + '亿', color: '#38A169'},
+        {label: '流动比率', value: data.currentRatio.toFixed(2), color: '#2B6CB0'},
+        {label: '负债率', value: data.debtRatio, color: '#C41230'}
+    ];
+
+    indicators.forEach((ind, i) => {
+        const y = 30 + i * 36;
+        ctx.fillStyle = '#718096';
+        ctx.font = '13px PingFang SC';
+        ctx.textAlign = 'left';
+        ctx.fillText(ind.label, panelX, y);
+
+        ctx.fillStyle = ind.color;
+        ctx.font = 'bold 14px PingFang SC';
+        ctx.fillText(ind.value, panelX + 70, y);
+
+        // 分隔线
+        if (i < indicators.length - 1) {
+            ctx.strokeStyle = '#E2E8F0';
+            ctx.lineWidth = 0.5;
+            ctx.beginPath();
+            ctx.moveTo(panelX, y + 14);
+            ctx.lineTo(panelX + 140, y + 14);
+            ctx.stroke();
+        }
+    });
+
+    // 图例
+    ctx.fillStyle = '#C41230';
+    ctx.fillRect(w * 0.55, h - 30, 12, 10);
+    ctx.fillStyle = '#718096';
+    ctx.font = '11px PingFang SC';
+    ctx.fillText('负债', w * 0.55 + 16, h - 22);
+
+    ctx.fillStyle = '#38A169';
+    ctx.fillRect(w * 0.55 + 50, h - 30, 12, 10);
+    ctx.fillStyle = '#718096';
+    ctx.fillText('净资产', w * 0.55 + 66, h - 22);
+}
+
+function exportReport() {
+    if (!currentClient) {
+        alert('请先查询并加载企业画像，再导出KYC尽职调查报告。');
+        return;
+    }
+
+    openPrintableReport(buildPrintableReportHtml(currentClient));
+}
+
+function printReport() {
+    exportReport();
+}
+
+function buildPrintableReportHtml(client) {
+    const today = new Date().toLocaleDateString('zh-CN');
+    const quality = client.data_quality || {};
+    const sources = client.sources || [];
+    const reviews = client.manual_review_items || [];
+    const products = client.products || [];
+    const scores = client.scores || {};
+    const plan = getDevelopmentPlan(client);
+    const dashboard = {
+        savedMinutes: quality.coverage_rate >= 90 ? 285 : 235,
+        coverage: quality.coverage_rate || 0,
+        verification: quality.verification_rate || 0,
+        reviewCount: quality.pending_review_count ?? reviews.length,
+        completeness: (quality.pending_review_count ?? reviews.length) <= 3 ? 100 : 88,
+        sourceReuse: sources.length >= 3 ? '4.2次' : '2.0次'
+    };
+
+    return `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>${escapeHtml(client.name)} 客户经理访前学习调查报告</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; padding: 32px; color: #1f2933; font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif; background: #fff; }
+        .report-page { max-width: 960px; margin: 0 auto; }
+        .report-cover { min-height: 520px; display: flex; flex-direction: column; justify-content: center; border-top: 8px solid #C41230; border-bottom: 1px solid #cbd5e1; padding: 42px 0; margin-bottom: 28px; }
+        .report-kicker { color: #C41230; font-size: 14px; font-weight: 800; letter-spacing: 0; margin-bottom: 16px; }
+        h1 { font-size: 34px; margin: 0 0 16px; color: #111827; line-height: 1.28; }
+        .subtitle { font-size: 18px; color: #334155; margin-bottom: 28px; }
+        .meta { color: #64748b; font-size: 13px; line-height: 1.9; }
+        .toc { border: 1px solid #e2e8f0; padding: 18px 20px; margin: 20px 0 26px; }
+        .toc-title { font-size: 18px; font-weight: 800; text-align: center; margin-bottom: 10px; color: #111827; }
+        .toc div { padding: 5px 0; font-size: 13px; border-bottom: 1px dashed #e2e8f0; }
+        .toc div:last-child { border-bottom: 0; }
+        h2 { font-size: 18px; margin: 28px 0 12px; padding-left: 10px; border-left: 4px solid #C41230; color: #111827; break-after: avoid; }
+        h3 { font-size: 15px; margin: 18px 0 8px; color: #334155; }
+        table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; }
+        th, td { border: 1px solid #e2e8f0; padding: 10px 12px; text-align: left; vertical-align: top; font-size: 13px; line-height: 1.6; }
+        th { background: #f8fafc; color: #475569; font-weight: 700; }
+        .kv th { width: 176px; }
+        ul { margin: 8px 0 16px; padding-left: 22px; }
+        li { margin: 6px 0; line-height: 1.7; font-size: 13px; }
+        .score-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 12px 0 16px; }
+        .score-card { border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; background: #f8fafc; }
+        .score-label { color: #64748b; font-size: 12px; margin-bottom: 4px; }
+        .score-value { color: #C41230; font-size: 20px; font-weight: 800; }
+        .workflow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 12px 0 18px; }
+        .workflow-step { border: 1px solid #e2e8f0; background: #f8fafc; padding: 10px; border-radius: 6px; font-size: 12px; line-height: 1.55; }
+        .workflow-step strong { display: block; color: #C41230; margin-bottom: 4px; }
+        .disclaimer { margin-top: 26px; padding: 14px 16px; background: #fff7ed; color: #9a3412; border: 1px solid #fed7aa; border-radius: 6px; font-size: 13px; line-height: 1.7; }
+        .print-actions { position: sticky; top: 0; display: flex; justify-content: flex-end; gap: 10px; padding: 12px 0; background: #fff; }
+        .print-actions button { border: 0; border-radius: 6px; padding: 10px 14px; cursor: pointer; font-weight: 700; }
+        .primary { background: #C41230; color: #fff; }
+        .secondary { background: #f1f5f9; color: #334155; }
+        @media print {
+            body { padding: 0; }
+            .print-actions { display: none; }
+            .report-page { max-width: none; }
+            .report-cover { min-height: 680px; break-after: page; }
+            .toc { break-after: page; }
+            h2 { break-after: avoid; }
+            tr, li, .score-card, .workflow-step { break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <div class="report-page">
+        <div class="print-actions">
+            <button class="secondary" onclick="window.close()">关闭</button>
+            <button class="primary" onclick="window.print()">打印 / 另存为PDF</button>
+        </div>
+        <div class="report-cover">
+            <div class="report-kicker">招商银行对公客户经理 · 金融专家智能体</div>
+            <h1>客户经理访前学习调查报告</h1>
+            <div class="subtitle">${escapeHtml(client.name)}</div>
+            <div class="meta">报告日期：${today}</div>
+            <div class="meta">报告用途：客户经理拜访前客户学习、客户开发、KYC准入尽调与业务方案准备</div>
+            <div class="meta">客户分层：${escapeHtml(scores.grade || '待评估')}　综合评分：${escapeHtml(String(scores.overall || '待评估'))}　数据源：${escapeHtml(String(quality.source_count || sources.length || 0))}个　待复核：${escapeHtml(String(dashboard.reviewCount))}项</div>
+        </div>
+
+        <div class="toc">
+            <div class="toc-title">目  录</div>
+            <div>一、客户基础信息 —— 企业概况、工商登记信息、行业属性</div>
+            <div>二、股东结构与实控人 —— 股权架构、实际控制人背景、关键股东</div>
+            <div>三、主营业务与商业模式 —— 业务板块、收入结构、经营模式</div>
+            <div>四、经营与财务分析 —— 营收趋势、盈利能力、资产负债、现金流</div>
+            <div>五、行业地位与竞争格局 —— 行业属性、竞争优势、趋势判断</div>
+            <div>六、信用与风险画像 —— 征信、司法、经营、合规风险</div>
+            <div>七、业务合作机会评估 —— 金融需求、产品组合、公私联动</div>
+            <div>八、拜访策略与行动建议 —— 拜访要点、切入话术、下一步动作</div>
+            <div>九、合规尽调要点 —— KYC/AML核查重点、贷前调查清单</div>
+            <div>十、效率KPI价值看板 —— 本报告效能量化评估</div>
+        </div>
+
+        <h2>数据流执行摘要</h2>
+        <div class="workflow">
+            <div class="workflow-step"><strong>搜索与选择</strong>企业名称、代码或简称检索，确认目标主体。</div>
+            <div class="workflow-step"><strong>数据采集与验证</strong>融合公开披露、工商、财务、司法、舆情与本地客户数据。</div>
+            <div class="workflow-step"><strong>AI分析与报告生成</strong>形成经营、财务、行业、风险和合作潜力分析。</div>
+            <div class="workflow-step"><strong>客户分层与风险预警</strong>输出评分、分层、风险等级和人工复核项。</div>
+            <div class="workflow-step"><strong>报告展示与导出</strong>生成可打印访前学习调查报告，支持留痕归档。</div>
+        </div>
+
+        <h2>一、客户基础信息</h2>
+        <h3>1.1 企业概况</h3>
+        <table class="kv">${renderPrintableRows([
+            ['企业名称', client.name],
+            ['统一社会信用代码/证券代码', client.code],
+            ['法定代表人/负责人', client.legal],
+            ['成立日期', client.date],
+            ['注册资本', client.capital],
+            ['企业性质', client.type],
+            ['经营状态', client.status],
+            ['所属行业', client.industry],
+            ['主营业务', client.scope]
+        ])}</table>
+        <h3>1.2 行业属性标签</h3>
+        <ul>${renderPrintableList((client.tags || []).map(tag => tag.text))}</ul>
+
+        <h2>二、股东结构与实控人</h2>
+        <table>
+            <tr><th>股东/主体</th><th>持股或占比</th><th>备注</th></tr>
+            ${renderPrintableShareholderRows(client.shareholders)}
+        </table>
+        <ul>
+            <li>实际控制人、受益所有人和持股25%以上主体需结合行内KYC材料穿透核验。</li>
+            <li>如涉及境外架构、信托或多层持股，应补充公司章程、股权穿透图和授权文件。</li>
+        </ul>
+
+        <h2>三、主营业务与商业模式</h2>
+        <table class="kv">${renderPrintableRows([
+            ['主营业务', client.scope],
+            ['行业定位', client.industry],
+            ['经营状态', client.status],
+            ['业务模式初判', plan.positioning || '待补充经营资料后判断']
+        ])}</table>
+        <ul>${renderPrintableList(client.businessChecks?.map(item => item.text))}</ul>
+
+        <h2>四、经营与财务分析</h2>
+        <h3>4.1 营收与利润趋势</h3>
+        <table>
+            <tr><th>年度</th><th>营业收入</th><th>利润</th></tr>
+            ${renderPrintableRevenueRows(client.revenueData)}
+        </table>
+        <h3>4.2 资产负债与现金流</h3>
+        <table class="kv">${renderPrintableRows([
+            ['营收规模', client.revenue],
+            ['利润情况', client.profit],
+            ['资产负债率', client.debtRatio || client.debtData?.debtRatio],
+            ['现金流', client.cashflow],
+            ['流动比率', client.debtData?.currentRatio || '待核实']
+        ])}</table>
+        <ul>${renderPrintableChecks(client.financeChecks)}</ul>
+
+        <h2>五、行业地位与竞争格局</h2>
+        <table class="kv">${renderPrintableRows([
+            ['行业分类', client.industry],
+            ['企业规模/客户类型', client.type],
+            ['竞争格局初判', client.strategy || '需结合行业资料进一步核实'],
+            ['行业风险提示', client.riskLevel || '待评估']
+        ])}</table>
+        <ul>${renderPrintableList([
+            '重点关注行业景气度、政策监管、上下游议价能力和订单稳定性。',
+            '制造业、商贸、建筑、物流、政府平台、小微企业等客户需分别匹配差异化尽调口径。'
+        ])}</ul>
+
+        <h2>六、信用与风险画像</h2>
+        <div class="score-row">
+            <div class="score-card"><div class="score-label">综合评分</div><div class="score-value">${escapeHtml(scores.overall || '待评估')}</div></div>
+            <div class="score-card"><div class="score-label">客户等级</div><div class="score-value">${escapeHtml(scores.grade || '待评估')}</div></div>
+            <div class="score-card"><div class="score-label">风险等级</div><div class="score-value">${escapeHtml(client.riskLevel || '待评估')}</div></div>
+            <div class="score-card"><div class="score-label">建议策略</div><div class="score-value">${escapeHtml(client.strategy || '待评估')}</div></div>
+        </div>
+        <table>
+            <tr><th>风险维度</th><th>当前信息</th></tr>
+            <tr><th>司法风险</th><td>${escapeHtml(client.lawsuit)}</td></tr>
+            <tr><th>行政处罚</th><td>${escapeHtml(client.penalty)}</td></tr>
+            <tr><th>经营异常</th><td>${escapeHtml(client.abnormal)}</td></tr>
+            <tr><th>失信信息</th><td>${escapeHtml(client.dishonest)}</td></tr>
+            <tr><th>关联风险</th><td>${escapeHtml(client.related)}</td></tr>
+        </table>
+        <ul>${renderPrintableChecks(client.riskChecks)}</ul>
+
+        <h2>七、业务合作机会评估</h2>
+        ${products.length ? `<table><tr><th>业务类型/产品</th><th>需求等级/匹配度</th><th>切入场景</th></tr>${products.map(item => `
+            <tr>
+                <td>${escapeHtml(item.name)}</td>
+                <td>${escapeHtml(item.fit)}</td>
+                <td>${escapeHtml(item.reason)}</td>
+            </tr>
+        `).join('')}</table>` : '<ul><li>暂无产品适配建议，需补充客户需求后生成。</li></ul>'}
+        <h3>公私联动机会</h3>
+        <ul>${renderPrintableList([
+            '代发工资、薪福通、员工个人账户、信用卡和个人财富管理可结合客户用工规模评估。',
+            '企业主、高管和财务负责人可在合规前提下联动财富管理与个人金融服务。',
+            '门店、线上收款、供应商付款、跨境结算等场景可与对公产品组合设计联动。'
+        ])}</ul>
+
+        <h2>八、拜访策略与行动建议</h2>
+        <h3>8.1 拜访要点</h3>
+        <ul>${renderPrintableList(plan.existing_client_deepening?.visit_questions || [])}</ul>
+        <h3>8.2 切入话术建议</h3>
+        <ul>${renderPrintableList([
+            '建议先围绕客户真实经营、资金流、结算链路和上下游关系展开，不直接承诺授信额度或审批结果。',
+            plan.new_client_acquisition?.first_contact_pitch || '先完成客户基础资料核验，再结合结算、融资、票据、代发和现金管理需求设计方案。'
+        ])}</ul>
+        <h3>8.3 拜访行动计划</h3>
+        <ul>${renderPrintableList(client.actions)}</ul>
+
+        <h2>九、合规尽调要点</h2>
+        <h3>9.1 KYC/AML核查清单</h3>
+        <ul>${renderPrintableChecks(client.identityChecks)}</ul>
+        <ul>${renderPrintableList(client.amlChecks)}</ul>
+        <h3>9.2 贷前调查准备</h3>
+        <ul>${renderPrintableList([
+            '核验营业执照、公司章程、股权结构、实际控制人、受益所有人和授权经办人。',
+            '获取近年财务报表、纳税、流水、合同、发票或项目资料，交叉验证经营真实性。',
+            '查询企业及实控人征信、司法诉讼、行政处罚、经营异常和失信信息。',
+            '涉及授信、保函、贸易融资或供应链金融时，落实贷款“三查”基本职责。'
+        ])}</ul>
+        <h3>9.3 数据来源与人工复核</h3>
+        <table>
+            <tr><th>信息源</th><th>说明</th></tr>
+            ${renderPrintableSourceRows(sources)}
+        </table>
+        <ul>${renderPrintableList(reviews.length ? reviews : ['暂无重点人工复核项'])}</ul>
+
+        <h2>十、效率KPI价值看板</h2>
+        <h3>10.1 效率KPI量化评估</h3>
+        <table>
+            <tr><th>KPI指标</th><th>本次表现</th><th>目标基准</th><th>状态</th><th>说明</th></tr>
+            ${renderPrintableKpiRows(dashboard)}
+        </table>
+        <h3>10.2 效率价值总结</h3>
+        <ul>${renderPrintableList([
+            `本报告预计为客户经理节省约${dashboard.savedMinutes}分钟工作时间。`,
+            `数据覆盖${sources.length}个来源，信息融合度评级：${sources.length >= 3 ? '高' : '中' }。`,
+            `建议优先复核：${reviews.join('；') || '暂无重点人工复核项'}。`
+        ])}</ul>
+
+        <div class="disclaimer">注：本分析基于提供的信息辅助生成，最终业务决策须以行内审批结论为准。涉及贷款、贸易融资、保函等授信业务时，请务必落实贷前调查、贷中审查、贷后检查等“贷款三查”基本职责。</div>
+    </div>
+</body>
+</html>`;
+}
+
+function renderPrintableRows(rows) {
+    return rows.map(([label, value]) => `<tr><th>${escapeHtml(label)}</th><td>${escapeHtml(value || '待核实')}</td></tr>`).join('');
+}
+
+function renderPrintableShareholderRows(shareholders) {
+    const safeItems = (shareholders || []).filter(Boolean);
+    if (!safeItems.length) return '<tr><td>股权结构待核实</td><td>待核实</td><td>需补充工商与章程材料</td></tr>';
+    return safeItems.map(item => `
+        <tr>
+            <td>${escapeHtml(item.name || '待核实')}</td>
+            <td>${escapeHtml(item.pct !== undefined ? `${item.pct}%` : (item.ratio || '待核实'))}</td>
+            <td>${escapeHtml(item.note || '需结合工商、年报或客户材料核验')}</td>
+        </tr>
+    `).join('');
+}
+
+function renderPrintableRevenueRows(items) {
+    const safeItems = (items || []).filter(Boolean);
+    if (!safeItems.length) return '<tr><td>待补充</td><td>待核实</td><td>待核实</td></tr>';
+    return safeItems.map(item => `
+        <tr>
+            <td>${escapeHtml(item.year || '待补充')}</td>
+            <td>${escapeHtml(item.revenue ? `${item.revenue}亿元` : '待核实')}</td>
+            <td>${escapeHtml(item.profit ? `${item.profit}亿元` : '待核实')}</td>
+        </tr>
+    `).join('');
+}
+
+function renderPrintableSourceRows(sources) {
+    const safeItems = (sources || []).filter(Boolean);
+    if (!safeItems.length) return '<tr><td>待补充</td><td>需接入工商、财务、司法、舆情和行内客户资料</td></tr>';
+    return safeItems.map(source => `
+        <tr>
+            <td>${escapeHtml(source.name || source.type || '公开来源')}</td>
+            <td>${escapeHtml(source.detail || source.url || '已纳入报告核验')}</td>
+        </tr>
+    `).join('');
+}
+
+function renderPrintableKpiRows(dashboard) {
+    const status = value => value ? '达标' : '待提升';
+    return [
+        ['节省时间', `${dashboard.savedMinutes}分钟`, '≥180分钟', status(dashboard.savedMinutes >= 180), '人工完成同等报告约需4-6小时，系统生成后客户经理重点复核'],
+        ['数据采集覆盖率', `${dashboard.coverage}%`, '≥90%', status(dashboard.coverage >= 90), '覆盖工商、财务、司法、舆情、行业等维度'],
+        ['信息源复用次数', dashboard.sourceReuse, '≥3次', status(parseFloat(dashboard.sourceReuse) >= 3), '同一信息源在基础信息、风险、合作机会等章节复用'],
+        ['核验准确度评分', `${dashboard.verification}%`, '≥85%', status(dashboard.verification >= 85), '基于可信来源数量和交叉验证情况估算'],
+        ['人工复核项', `${dashboard.reviewCount}项`, '≤3项', status(dashboard.reviewCount <= 3), '需客户经理重点补充或复核的资料缺口'],
+        ['报告完整度评分', `${dashboard.completeness}%`, '≥95%', status(dashboard.completeness >= 95), '十个报告模块覆盖情况']
+    ].map(row => `
+        <tr>
+            <td>${escapeHtml(row[0])}</td>
+            <td>${escapeHtml(row[1])}</td>
+            <td>${escapeHtml(row[2])}</td>
+            <td>${escapeHtml(row[3])}</td>
+            <td>${escapeHtml(row[4])}</td>
+        </tr>
+    `).join('');
+}
+
+function renderPrintableChecks(items) {
+    const safeItems = (items || []).map(item => item.text || item).filter(Boolean);
+    return renderPrintableList(safeItems);
+}
+
+function renderPrintableList(items) {
+    const safeItems = (items || []).filter(Boolean);
+    if (!safeItems.length) return '<li>暂无</li>';
+    return safeItems.map(item => `<li>${escapeHtml(item)}</li>`).join('');
+}
+
+function openPrintableReport(html) {
+    const reportWindow = window.open('', '_blank');
+    if (!reportWindow) {
+        downloadReportHtml(html);
+        alert('浏览器拦截了打印窗口，已改为下载HTML报告。打开下载文件后可使用浏览器打印为PDF。');
+        return;
+    }
+
+    reportWindow.document.open();
+    reportWindow.document.write(html);
+    reportWindow.document.close();
+    reportWindow.focus();
+    setTimeout(() => reportWindow.print(), 300);
+}
+
+function downloadReportHtml(html) {
+    const blob = new Blob([html], {type: 'text/html;charset=utf-8'});
+    const link = document.createElement('a');
+    const safeName = (currentClient?.name || 'KYC尽职调查报告').replace(/[\\/:*?"<>|]/g, '_');
+    link.href = URL.createObjectURL(blob);
+    link.download = `${safeName}_KYC尽职调查报告.html`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(link.href);
+}
+
+renderTrainingModule(0);
+</script>
+
+</body>
+</html>

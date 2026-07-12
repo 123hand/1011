@@ -1,0 +1,10 @@
+{
+  "name": "kyc-static-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "KYC intelligent due diligence platform static deployment package",
+  "scripts": {
+    "build": "node scripts/build_static.js",
+    "preview": "node scripts/static_server.js"
+  }
+}
