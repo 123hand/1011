@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>招商银行 · KYC智能尽调平台</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
     <style>
         /* ========== 全局变量与基础 ========== */
         :root {
@@ -4287,13 +4288,33 @@ function drawDebtChart(client) {
     ctx.fillText('净资产', w * 0.55 + 66, h - 22);
 }
 
-function exportReport() {
+async function exportReport() {
     if (!currentClient) {
         alert('请先查询并加载企业画像，再导出KYC尽职调查报告。');
         return;
     }
 
-    openPrintableReport(buildPrintableReportHtml(currentClient));
+    const html = buildPrintableReportHtml(currentClient);
+    if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '')) {
+        await downloadPdfReport(html);
+        return;
+    }
+    openPrintableReport(html);
+}
+
+async function downloadPdfReport(html) {
+    const safeName = (currentClient?.name || 'KYC尽职调查报告').replace(/[\\/:*?"<>|]/g, '_');
+    const holder = document.createElement('div');
+    holder.style.cssText = 'position:fixed;left:-100000px;top:0;width:794px;background:#fff;z-index:-1;';
+    holder.innerHTML = html.match(/<body[^>]*>([\s\S]*)<\/body>/i)?.[1] || html;
+    document.body.appendChild(holder);
+    try {
+        if (!window.html2pdf) throw new Error('pdf library unavailable');
+        await window.html2pdf().set({margin:[8,8,8,8],filename:`${safeName}_客户经理访前学习调查报告.pdf`,image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy']}}).from(holder).save();
+    } catch (error) {
+        openPrintableReport(html);
+        alert('PDF组件加载失败，已打开打印页面；请使用浏览器的“打印/存储为PDF”。');
+    } finally { holder.remove(); }
 }
 
 function printReport() {
@@ -4404,6 +4425,16 @@ function buildPrintableReportHtml(client) {
             <div class="workflow-step"><strong>报告展示与导出</strong>生成可打印访前学习调查报告，支持留痕归档。</div>
         </div>
 
+        <h2>报告执行摘要</h2>
+        <table class="kv">${renderPrintableRows([
+            ['客户定位', `${client.industry || '待识别行业'} / ${client.type || '待评估客户'}`],
+            ['经营财务信号', `营收：${client.revenue || '待核实'}；利润：${client.profit || '待核实'}；资产负债率：${client.debtRatio || client.debtData?.debtRatio || '待核实'}`],
+            ['风险研判', `${client.riskLevel || '待评估'}；须结合征信、司法、流水及行业变化复核`],
+            ['合作切入方向', products.slice(0, 3).map(item => item.name).join('、') || '先完成结算、资金流与融资需求访谈'],
+            ['本次行动建议', client.strategy || '先补齐关键资料，再形成客户开发方案']
+        ])}</table>
+        <ul>${renderPrintableList(['本摘要仅用于访前学习和尽调准备，不构成准入、授信或额度审批意见。', '优先围绕真实经营、资金流、结算链路、上下游和决策链路完成首轮访谈。'])}</ul>
+
         <h2>一、客户基础信息</h2>
         <h3>1.1 企业概况</h3>
         <table class="kv">${renderPrintableRows([
@@ -4509,6 +4540,8 @@ function buildPrintableReportHtml(client) {
         ])}</ul>
         <h3>8.3 拜访行动计划</h3>
         <ul>${renderPrintableList(client.actions)}</ul>
+        <h3>8.4 拜访节奏与责任动作</h3>
+        <table><tr><th>阶段</th><th>客户经理动作</th><th>目标产出</th></tr><tr><td>拜访前</td><td>核对公开资料、明确拜访对象、准备问题清单</td><td>客户速览与资料缺口清单</td></tr><tr><td>首次拜访</td><td>围绕经营、资金流、结算和融资痛点完成访谈</td><td>需求优先级与后续资料清单</td></tr><tr><td>拜访后48小时</td><td>记录纪要、补齐信息源、形成产品组合</td><td>跟进邮件与下一次沟通议题</td></tr></table>
 
         <h2>九、合规尽调要点</h2>
         <h3>9.1 KYC/AML核查清单</h3>
@@ -4527,6 +4560,8 @@ function buildPrintableReportHtml(client) {
             ${renderPrintableSourceRows(sources)}
         </table>
         <ul>${renderPrintableList(reviews.length ? reviews : ['暂无重点人工复核项'])}</ul>
+        <h3>9.4 关键资料缺口与复核优先级</h3>
+        <table><tr><th>优先级</th><th>资料/核验事项</th><th>完成标准</th></tr>${renderPrintableReviewRows(reviews)}</table>
 
         <h2>十、效率KPI价值看板</h2>
         <h3>10.1 效率KPI量化评估</h3>
@@ -4584,6 +4619,12 @@ function renderPrintableSourceRows(sources) {
             <td>${escapeHtml(source.detail || source.url || '已纳入报告核验')}</td>
         </tr>
     `).join('');
+}
+
+function renderPrintableReviewRows(reviews) {
+    const items = (reviews || []).filter(Boolean);
+    if (!items.length) return '<tr><td>中</td><td>持续更新公开信息与客户资料</td><td>下次拜访前完成复核</td></tr>';
+    return items.map((item, index) => `<tr><td>${index < 3 ? '高' : '中'}</td><td>${escapeHtml(item)}</td><td>取得原始资料或可信公开来源佐证</td></tr>`).join('');
 }
 
 function renderPrintableKpiRows(dashboard) {

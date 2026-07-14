@@ -9,6 +9,11 @@ const html = fs.readFileSync("kyc_platform.html", "utf8");
   "function buildPrintableReportHtml",
   "function openPrintableReport",
   "function downloadReportHtml",
+  "function downloadPdfReport",
+  "html2pdf",
+  "报告执行摘要",
+  "关键资料缺口与复核优先级",
+  "拜访节奏与责任动作",
   "window.print()",
   "客户经理访前学习调查报告",
   "目  录",
@@ -31,6 +36,11 @@ const html = fs.readFileSync("kyc_platform.html", "utf8");
 assert(
   !html.includes("PDF导出功能需对接后端服务，当前为演示模式"),
   "PDF export should not remain a demo-only alert"
+);
+
+assert(
+  html.includes(".pdf"),
+  "mobile export should generate a PDF file rather than only an HTML fallback"
 );
 
 console.log("report export frontend structure ok");
