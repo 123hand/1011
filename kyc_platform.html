@@ -603,6 +603,92 @@
             color: #FFFFFF;
         }
 
+        .public-source-lookup {
+            margin: 0 32px 24px;
+            display: none;
+            background: var(--cmb-card-bg);
+            border: 1px solid var(--cmb-border);
+            border-left: 4px solid var(--cmb-red);
+            border-radius: var(--cmb-radius);
+            box-shadow: var(--cmb-shadow);
+            padding: 20px 24px;
+        }
+
+        .public-source-lookup.active { display: block; }
+
+        .public-source-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .public-source-title { font-size: 16px; font-weight: 700; }
+        .public-source-desc { margin-top: 6px; color: var(--cmb-text-light); font-size: 13px; line-height: 1.6; }
+
+        .public-source-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .public-source-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 12px;
+            color: var(--cmb-text);
+            text-decoration: none;
+            border: 1px solid var(--cmb-border);
+            border-radius: var(--cmb-radius-sm);
+            background: #FFFFFF;
+        }
+
+        .public-source-link:hover { border-color: var(--cmb-red); color: var(--cmb-red); }
+        .public-source-link small { color: var(--cmb-text-light); font-size: 11px; }
+
+        .public-evidence-form {
+            display: grid;
+            grid-template-columns: 160px 1fr auto;
+            gap: 10px;
+            align-items: end;
+        }
+
+        .public-evidence-field { display: flex; flex-direction: column; gap: 6px; }
+        .public-evidence-field label { font-size: 12px; color: var(--cmb-text-light); }
+        .public-evidence-field select,
+        .public-evidence-field input,
+        .public-evidence-field textarea {
+            width: 100%;
+            border: 1px solid var(--cmb-border);
+            border-radius: var(--cmb-radius-sm);
+            padding: 10px;
+            font: inherit;
+            color: var(--cmb-text);
+            background: #FFFFFF;
+        }
+
+        .public-evidence-field textarea { min-height: 68px; resize: vertical; }
+        .public-evidence-wide { grid-column: 1 / 3; }
+        .public-evidence-status { grid-column: 1 / -1; color: var(--cmb-text-light); font-size: 12px; min-height: 18px; }
+
+        @media (max-width: 900px) {
+            .public-source-lookup { margin-left: 16px; margin-right: 16px; }
+            .public-source-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .public-evidence-form { grid-template-columns: 1fr 1fr; }
+            .public-evidence-form .search-btn { grid-column: 1 / -1; }
+        }
+
+        @media (max-width: 560px) {
+            .public-source-lookup { padding: 16px; }
+            .public-source-header { display: block; }
+            .public-source-grid, .public-evidence-form { grid-template-columns: 1fr; }
+            .public-evidence-wide { grid-column: auto; }
+        }
+
         /* ========== 主内容区 ========== */
         .main-content {
             margin: 0 32px;
@@ -1800,6 +1886,32 @@
     </div>
     <button class="search-btn" onclick="doSearch()">查询分析</button>
 </div>
+
+<section class="public-source-lookup" id="publicSourceLookup" aria-live="polite">
+    <div class="public-source-header">
+        <div>
+            <div class="public-source-title">公开资料核验</div>
+            <div class="public-source-desc" id="publicSourceDescription"></div>
+        </div>
+    </div>
+    <div class="public-source-grid" id="publicSourceLinks"></div>
+    <div class="public-evidence-form">
+        <div class="public-evidence-field">
+            <label for="publicEvidenceSource">核验来源</label>
+            <select id="publicEvidenceSource"></select>
+        </div>
+        <div class="public-evidence-field public-evidence-wide">
+            <label for="publicEvidenceUrl">资料链接（可选）</label>
+            <input id="publicEvidenceUrl" type="url" placeholder="粘贴已核验的公开资料链接">
+        </div>
+        <div class="public-evidence-field public-evidence-wide">
+            <label for="publicEvidenceNotes">核验摘要</label>
+            <textarea id="publicEvidenceNotes" placeholder="录入已核验的工商、司法、招投标或公告信息；请勿填写个人敏感信息"></textarea>
+        </div>
+        <button class="search-btn" type="button" onclick="savePublicEvidence()">保存核验记录</button>
+        <div class="public-evidence-status" id="publicEvidenceStatus"></div>
+    </div>
+</section>
 
 <!-- ========== 主内容区（查询后显示） ========== -->
 <div class="main-content" id="mainContent">
@@ -3167,6 +3279,12 @@ function renderClient(client) {
     document.getElementById('mainContent').classList.add('active');
     document.getElementById('mainContent').classList.add('fade-in');
 
+    if (currentClient.publicSourceLookup) {
+        showPublicSourceLookup(currentClient.publicQuery);
+    } else {
+        hidePublicSourceLookup();
+    }
+
     fillBasicInfo(currentClient);
     fillAnalysis(currentClient);
     fillDevelopment(currentClient);
@@ -3236,6 +3354,118 @@ function mapLocalRecordToProfile(record) {
     };
 }
 
+const PUBLIC_SOURCE_CATALOG = [
+    {name: '国家企业信用信息公示系统', scope: '工商、年报与异常名录', url: 'https://www.gsxt.gov.cn/'},
+    {name: '信用中国', scope: '行政许可与信用信息', url: 'https://www.creditchina.gov.cn/'},
+    {name: '中国执行信息公开网', scope: '执行与失信信息', url: 'https://zxgk.court.gov.cn/'},
+    {name: '中国裁判文书网', scope: '公开裁判文书', url: 'https://wenshu.court.gov.cn/'},
+    {name: '中国政府采购网', scope: '政府采购与中标线索', url: 'https://www.ccgp.gov.cn/'},
+    {name: '巨潮资讯', scope: '上市公司公告与财报', url: 'https://www.cninfo.com.cn/'}
+];
+
+function publicEvidenceStorageKey(query) {
+    return `kyc-public-evidence:${encodeURIComponent(query)}`;
+}
+
+function getPublicEvidence(query) {
+    try {
+        const saved = localStorage.getItem(publicEvidenceStorageKey(query));
+        const parsed = saved ? JSON.parse(saved) : [];
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (error) {
+        return [];
+    }
+}
+
+function buildPublicSourceLinks(query) {
+    const linkContainer = document.getElementById('publicSourceLinks');
+    const sourceSelect = document.getElementById('publicEvidenceSource');
+    linkContainer.innerHTML = PUBLIC_SOURCE_CATALOG.map(source => `
+        <a class="public-source-link" href="${source.url}" target="_blank" rel="noopener noreferrer" title="打开${escapeHtml(source.name)}，检索：${escapeHtml(query)}">
+            <span>${escapeHtml(source.name)}<br><small>${escapeHtml(source.scope)}</small></span>
+            <span aria-hidden="true">↗</span>
+        </a>
+    `).join('');
+    sourceSelect.innerHTML = PUBLIC_SOURCE_CATALOG.map(source =>
+        `<option value="${escapeHtml(source.name)}">${escapeHtml(source.name)}</option>`
+    ).join('');
+}
+
+function evidenceToSources(evidence) {
+    return evidence.map(item => ({
+        name: item.source || '人工核验公开资料',
+        type: 'manual-public-review',
+        confidence: 'medium',
+        url: item.url || '',
+        detail: `${item.note || '已保存人工核验记录'}（${item.savedAt || '时间待核实'}）`
+    }));
+}
+
+function attachPublicEvidence(client) {
+    if (!client || !client.publicQuery) return client;
+    const evidence = getPublicEvidence(client.publicQuery);
+    const sources = evidenceToSources(evidence);
+    const baseManualReviewItems = client.baseManualReviewItems || client.manual_review_items || [];
+    const manualNote = evidence.length
+        ? '已保存人工核验记录，仍需按行内流程交叉复核并留存原始凭证'
+        : '请选择官方公开来源完成检索并保存核验摘要';
+    client.sources = sources;
+    client.baseManualReviewItems = baseManualReviewItems;
+    client.manual_review_items = [manualNote].concat(baseManualReviewItems);
+    client.apiProfile = client.apiProfile || {};
+    client.apiProfile.sources = sources;
+    client.apiProfile.manual_review_items = client.manual_review_items;
+    client.apiProfile.data_quality = {
+        coverage_rate: evidence.length ? 20 : 0,
+        verification_rate: 0,
+        source_count: sources.length,
+        pending_review_count: client.manual_review_items.length
+    };
+    return client;
+}
+
+function showPublicSourceLookup(query) {
+    const lookup = document.getElementById('publicSourceLookup');
+    lookup.classList.add('active');
+    lookup.dataset.query = query;
+    document.getElementById('publicSourceDescription').textContent = `未命中已收录资料。可使用以下官方渠道检索“${query}”，核验后保存摘要，报告将保留人工复核标记。`;
+    buildPublicSourceLinks(query);
+    const evidence = getPublicEvidence(query);
+    document.getElementById('publicEvidenceStatus').textContent = evidence.length
+        ? `当前浏览器已保存 ${evidence.length} 条核验记录，可继续补充。`
+        : '核验记录仅保存在当前浏览器；正式业务资料请按行内流程留存。';
+}
+
+function hidePublicSourceLookup() {
+    document.getElementById('publicSourceLookup').classList.remove('active');
+}
+
+function savePublicEvidence() {
+    const lookup = document.getElementById('publicSourceLookup');
+    const query = lookup.dataset.query;
+    const note = document.getElementById('publicEvidenceNotes').value.trim();
+    if (!query || !note) {
+        document.getElementById('publicEvidenceStatus').textContent = '请先填写已核验的公开资料摘要。';
+        return;
+    }
+
+    const evidence = getPublicEvidence(query);
+    evidence.push({
+        source: document.getElementById('publicEvidenceSource').value,
+        url: document.getElementById('publicEvidenceUrl').value.trim(),
+        note,
+        savedAt: new Date().toLocaleString('zh-CN')
+    });
+    localStorage.setItem(publicEvidenceStorageKey(query), JSON.stringify(evidence));
+    document.getElementById('publicEvidenceNotes').value = '';
+    document.getElementById('publicEvidenceUrl').value = '';
+    document.getElementById('publicEvidenceStatus').textContent = `已保存 ${evidence.length} 条核验记录，并同步到当前报告预览。`;
+
+    if (currentClient && currentClient.publicQuery === query) {
+        renderClient(attachPublicEvidence(currentClient));
+    }
+}
+
 function buildUnlistedCompanyClient(query) {
     const pending = '待补充';
     const reviewItems = [
@@ -3248,20 +3478,20 @@ function buildUnlistedCompanyClient(query) {
 
     return {
         keywords: [query],
-        name: `${query}（数据库暂未收录）`,
+        name: query,
         code: pending,
         legal: pending,
         date: pending,
         capital: pending,
-        status: '数据库暂未收录，需客户经理补充资料后建档',
+        status: '公开资料核验中，待客户经理补充建档资料',
         scope: pending,
         industry: '待识别行业',
         type: '待建档企业',
         term: pending,
         tags: [
-            {text: '数据库暂未收录', cls: 'red'},
+            {text: '公开资料检索', cls: 'red'},
             {text: '客户准入尽调前置', cls: 'orange'},
-            {text: '待补充资料清单', cls: 'blue'}
+            {text: '人工核验待办', cls: 'blue'}
         ],
         shareholders: [{name: '股权结构待核实', pct: 100, color: '#718096'}],
         lawsuit: pending,
@@ -3324,6 +3554,8 @@ function buildUnlistedCompanyClient(query) {
             '如涉及授信业务，必须落实贷前调查、贷中审查、贷后检查'
         ],
         developmentPlan: null,
+        publicQuery: query,
+        publicSourceLookup: true,
         apiProfile: {
             sources: [],
             manual_review_items: reviewItems,
@@ -3346,8 +3578,8 @@ function buildUnlistedCompanyClient(query) {
 }
 
 function renderUnlistedCompanyNotice(query) {
-    showSearchHint(`⚠️ 数据库暂未收录 <strong>${escapeHtml(query)}</strong>。已生成待建档尽调框架，请先补充营业执照、经营流水、财务与征信等资料后再形成正式分析。`, 'orange');
-    renderClient(buildUnlistedCompanyClient(query));
+    showSearchHint(`公开资料检索已就绪：请核验 <strong>${escapeHtml(query)}</strong> 的官方公开信息，并保存核验摘要后生成尽调报告。`, 'blue');
+    renderClient(attachPublicEvidence(buildUnlistedCompanyClient(query)));
 }
 
 async function doSearch() {

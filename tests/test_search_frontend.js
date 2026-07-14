@@ -6,12 +6,24 @@ const html = fs.readFileSync("kyc_platform.html", "utf8");
 [
   "function renderUnlistedCompanyNotice",
   "function buildUnlistedCompanyClient",
-  "数据库暂未收录",
-  "待补充资料清单",
+  "publicSourceLookup",
+  "function buildPublicSourceLinks",
+  "function savePublicEvidence",
+  "国家企业信用信息公示系统",
+  "信用中国",
+  "中国执行信息公开网",
+  "中国裁判文书网",
+  "中国政府采购网",
+  "巨潮资讯",
   "客户准入尽调前置",
 ].forEach((needle) => {
   assert(html.includes(needle), `Expected kyc_platform.html to include ${needle}`);
 });
+
+assert(
+  !html.includes("数据库暂未收录"),
+  "Unlisted companies should offer public-source lookup instead of a database-missing notice"
+);
 
 assert(
   !html.includes("Math.random() * MOCK_CLIENTS.length"),
