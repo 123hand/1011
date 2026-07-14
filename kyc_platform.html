@@ -126,6 +126,7 @@
             width: 200px;
             height: 100%;
             background: linear-gradient(135deg, transparent, rgba(196,18,48,0.15));
+            pointer-events: none;
         }
 
         .dev-banner-icon {
@@ -3365,7 +3366,7 @@ async function doSearch() {
         }
         showSearchHint('⚠️ 后端接口未找到匹配企业，继续检索本地公开披露数据包。', 'orange');
     } catch (error) {
-        showSearchHint('ℹ️ 未检测到本地后端服务，当前优先使用本地公开披露数据包。Python修复后启动 `python kyc_server.py` 可调用完整接口。', 'blue');
+        // 静默降级到本地公开披露数据包，避免向用户暴露不存在的后端状态。
     }
 
     const publicClient = tryLocalPublicRecordSearch(query);
