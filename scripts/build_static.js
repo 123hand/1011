@@ -21,8 +21,8 @@ const filesToCopy = [
     to: path.join(distDir, 'file_store', 'company_records.json')
   },
   {
-    from: path.join(sourceMediaDir, 'cmb_logo_transparent.png'),
-    to: path.join(distDir, 'media', 'cmb_logo_transparent.png')
+    from: path.join(sourceMediaDir, 'cmb_logo_no_background.png'),
+    to: path.join(distDir, 'media', 'cmb_logo_no_background.png')
   }
 ];
 
