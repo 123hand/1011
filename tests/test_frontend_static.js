@@ -23,4 +23,8 @@ assert(
   'brand image should be shown in full without cropping'
 );
 
+['workDiary', 'saveDiaryEntry', 'diaryPhotoInput', 'localStorage'].forEach((needle) => {
+  assert(html.includes(needle), `work diary should include ${needle}`);
+});
+
 console.log('frontend static checks ok');

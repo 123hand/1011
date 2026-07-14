@@ -625,6 +625,23 @@
 
         .public-source-lookup.active { display: block; }
 
+        .work-diary { margin: 0 32px 24px; background: #FFFFFF; border: 1px solid var(--cmb-border); border-radius: var(--cmb-radius); padding: 24px; box-shadow: var(--cmb-shadow); }
+        .work-diary-head { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:16px; }
+        .work-diary-title { font-size:18px; font-weight:700; color:var(--cmb-text); }
+        .work-diary-note { font-size:12px; color:var(--cmb-text-light); }
+        .diary-form { display:grid; grid-template-columns: 150px 1fr auto; gap:12px; align-items:end; }
+        .diary-field { display:flex; flex-direction:column; gap:6px; }
+        .diary-field label { font-size:12px; color:var(--cmb-text-light); }
+        .diary-field input, .diary-field textarea { width:100%; border:1px solid var(--cmb-border); border-radius:var(--cmb-radius-sm); padding:10px; font:inherit; }
+        .diary-field textarea { min-height:76px; resize:vertical; }
+        .diary-wide { grid-column:1 / 3; }
+        .diary-photo-preview { display:none; width:72px; height:72px; object-fit:cover; border-radius:var(--cmb-radius-sm); border:1px solid var(--cmb-border); }
+        .diary-list { display:grid; gap:10px; margin-top:18px; }
+        .diary-entry { border-top:1px solid var(--cmb-border); padding-top:12px; display:flex; gap:12px; }
+        .diary-entry img { width:56px; height:56px; object-fit:cover; border-radius:var(--cmb-radius-sm); }
+        .diary-entry-title { font-weight:700; font-size:14px; } .diary-entry-meta { color:var(--cmb-text-light); font-size:12px; }
+        .diary-entry-note { font-size:13px; margin-top:4px; white-space:pre-wrap; }
+
         .public-source-header {
             display: flex;
             align-items: flex-start;
@@ -686,6 +703,7 @@
 
         @media (max-width: 900px) {
             .public-source-lookup { margin-left: 16px; margin-right: 16px; }
+            .work-diary { margin-left:16px; margin-right:16px; }
             .public-source-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .public-evidence-form { grid-template-columns: 1fr 1fr; }
             .public-evidence-form .search-btn { grid-column: 1 / -1; }
@@ -695,6 +713,8 @@
             .public-source-lookup { padding: 16px; }
             .public-source-header { display: block; }
             .public-source-grid, .public-evidence-form { grid-template-columns: 1fr; }
+            .diary-form { grid-template-columns:1fr; }
+            .diary-wide { grid-column:auto; }
             .public-evidence-wide { grid-column: auto; }
         }
 
@@ -1877,6 +1897,17 @@
 </section>
 
 <!-- ========== 搜索栏 ========== -->
+<section class="work-diary" id="workDiary">
+    <div class="work-diary-head"><div class="work-diary-title">个人工作日记</div><div class="work-diary-note">仅保存于当前浏览器，请勿记录个人敏感信息</div></div>
+    <div class="diary-form">
+        <div class="diary-field"><label for="diaryClient">客户简称</label><input id="diaryClient" placeholder="例如：某制造企业"></div>
+        <div class="diary-field diary-wide"><label for="diaryNote">工作过程</label><textarea id="diaryNote" placeholder="记录拜访、尽调、需求沟通、下一步跟进等工作要点"></textarea></div>
+        <div class="diary-field"><label for="diaryPhotoInput">工作照片</label><input id="diaryPhotoInput" type="file" accept="image/*" onchange="previewDiaryPhoto()"></div>
+        <img class="diary-photo-preview" id="diaryPhotoPreview" alt="工作照片预览">
+        <button class="search-btn" type="button" onclick="saveDiaryEntry()">保存日记</button>
+    </div>
+    <div class="diary-list" id="diaryList"></div>
+</section>
 <div class="search-section" id="searchSection">
     <span class="search-label">🔍 客户查询</span>
     <div class="search-input-wrapper">
@@ -3182,6 +3213,26 @@ function quickSearch(keyword) {
     document.getElementById('searchInput').value = keyword;
     doSearch();
 }
+
+let diaryPhotoData = '';
+function getDiaryEntries() { try { return JSON.parse(localStorage.getItem('cmb-work-diary') || '[]'); } catch (error) { return []; } }
+function renderDiaryEntries() {
+    const entries = getDiaryEntries();
+    document.getElementById('diaryList').innerHTML = entries.length ? entries.map(item => `<article class="diary-entry">${item.photo ? `<img src="${item.photo}" alt="工作留痕照片">` : ''}<div><div class="diary-entry-title">${escapeHtml(item.client || '日常工作记录')}</div><div class="diary-entry-meta">${escapeHtml(item.time)}</div><div class="diary-entry-note">${escapeHtml(item.note)}</div></div></article>`).join('') : '<div class="diary-entry-meta">还没有工作记录。从一条客户跟进开始吧。</div>';
+}
+function previewDiaryPhoto() {
+    const file = document.getElementById('diaryPhotoInput').files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/') || file.size > 3 * 1024 * 1024) { alert('请上传不超过3MB的图片文件'); document.getElementById('diaryPhotoInput').value = ''; return; }
+    const reader = new FileReader(); reader.onload = event => { diaryPhotoData = event.target.result; const preview = document.getElementById('diaryPhotoPreview'); preview.src = diaryPhotoData; preview.style.display = 'block'; }; reader.readAsDataURL(file);
+}
+function saveDiaryEntry() {
+    const note = document.getElementById('diaryNote').value.trim(); if (!note) { alert('请填写工作过程'); return; }
+    const entries = getDiaryEntries(); entries.unshift({ client: document.getElementById('diaryClient').value.trim(), note, photo: diaryPhotoData, time: new Date().toLocaleString('zh-CN') });
+    try { localStorage.setItem('cmb-work-diary', JSON.stringify(entries.slice(0, 30))); } catch (error) { alert('本机存储空间不足，请减少照片数量后重试'); return; }
+    document.getElementById('diaryClient').value = ''; document.getElementById('diaryNote').value = ''; document.getElementById('diaryPhotoInput').value = ''; diaryPhotoData = ''; document.getElementById('diaryPhotoPreview').style.display = 'none'; renderDiaryEntries();
+}
+document.addEventListener('DOMContentLoaded', renderDiaryEntries);
 
 function showSearchHint(message, tone = 'orange') {
     const existingHint = document.getElementById('searchHint');
