@@ -13,4 +13,14 @@ assert(
   'decorative dev-banner pseudo element must not intercept button clicks'
 );
 
+assert(
+  html.includes('class="cmb-brand-logo"') && html.includes('media/cmb_logo_transparent.png'),
+  'top navigation should include the supplied China Merchants Bank brand image'
+);
+
+assert(
+  /\.cmb-brand-logo\s*\{[\s\S]*?object-fit:\s*cover\s*;[\s\S]*?\}/.test(html),
+  'brand image should be cropped consistently within the navigation bar'
+);
+
 console.log('frontend static checks ok');

@@ -61,6 +61,17 @@
             gap: 16px;
         }
 
+        .cmb-brand-logo {
+            width: 214px;
+            height: 46px;
+            display: block;
+            object-fit: cover;
+            object-position: center;
+            background: #FFFFFF;
+            border-radius: 4px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.16);
+        }
+
         .platform-name {
             color: var(--cmb-gold);
             font-size: 16px;
@@ -1531,6 +1542,11 @@
                 padding-left: 12px;
             }
 
+            .cmb-brand-logo {
+                width: 168px;
+                height: 38px;
+            }
+
             .nav-badge { display: none; }
 
             .dev-banner,
@@ -1735,6 +1751,7 @@
 <!-- ========== 顶部导航 ========== -->
 <nav class="top-nav">
     <div class="nav-left">
+        <img class="cmb-brand-logo" src="media/cmb_logo_transparent.png" alt="招商银行">
         <span class="platform-name">KYC智能尽调平台</span>
     </div>
     <div class="nav-right">
