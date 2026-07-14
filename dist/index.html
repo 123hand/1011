@@ -2134,7 +2134,7 @@
                     </div>
                     <div class="overall-score">
                         <div class="overall-score-value" id="overallScore">--</div>
-                        <div class="overall-score-label">综合评分</div>
+                        <div class="overall-score-label">客户画像评分（非授信）</div>
                         <div class="score-grade" id="scoreGrade">--</div>
                     </div>
                 </div>
@@ -3270,7 +3270,7 @@ function showSearchHint(message, tone = 'orange') {
 }
 
 function mapApiProfileToClient(profile) {
-    const scoreBase = profile.risk.level === 'high' ? 58 : profile.risk.level === 'medium' ? 72 : 86;
+    const profileScores = calculateProfileScores(profile);
     const reviewItems = profile.manual_review_items || [];
     const sources = profile.sources || [];
     const finance = profile.finance || {};
@@ -3304,18 +3304,7 @@ function mapApiProfileToClient(profile) {
         abnormal: risk.abnormal || '待核实',
         dishonest: risk.dishonest || '待核实',
         related: risk.related || '待核实',
-        scores: {
-            overall: scoreBase,
-            grade: scoreBase >= 80 ? 'A' : scoreBase >= 70 ? 'B' : 'C',
-            dims: [
-                {label: '经营稳定性', value: Math.min(95, scoreBase + 4), color: 'var(--cmb-blue)'},
-                {label: '财务健康度', value: scoreBase, color: 'var(--cmb-green)'},
-                {label: '信用画像', value: Math.max(50, scoreBase - 2), color: 'var(--cmb-gold)'},
-                {label: '行业前景', value: Math.max(50, scoreBase - 6), color: 'var(--cmb-purple)'},
-                {label: '数据可信度', value: dataQuality.verification_rate || 66, color: 'var(--cmb-orange)'},
-                {label: '合规风险', value: Math.max(50, scoreBase - 8), color: 'var(--cmb-red)'}
-            ]
-        },
+        scores: profileScores,
         products: products,
         actions: actions,
         revenueData: finance.revenueData || [
@@ -3354,6 +3343,34 @@ function mapApiProfileToClient(profile) {
         ],
         developmentPlan: profile.development_plan || null,
         apiProfile: profile
+    };
+}
+
+function calculateProfileScores(profile) {
+    const risk = profile.risk || {};
+    const quality = profile.data_quality || {};
+    const sources = profile.sources || [];
+    const finance = profile.finance || {};
+    const basic = profile.basic || {};
+    let base = risk.level === 'high' ? 58 : risk.level === 'low' ? 84 : 78;
+    if (sources.length >= 3) base += 3;
+    if ((quality.verification_rate || 0) >= 85) base += 3;
+    if ((finance.revenue_data || []).length >= 3) base += 2;
+    if (/上市|\.HK|\.SZ|\.SH/i.test(`${profile.code || ''} ${basic.type || ''}`)) base += 4;
+    if ([risk.lawsuit, risk.penalty, risk.abnormal, risk.dishonest].every(value => /^(0条|无|未见)/.test(String(value || '')))) base += 2;
+    base = Math.max(45, Math.min(92, base));
+    const grade = base >= 88 ? 'A+' : base >= 82 ? 'A' : base >= 76 ? 'B+' : base >= 68 ? 'B' : 'C';
+    return {
+        overall: base,
+        grade,
+        dims: [
+            {label: '经营稳定性', value: Math.min(95, base + 2), color: 'var(--cmb-blue)'},
+            {label: '财务健康度', value: Math.min(94, base + ((finance.revenue_data || []).length >= 3 ? 2 : -2)), color: 'var(--cmb-green)'},
+            {label: '信用画像', value: Math.max(50, base - (risk.level === 'high' ? 8 : 1)), color: 'var(--cmb-gold)'},
+            {label: '行业前景', value: Math.max(50, base - 3), color: 'var(--cmb-purple)'},
+            {label: '数据可信度', value: quality.verification_rate || 66, color: 'var(--cmb-orange)'},
+            {label: '合规可控度', value: Math.max(50, base - (risk.level === 'high' ? 10 : 3)), color: 'var(--cmb-red)'}
+        ]
     };
 }
 

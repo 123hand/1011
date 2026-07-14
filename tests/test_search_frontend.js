@@ -9,6 +9,7 @@ const html = fs.readFileSync("kyc_platform.html", "utf8");
   "publicSourceLookup",
   "function buildPublicSourceLinks",
   "function savePublicEvidence",
+  "function calculateProfileScores",
   "国家企业信用信息公示系统",
   "信用中国",
   "中国执行信息公开网",
@@ -28,6 +29,11 @@ assert(
 assert(
   !html.includes("Math.random() * MOCK_CLIENTS.length"),
   "Unknown search should not randomly render a demo company"
+);
+
+assert(
+  !html.includes("profile.risk.level === 'medium' ? 72"),
+  "medium-risk profiles should not be forced to a fixed 72-point score"
 );
 
 console.log("search frontend fallback structure ok");
