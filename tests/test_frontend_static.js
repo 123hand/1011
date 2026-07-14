@@ -27,4 +27,7 @@ assert(
   assert(html.includes(needle), `work diary should include ${needle}`);
 });
 
+assert(html.includes('onclick="showWorkDiary()"'), 'top banner should provide a work diary shortcut');
+assert(html.includes('function showWorkDiary()'), 'work diary shortcut should scroll to the diary section');
+
 console.log('frontend static checks ok');

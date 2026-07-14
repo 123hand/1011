@@ -1805,6 +1805,10 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .35.35.6.65.4C3 20.4 4.95 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.7 1.05.3.15.65-.1.65-.4V6c-.6-.45-1.25-.75-1.85-1zM12 19c-1.45-.9-3.45-1.3-5.5-1.3-1.15 0-2.3.1-3.5.4V7.25c1.05-.35 2.25-.55 3.5-.55 2.05 0 4.05.4 5.5 1.3V19zm8-1c-1.1-.2-2.25-.3-3.5-.3-2.05 0-4.05.4-5.5 1.3V8c1.45-.9 3.45-1.3 5.5-1.3 1.25 0 2.45.2 3.5.55V18z"/></svg>
             培训训练
         </button>
+        <button class="dev-action-btn" onclick="showWorkDiary()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm1 16H8v-2h7v2zm0-4H8v-2h7v2zm-2-5V3.5L18.5 9H13z"/></svg>
+            工作日记
+        </button>
     </div>
 </div>
 
@@ -3158,6 +3162,11 @@ function scrollToCards() {
 function showSearch() {
     document.getElementById('searchSection').scrollIntoView({behavior: 'smooth'});
     document.getElementById('searchInput').focus();
+}
+
+function showWorkDiary() {
+    document.getElementById('workDiary').scrollIntoView({behavior: 'smooth', block: 'start'});
+    setTimeout(() => document.getElementById('diaryNote').focus(), 350);
 }
 
 function showTraining() {
