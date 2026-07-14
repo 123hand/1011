@@ -29,5 +29,7 @@ assert(
 
 assert(html.includes('onclick="showWorkDiary()"'), 'top banner should provide a work diary shortcut');
 assert(html.includes('function showWorkDiary()'), 'work diary shortcut should scroll to the diary section');
+assert(html.includes('id="diaryPhotoModal"'), 'work diary should include a photo preview modal');
+assert(html.includes('function openDiaryPhoto('), 'work diary photos should support enlarged preview');
 
 console.log('frontend static checks ok');
