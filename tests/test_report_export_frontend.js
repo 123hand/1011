@@ -78,4 +78,14 @@ assert(
   "project reports should have a dedicated dynamic body using the existing export flow"
 );
 
+assert(
+  html.includes("downloadReportHtml(html);\n        return;"),
+  "mobile export should download the report HTML directly instead of blocking on PDF canvas rendering"
+);
+
+assert(
+  html.includes("setTimeout(() => URL.revokeObjectURL(url), 30000)"),
+  "mobile report download should keep its blob URL alive long enough for the browser to finish"
+);
+
 console.log("report export frontend structure ok");
