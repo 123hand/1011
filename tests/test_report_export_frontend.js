@@ -84,6 +84,11 @@ assert(
 );
 
 assert(
+  !html.includes("报告内容：本页面已按项目内"),
+  "report cover should not expose an implementation note"
+);
+
+assert(
   html.includes("downloadReportHtml(html);\n        return;"),
   "mobile export should download the report HTML directly instead of blocking on PDF canvas rendering"
 );
