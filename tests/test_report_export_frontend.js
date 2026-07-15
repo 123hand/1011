@@ -79,6 +79,11 @@ assert(
 );
 
 assert(
+  html.includes("2026年7月12日") && html.includes("4.8次") && html.includes("债券承销"),
+  "China Mobile export should use the user-provided report data rather than the older summary"
+);
+
+assert(
   html.includes("downloadReportHtml(html);\n        return;"),
   "mobile export should download the report HTML directly instead of blocking on PDF canvas rendering"
 );

@@ -4354,9 +4354,9 @@ function getProjectReportOverride(client) {
             finance: ['公开年报口径显示营收已达万亿元级，经营现金流强，具备较强的抗周期与融资能力。', '个人市场用户渗透率接近饱和，需持续关注增长动能转换及云、算力等新业务投入产出。', '关注资本开支、资产负债结构及5G/6G技术迭代带来的中长期投资节奏。'],
             industry: ['中国三大电信运营商之一，在用户规模、网络覆盖和财务体量方面处于领先位置。', '主要竞争来自中国电信、中国联通、中国广电，以及云计算领域的阿里云、腾讯云、华为云。'],
             risks: ['经营风险：个人市场增速放缓，云与算力业务需要持续投入。', '行业风险：运营商竞争、云计算跨界竞争与技术迭代。', '复核重点：管理团队最新变动、移动云收入与增速、集团资金管理与子公司资金往来。'],
-            opportunities: [['现金管理与对公存款', '高', '全国性资金归集、账户体系与闲置资金管理'], ['政企项目结算', '高', '移动云、IDC、5G专网及ICT项目回款与支付场景'], ['供应链金融', '中高', '设备、工程、服务商等上下游结算与融资协同'], ['薪福通及公私联动', '高', '员工代发、个人金融及营业厅聚合支付场景']],
-            visit: ['优先拜访资金部、财务部及政企业务相关负责人，了解集团账户体系、归集边界与项目结算链路。', '围绕云网项目资金效率、供应商付款与员工服务切入，不承诺任何授信额度或审批结果。', '拜访后形成资金管理、结算、代发和供应链场景的分阶段方案，并按行内流程推进。'],
-            kyc: ['核验央企控股关系、上市公司披露信息与集团授权链路。', '如涉及授信，取得近三年审计报告，了解5G/6G投资计划、重大项目及资金安排。', '按制度查询企业及重要子公司司法、合规与负面信息。']
+            opportunities: [['对公存款', '高', '万亿元级营收资金归集与流动性管理'], ['代发工资（薪福通）', '高', '约45万员工全国发薪及公私联动'], ['债券承销', '高', '央企信用债、中期票据与公司债承销'], ['供应链金融', '高', '通信设备供应商与基站代维服务商融资'], ['对公理财/资金管理', '高', '司库建设、结构性存款与现金管理'], ['跨境结算', '中高', '国际业务及海外数据中心建设资金需求']],
+            visit: ['优先拜访财务部、资金部负责人或财务总监，了解司库建设、资金归集与员工福利需求。', '以服务而非营销切入：围绕万亿元级资金池的归集效率、收益率与支付管理展开访谈。', '重点询问45万员工代发覆盖、债券融资计划及通信供应链融资优化需求。', '拜访后1天发送定制方案，1周内围绕资金管理与员工代发两个方向推进落地。'],
+            kyc: ['获取最新营业执照扫描件，核验香港注册与北京办公双总部信息。', '核实央企控股地位、国资委控制链路及集团授权文件。', '确认受益所有人识别、关联企业穿透与上市公司及子公司诉讼情况。', '如涉及授信，获取近三年审计报告，了解集团资金管理体系、5G/6G投资计划及行业政策影响。']
         },
         byd: {
             id: 'byd',
@@ -4687,12 +4687,15 @@ function buildPrintableReportHtml(client) {
 function buildProjectPrintableReportHtml(client, report, today) {
     const isMobile = report.id === 'china_mobile';
     const data = isMobile ? {
-        profile: [['企业名称', '中国移动有限公司'], ['英文名称', 'China Mobile Limited'], ['证券代码', '600941.SH / 0941.HK'], ['企业性质', '中央企业、A+H股上市公司'], ['所属行业', '电信运营 / 通信服务'], ['主营业务', '移动通信、家庭宽带、政企云网、数字内容与国际业务']],
-        ownership: [['国务院国资委', '实际控制人', '通过中国移动通信集团有限公司间接控制'], ['中国移动通信集团', '约69.7%', '国有独资，绝对控股股东'], ['香港中央结算公司', '约5.1%', '港股存管/北向资金']],
-        finance: [['2022年', '9,373亿', '+10.5%', '1,255亿', '13.4%'], ['2023年', '10,066亿', '+7.4%', '1,318亿', '13.1%'], ['2024年', '10,408亿', '+3.4%', '1,384亿', '13.3%']],
+        reportDate: '2026年7月12日',
+        profile: [['企业名称', '中国移动有限公司'], ['英文名称', 'China Mobile Limited'], ['A股代码', '600941.SH（2022年1月5日上市）'], ['港股代码', '0941.HK（1997年10月22日上市）'], ['成立时间', '1997年9月3日（香港注册）'], ['注册资本', '约2,130.86亿元人民币'], ['总部地址', '北京市西城区金融大街29号 / 香港中环皇后大道中99号中环中心60楼'], ['员工人数', '约45万人（含合同制员工）'], ['企业性质', '央企（国有控股，A+H股上市公司）'], ['所属行业', '电信运营 / 通信服务 / 云计算 / 数据中心 / 人工智能'], ['主营业务', '移动通信、家庭宽带、政企云网、数字内容与国际业务']],
+        ownership: [['国务院国资委', '实际控制人', '通过中国移动通信集团有限公司间接控制'], ['中国移动通信集团（国有独资）', '约69.7%', '国务院国资委100%控制，绝对控股股东'], ['香港中央结算公司', '约5.1%', '港股存管/北向资金'], ['沪港通/深港通', '约3.2%', '北向资金配置'], ['全国社会保障基金', '约2.0%', '国有资本划转']],
+        management: [['杨杰', '董事长', '通信行业资深高管，曾任中国电信董事长'], ['何飚', '首席执行官（CEO）', '2026年6月新任CEO，通信行业高级管理者'], ['李荣华', '财务总监', '财务管理与投资者关系'], ['高同庆', '副总经理（技术）', '移动通信与网络安全领域专家']],
+        finance: [['2022年', '9,373亿', '+10.5%', '1,255亿', '13.4%'], ['2023年', '10,066亿', '+7.4%', '1,318亿', '13.1%'], ['2024年', '10,370亿', '+3.0%', '1,385亿', '13.4%'], ['2025年', '10,530亿', '+1.5%', '1,373亿', '13.0%']],
+        assets: [['总资产', '约2.1万亿', '约2.2万亿', '资产规模极为庞大'], ['净资产', '1.36万亿', '1.40万亿', '净资产厚实，央企抗风险能力极强'], ['资产负债率', '70.98%', '71.13%', '略偏高但有央企信用背书'], ['经营现金流净额', '3,157亿', '-', '现金流极其充裕，造血能力极强'], ['净资产收益率（ROE）', '10.36%', '-', '回报率稳定']],
         credit: [['企业信用', 'AAA（项目报告口径）', '央企及A+H股公开披露主体'], ['综合风险', '极低风险', '经营现金流充裕，仍需复核最新披露'], ['重点风险', '中低', '用户增长、云网投入与技术迭代']],
         sources: ['中国移动官网及投资者关系网站', '中国移动2024年/2025年公开年报', '新浪财经公开行情及公司资料页', '公开新闻与通信行业分析'],
-        kpi: ['295分钟', '95%', '4.5次', '92%', '2项', '100%']
+        kpi: ['300分钟', '95%', '4.8次', '92%', '2项', '100%']
     } : {
         profile: [['企业名称', '比亚迪股份有限公司'], ['英文名称', 'BYD Company Limited'], ['证券代码', '002594.SZ / 1211.HK'], ['企业性质', 'A+H股上市公司'], ['所属行业', '新能源汽车 / 动力电池 / 电子制造'], ['主营业务', '整车、动力电池及三电系统、手机部件及组装']],
         ownership: [['王传福', '实际控制人', '创始人、董事长兼总裁'], ['H股及A股公众股东', '以最新公告为准', '须结合最新季报及股东名册核验'], ['重要子公司', '需穿透核验', '弗迪电池、比亚迪电子等']],
@@ -4717,12 +4720,12 @@ function buildProjectPrintableReportHtml(client, report, today) {
     return `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"><title>${escapeHtml(client.name)} 客户经理访前学习调查报告</title><style>
         *{box-sizing:border-box} body{margin:0;padding:32px;color:#1f2933;font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;background:#fff}.report-page{max-width:960px;margin:0 auto}.report-cover{min-height:520px;display:flex;flex-direction:column;justify-content:center;border-top:8px solid #C41230;border-bottom:1px solid #cbd5e1;padding:42px 0;margin-bottom:28px}.report-kicker{color:#C41230;font-size:14px;font-weight:800;margin-bottom:16px}h1{font-size:34px;margin:0 0 16px;color:#111827;line-height:1.28}.subtitle{font-size:18px;color:#334155;margin-bottom:28px}.meta{color:#64748b;font-size:13px;line-height:1.9}.toc{border:1px solid #e2e8f0;padding:18px 20px;margin:20px 0 26px}.toc-title{font-size:18px;font-weight:800;text-align:center;margin-bottom:10px}.toc div{padding:5px 0;font-size:13px;border-bottom:1px dashed #e2e8f0}.toc div:last-child{border:0}h2{font-size:18px;margin:28px 0 12px;padding-left:10px;border-left:4px solid #C41230;color:#111827;break-after:avoid}h3{font-size:15px;margin:18px 0 8px;color:#334155}table{width:100%;border-collapse:collapse;margin:10px 0 16px}th,td{border:1px solid #e2e8f0;padding:10px 12px;text-align:left;vertical-align:top;font-size:13px;line-height:1.6}th{background:#f8fafc;color:#475569;font-weight:700}ul{margin:8px 0 16px;padding-left:22px}li,p{margin:6px 0;line-height:1.7;font-size:13px}.print-actions{position:sticky;top:0;display:flex;justify-content:flex-end;gap:10px;padding:12px 0;background:#fff}.print-actions button{border:0;border-radius:6px;padding:10px 14px;cursor:pointer;font-weight:700}.primary{background:#C41230;color:#fff}.secondary{background:#f1f5f9;color:#334155}.disclaimer{margin-top:26px;padding:14px 16px;background:#fff7ed;color:#9a3412;border:1px solid #fed7aa;border-radius:6px;font-size:13px;line-height:1.7}@media print{body{padding:0}.print-actions{display:none}.report-page{max-width:none}.report-cover{min-height:680px;break-after:page}.toc{break-after:page}h2{break-after:avoid}tr,li{break-inside:avoid}}</style></head><body><div class="report-page">
         <div class="print-actions"><button class="secondary" onclick="window.close()">关闭</button><button class="primary" onclick="window.print()">打印 / 另存为PDF</button></div>
-        <div class="report-cover"><div class="report-kicker">招商银行对公客户经理 · 金融专家智能体</div><h1>客户经理访前学习调查报告</h1><div class="subtitle">${escapeHtml(client.name)}</div><div class="meta">报告日期：${today}</div><div class="meta">报告内容：本页面已按项目内《${escapeHtml(client.name)}_客户经理访前学习调查报告》逐章替换</div></div>
+        <div class="report-cover"><div class="report-kicker">招商银行对公客户经理 · 金融专家智能体</div><h1>客户经理访前学习调查报告</h1><div class="subtitle">${escapeHtml(client.name)}</div><div class="meta">报告日期：${data.reportDate || today}</div><div class="meta">报告内容：本页面已按项目内《${escapeHtml(client.name)}_客户经理访前学习调查报告》逐章替换</div></div>
         <div class="toc"><div class="toc-title">目 录</div><div>一、客户基础信息</div><div>二、股东结构与实控人</div><div>三、主营业务与商业模式</div><div>四、经营与财务分析</div><div>五、行业地位与竞争格局</div><div>六、信用与风险画像</div><div>七、业务合作机会评估</div><div>八、拜访策略与行动建议</div><div>九、合规尽调要点</div><div>十、效率KPI价值看板</div></div>
         ${section('一、客户基础信息', table(['项目','内容'], data.profile) + '<h3>1.2 行业属性标签</h3>' + list(isMobile ? ['电信运营、移动通信、家庭宽带、云计算、数据中心、物联网、5G/6G', '国家信息基础设施、政企业务与数字化服务'] : ['新能源汽车、动力电池、储能、电子制造、跨境经营', '整车与核心零部件垂直一体化、全球化销售网络']))}
-        ${section('二、股东结构与实控人', '<h3>2.1 实际控制人与治理</h3><p>' + escapeHtml(report.ownership) + '</p><h3>2.2 核心股东/控制关系</h3>' + table(['主体','持股/角色','核验说明'], data.ownership))}
+        ${section('二、股东结构与实控人', '<h3>2.1 实际控制人与治理</h3><p>' + escapeHtml(report.ownership) + '</p><h3>2.2 核心股东/控制关系</h3>' + table(['主体','持股/角色','核验说明'], data.ownership) + (data.management ? '<h3>2.3 核心管理团队</h3>' + table(['姓名','职位','背景'], data.management) : ''))}
         ${section('三、主营业务与商业模式', '<h3>3.1 核心业务板块</h3>' + list(report.business) + '<h3>3.2 商业模式与收入结构</h3>' + list(isMobile ? ['个人市场约45%，政企市场约30%，家庭市场约15%，新兴市场约10%。', '移动云、数据中心和5G专网是政企增长方向；网络与用户规模构成基础底盘。'] : ['汽车及相关产品约75%，手机部件及组装约20%，二次充电电池及光伏约5%。', '刀片电池、DM-i、e平台及全产业链协同构成核心技术与成本优势。']))}
-        ${section('四、经营与财务分析', '<h3>4.1 营收与利润趋势（项目报告公开年报口径）</h3>' + table(['年度','营业收入','同比增长','归母净利润','净利率'], data.finance) + '<h3>4.2 经营亮点与风险点</h3>' + list(report.finance))}
+        ${section('四、经营与财务分析', '<h3>4.1 营收与利润趋势（项目报告公开年报口径）</h3>' + table(['年度','营业收入','同比增长','归母净利润','净利率'], data.finance) + (data.assets ? '<h3>4.2 资产负债概况</h3>' + table(['财务指标','2024年','2025年','评价'], data.assets) : '') + '<h3>4.3 经营亮点与风险点</h3>' + list(report.finance))}
         ${section('五、行业地位与竞争格局', '<h3>5.1 行业地位与核心优势</h3>' + list(report.industry) + '<h3>5.2 竞争格局</h3>' + list(isMobile ? ['中国电信、中国联通、中国广电，以及云计算领域的阿里云、腾讯云、华为云。'] : ['特斯拉、吉利、长城、长安、蔚来、理想、小鹏、问界及宁德时代等。']))}
         ${section('六、信用与风险画像', '<h3>6.1 信用评估</h3>' + table(['评估维度','项目报告结论','说明'], data.credit) + '<h3>6.2 风险复核重点</h3>' + list(report.risks))}
         ${section('七、业务合作机会评估', '<h3>7.1 潜在金融需求分析</h3>' + table(['业务类型','需求等级','切入场景'], opportunityRows) + '<h3>7.2 公私联动机会</h3>' + list(isMobile ? ['员工代发、个人金融服务、营业厅收单及数字内容场景联动。'] : ['员工代发、个人金融服务、车主联名金融、4S店及直营店收单场景联动。']))}
