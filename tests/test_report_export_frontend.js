@@ -68,4 +68,14 @@ assert(
   "the dynamic template should contain the project-report details for China Mobile and BYD"
 );
 
+assert(
+  html.includes("if (projectReport) return buildProjectPrintableReportHtml"),
+  "China Mobile and BYD exports should replace, rather than append to, generic report content"
+);
+
+assert(
+  html.includes("function buildProjectPrintableReportHtml"),
+  "project reports should have a dedicated dynamic body using the existing export flow"
+);
+
 console.log("report export frontend structure ok");
