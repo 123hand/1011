@@ -10,9 +10,7 @@ const html = fs.readFileSync("kyc_platform.html", "utf8");
   "function openPrintableReport",
   "function downloadReportHtml",
   "function downloadPdfReport",
-  "function getProjectReportFile",
-  "中国移动_客户经理访前学习调查报告.docx",
-  "比亚迪_客户经理访前学习调查报告.docx",
+  "function getProjectReportOverride",
   "html2pdf",
   "报告执行摘要",
   "关键资料缺口与复核优先级",
@@ -48,6 +46,26 @@ assert(
 assert(
   html.includes(".pdf"),
   "mobile export should generate a PDF file rather than only an HTML fallback"
+);
+
+assert(
+  html.includes("function getProjectReportOverride"),
+  "project reports should enrich the dynamic template"
+);
+
+assert(
+  html.includes("outputPdf('blob')"),
+  "mobile export should create a completed PDF blob before downloading"
+);
+
+assert(
+  !html.includes("function getProjectReportFile"),
+  "project reports should not bypass the dynamic template with source docx downloads"
+);
+
+assert(
+  html.includes("CHBN") && html.includes("刀片电池"),
+  "the dynamic template should contain the project-report details for China Mobile and BYD"
 );
 
 console.log("report export frontend structure ok");

@@ -4311,11 +4311,6 @@ async function exportReport() {
         return;
     }
 
-    const projectReport = getProjectReportFile(currentClient);
-    if (projectReport) {
-        downloadProjectReport(projectReport);
-        return;
-    }
     const html = buildPrintableReportHtml(currentClient);
     if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '')) {
         await downloadPdfReport(html);
@@ -4324,37 +4319,57 @@ async function exportReport() {
     openPrintableReport(html);
 }
 
-function getProjectReportFile(client) {
-    const companyId = client?.apiProfile?.id || client?.apiProfile?.company_id || '';
-    const reportFiles = {
-        china_mobile: 'reports/中国移动_客户经理访前学习调查报告.docx',
-        byd: 'reports/比亚迪_客户经理访前学习调查报告.docx'
-    };
-    return reportFiles[companyId] || '';
-}
-
-function downloadProjectReport(path) {
-    const link = document.createElement('a');
-    link.href = encodeURI(path);
-    link.download = path.split('/').pop();
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-}
-
 async function downloadPdfReport(html) {
     const safeName = (currentClient?.name || 'KYC尽职调查报告').replace(/[\\/:*?"<>|]/g, '_');
     const holder = document.createElement('div');
-    holder.style.cssText = 'position:fixed;left:-100000px;top:0;width:794px;background:#fff;z-index:-1;';
+    holder.style.cssText = 'position:fixed;left:0;top:0;width:794px;background:#fff;opacity:0;pointer-events:none;z-index:-1;';
     holder.innerHTML = html.match(/<body[^>]*>([\s\S]*)<\/body>/i)?.[1] || html;
     document.body.appendChild(holder);
     try {
         if (!window.html2pdf) throw new Error('pdf library unavailable');
-        await window.html2pdf().set({margin:[8,8,8,8],filename:`${safeName}_客户经理访前学习调查报告.pdf`,image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy']}}).from(holder).save();
+        const blob = await window.html2pdf().set({margin:[8,8,8,8],image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['css','legacy']}}).from(holder).outputPdf('blob');
+        if (!blob || !blob.size) throw new Error('empty pdf blob');
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${safeName}_客户经理访前学习调查报告.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 30000);
     } catch (error) {
         openPrintableReport(html);
         alert('PDF组件加载失败，已打开打印页面；请使用浏览器的“打印/存储为PDF”。');
-    } finally { holder.remove(); }
+    } finally { setTimeout(() => holder.remove(), 1500); }
+}
+
+function getProjectReportOverride(client) {
+    const companyId = client?.apiProfile?.id || client?.apiProfile?.company_id || '';
+    const reports = {
+        china_mobile: {
+            summary: '央企背景的通信运营商龙头，具备稳定现金流与全国性资金、结算、代发和政企业务协同场景。访谈应聚焦集团资金归集、移动云与政企项目结算、供应链及员工服务需求。',
+            ownership: '实际控制人为国务院国资委，通过中国移动通信集团有限公司间接控制上市公司；属于中央企业，是国家信息基础设施的重要承载主体。',
+            business: ['形成个人、家庭、政企、新兴市场的CHBN业务结构。', '政企板块覆盖移动云、数据中心、5G专网、物联网、IDC及ICT解决方案，是重要增长方向。', '个人与家庭业务构成稳定收入底盘，新兴业务涵盖国际业务、数字内容与金融科技。'],
+            finance: ['公开年报口径显示营收已达万亿元级，经营现金流强，具备较强的抗周期与融资能力。', '个人市场用户渗透率接近饱和，需持续关注增长动能转换及云、算力等新业务投入产出。', '关注资本开支、资产负债结构及5G/6G技术迭代带来的中长期投资节奏。'],
+            industry: ['中国三大电信运营商之一，在用户规模、网络覆盖和财务体量方面处于领先位置。', '主要竞争来自中国电信、中国联通、中国广电，以及云计算领域的阿里云、腾讯云、华为云。'],
+            risks: ['经营风险：个人市场增速放缓，云与算力业务需要持续投入。', '行业风险：运营商竞争、云计算跨界竞争与技术迭代。', '复核重点：管理团队最新变动、移动云收入与增速、集团资金管理与子公司资金往来。'],
+            opportunities: [['现金管理与对公存款', '高', '全国性资金归集、账户体系与闲置资金管理'], ['政企项目结算', '高', '移动云、IDC、5G专网及ICT项目回款与支付场景'], ['供应链金融', '中高', '设备、工程、服务商等上下游结算与融资协同'], ['薪福通及公私联动', '高', '员工代发、个人金融及营业厅聚合支付场景']],
+            visit: ['优先拜访资金部、财务部及政企业务相关负责人，了解集团账户体系、归集边界与项目结算链路。', '围绕云网项目资金效率、供应商付款与员工服务切入，不承诺任何授信额度或审批结果。', '拜访后形成资金管理、结算、代发和供应链场景的分阶段方案，并按行内流程推进。'],
+            kyc: ['核验央企控股关系、上市公司披露信息与集团授权链路。', '如涉及授信，取得近三年审计报告，了解5G/6G投资计划、重大项目及资金安排。', '按制度查询企业及重要子公司司法、合规与负面信息。']
+        },
+        byd: {
+            summary: '新能源汽车与动力电池龙头，业务覆盖整车、三电系统、电子制造及海外市场。访谈应聚焦全球资金管理、供应链结算、海外收付汇、员工服务及经销网络收单场景。',
+            ownership: '实际控制人为创始人王传福；企业为A+H股上市公司，需以最新公告、年报及章程材料核验最新股权结构与授权链路。',
+            business: ['形成以汽车业务为核心，二次充电电池及光伏、手机部件及组装协同发展的业务格局。', '汽车业务覆盖王朝、海洋、腾势、仰望、方程豹等品牌；动力电池、电机、电控等核心环节具备垂直一体化特征。', '海外销售与产能布局持续推进，跨境收付、汇率管理与本地化资金安排是重点场景。'],
+            finance: ['公开年报口径显示企业保持千亿元级营收和较强经营现金流，资本开支与产能扩张需求同步存在。', '需关注资产负债率、应收应付周转、库存、价格竞争对毛利率的影响及海外业务回款。', '对于授信或供应链业务，必须以审计报告、流水、订单、合同、纳税和征信等原始资料交叉核验。'],
+            industry: ['新能源汽车销量与动力电池产业链具有较强市场影响力，主要竞争来自特斯拉、传统自主品牌、新势力和动力电池厂商。', '核心竞争力包括电池、电机、电控、半导体与整车的垂直整合，以及DM-i、刀片电池等技术与规模化能力。'],
+            risks: ['经营风险：行业价格竞争、毛利率压力、产能扩张与资本开支。', '外部风险：海外贸易政策、关税壁垒、汇率波动及境外合规。', '复核重点：最新股权结构、海外子公司清单、员工口径、主要客户供应商集中度及大额关联交易。'],
+            opportunities: [['跨境结算与汇率管理', '高', '海外销售、采购、投资及多币种资金管理'], ['供应链金融', '高', '核心供应商、经销商及上下游结算融资场景'], ['现金管理与对公存款', '高', '集团资金归集、支付审批与流动性管理'], ['薪福通及收单', '中高', '员工代发、经销网络与直营网点支付场景']],
+            visit: ['优先拜访CFO、资金部、海外财务及供应链负责人，先摸清资金归集、跨境结算和付款审批链路。', '从汇率风险管理、供应商服务和资金效率切入，结合真实交易背景形成方案。', '拜访后按30/60/90天计划推动资料补齐、场景确认、产品方案与合规审查。'],
+            kyc: ['核验营业执照、上市公司披露、实际控制人、受益所有人及重要子公司股权关系。', '如涉及授信，取得近三年审计报告，核验海外业务占比、重大投资、关联交易及或有负债。', '落实企业与重要主体征信、司法、行政处罚、经营异常及反洗钱尽调。']
+        }
+    };
+    return reports[companyId] || null;
 }
 
 function printReport() {
@@ -4369,6 +4384,7 @@ function buildPrintableReportHtml(client) {
     const products = client.products || [];
     const scores = client.scores || {};
     const plan = getDevelopmentPlan(client);
+    const projectReport = getProjectReportOverride(client);
     const dashboard = {
         savedMinutes: quality.coverage_rate >= 90 ? 285 : 235,
         coverage: quality.coverage_rate || 0,
@@ -4474,6 +4490,7 @@ function buildPrintableReportHtml(client) {
             ['本次行动建议', client.strategy || '先补齐关键资料，再形成客户开发方案']
         ])}</table>
         <ul>${renderPrintableList(['本摘要仅用于访前学习和尽调准备，不构成准入、授信或额度审批意见。', '优先围绕真实经营、资金流、结算链路、上下游和决策链路完成首轮访谈。'])}</ul>
+        ${renderProjectReportSection(projectReport, 'summary')}
 
         <h2>一、客户基础信息</h2>
         <h3>1.1 企业概况</h3>
@@ -4500,6 +4517,7 @@ function buildPrintableReportHtml(client) {
             <li>实际控制人、受益所有人和持股25%以上主体需结合行内KYC材料穿透核验。</li>
             <li>如涉及境外架构、信托或多层持股，应补充公司章程、股权穿透图和授权文件。</li>
         </ul>
+        ${renderProjectReportSection(projectReport, 'ownership')}
 
         <h2>三、主营业务与商业模式</h2>
         <table class="kv">${renderPrintableRows([
@@ -4509,6 +4527,7 @@ function buildPrintableReportHtml(client) {
             ['业务模式初判', plan.positioning || '待补充经营资料后判断']
         ])}</table>
         <ul>${renderPrintableList(client.businessChecks?.map(item => item.text))}</ul>
+        ${renderProjectReportSection(projectReport, 'business')}
 
         <h2>四、经营与财务分析</h2>
         <h3>4.1 营收与利润趋势</h3>
@@ -4525,6 +4544,7 @@ function buildPrintableReportHtml(client) {
             ['流动比率', client.debtData?.currentRatio || '待核实']
         ])}</table>
         <ul>${renderPrintableChecks(client.financeChecks)}</ul>
+        ${renderProjectReportSection(projectReport, 'finance')}
 
         <h2>五、行业地位与竞争格局</h2>
         <table class="kv">${renderPrintableRows([
@@ -4537,6 +4557,7 @@ function buildPrintableReportHtml(client) {
             '重点关注行业景气度、政策监管、上下游议价能力和订单稳定性。',
             '制造业、商贸、建筑、物流、政府平台、小微企业等客户需分别匹配差异化尽调口径。'
         ])}</ul>
+        ${renderProjectReportSection(projectReport, 'industry')}
 
         <h2>六、信用与风险画像</h2>
         <div class="score-row">
@@ -4554,6 +4575,7 @@ function buildPrintableReportHtml(client) {
             <tr><th>关联风险</th><td>${escapeHtml(client.related)}</td></tr>
         </table>
         <ul>${renderPrintableChecks(client.riskChecks)}</ul>
+        ${renderProjectReportSection(projectReport, 'risks')}
 
         <h2>七、业务合作机会评估</h2>
         ${products.length ? `<table><tr><th>业务类型/产品</th><th>需求等级/匹配度</th><th>切入场景</th></tr>${products.map(item => `
@@ -4563,6 +4585,7 @@ function buildPrintableReportHtml(client) {
                 <td>${escapeHtml(item.reason)}</td>
             </tr>
         `).join('')}</table>` : '<ul><li>暂无产品适配建议，需补充客户需求后生成。</li></ul>'}
+        ${renderProjectOpportunityTable(projectReport)}
         <h3>公私联动机会</h3>
         <ul>${renderPrintableList([
             '代发工资、薪福通、员工个人账户、信用卡和个人财富管理可结合客户用工规模评估。',
@@ -4580,6 +4603,7 @@ function buildPrintableReportHtml(client) {
         ])}</ul>
         <h3>8.3 拜访行动计划</h3>
         <ul>${renderPrintableList(client.actions)}</ul>
+        ${renderProjectReportSection(projectReport, 'visit')}
         <h3>8.4 拜访节奏与责任动作</h3>
         <table><tr><th>阶段</th><th>客户经理动作</th><th>目标产出</th></tr><tr><td>拜访前</td><td>核对公开资料、明确拜访对象、准备问题清单</td><td>客户速览与资料缺口清单</td></tr><tr><td>首次拜访</td><td>围绕经营、资金流、结算和融资痛点完成访谈</td><td>需求优先级与后续资料清单</td></tr><tr><td>拜访后48小时</td><td>记录纪要、补齐信息源、形成产品组合</td><td>跟进邮件与下一次沟通议题</td></tr></table>
 
@@ -4594,6 +4618,7 @@ function buildPrintableReportHtml(client) {
             '查询企业及实控人征信、司法诉讼、行政处罚、经营异常和失信信息。',
             '涉及授信、保函、贸易融资或供应链金融时，落实贷款“三查”基本职责。'
         ])}</ul>
+        ${renderProjectReportSection(projectReport, 'kyc')}
         <h3>9.3 数据来源与人工复核</h3>
         <table>
             <tr><th>信息源</th><th>说明</th></tr>
@@ -4658,6 +4683,29 @@ function buildPrintableReportHtml(client) {
 
 function renderPrintableRows(rows) {
     return rows.map(([label, value]) => `<tr><th>${escapeHtml(label)}</th><td>${escapeHtml(value || '待核实')}</td></tr>`).join('');
+}
+
+function renderProjectReportSection(report, field) {
+    if (!report || !report[field]) return '';
+    const titleMap = {
+        summary: '项目报告要点',
+        ownership: '项目报告中的控制与治理要点',
+        business: '项目报告中的业务结构要点',
+        finance: '项目报告中的财务与经营关注点',
+        industry: '项目报告中的行业与竞争要点',
+        risks: '项目报告中的风险与复核重点',
+        visit: '项目报告中的拜访推进建议',
+        kyc: '项目报告中的KYC与贷前核验要点'
+    };
+    const content = Array.isArray(report[field])
+        ? `<ul>${renderPrintableList(report[field])}</ul>`
+        : `<p>${escapeHtml(report[field])}</p>`;
+    return `<h3>${escapeHtml(titleMap[field] || '项目报告补充')}</h3>${content}`;
+}
+
+function renderProjectOpportunityTable(report) {
+    if (!report?.opportunities?.length) return '';
+    return `<h3>项目报告产品机会矩阵</h3><table><tr><th>业务类型/产品</th><th>需求等级</th><th>切入场景</th></tr>${report.opportunities.map(item => `<tr><td>${escapeHtml(item[0])}</td><td>${escapeHtml(item[1])}</td><td>${escapeHtml(item[2])}</td></tr>`).join('')}</table>`;
 }
 
 function renderPrintableShareholderRows(shareholders) {
