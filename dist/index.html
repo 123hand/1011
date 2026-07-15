@@ -4311,12 +4311,35 @@ async function exportReport() {
         return;
     }
 
+    const projectReport = getProjectReportFile(currentClient);
+    if (projectReport) {
+        downloadProjectReport(projectReport);
+        return;
+    }
     const html = buildPrintableReportHtml(currentClient);
     if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '')) {
         await downloadPdfReport(html);
         return;
     }
     openPrintableReport(html);
+}
+
+function getProjectReportFile(client) {
+    const companyId = client?.apiProfile?.id || client?.apiProfile?.company_id || '';
+    const reportFiles = {
+        china_mobile: 'reports/中国移动_客户经理访前学习调查报告.docx',
+        byd: 'reports/比亚迪_客户经理访前学习调查报告.docx'
+    };
+    return reportFiles[companyId] || '';
+}
+
+function downloadProjectReport(path) {
+    const link = document.createElement('a');
+    link.href = encodeURI(path);
+    link.download = path.split('/').pop();
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
 }
 
 async function downloadPdfReport(html) {
