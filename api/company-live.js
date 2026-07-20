@@ -1,187 +1,150 @@
-const MCP_ENDPOINT = "https://mcp.tianyancha.com/v1";
+const TAVILY_ENDPOINT = "https://api.tavily.com/search";
+const DEEPSEEK_ENDPOINT = "https://api.deepseek.com/chat/completions";
+
+function cleanText(value, fallback = "待核实") {
+  return typeof value === "string" && value.trim() ? value.trim() : fallback;
+}
 
 function asArray(value) {
-  if (Array.isArray(value)) return value;
-  if (Array.isArray(value?.data)) return value.data;
-  if (Array.isArray(value?.items)) return value.items;
-  if (Array.isArray(value?.list)) return value.list;
-  return [];
+  return Array.isArray(value) ? value : [];
 }
 
-function formatDate(value) {
-  if (!value) return "待核实";
-  const date = new Date(Number(value));
-  return Number.isNaN(date.getTime()) ? String(value) : date.toISOString().slice(0, 10);
+function normalizeRiskLevel(level) {
+  return ["low", "medium", "high"].includes(level) ? level : "medium";
 }
 
-function readToolPayload(result) {
-  const content = result?.content || result?.result?.content || [];
-  const text = content.find(item => item.type === "text")?.text || result?.text || "";
-  if (!text) return result?.structuredContent || result?.result || result;
-  try {
-    return JSON.parse(text);
-  } catch (_error) {
-    return { _summary: text };
-  }
-}
-
-function parseMcpResponse(raw) {
-  const jsonLine = raw.split("\n").find(line => line.startsWith("data:"));
-  return JSON.parse(jsonLine ? jsonLine.slice(5).trim() : raw);
-}
-
-async function mcpRequest(apiKey, method, params, sessionId) {
-  const response = await fetch(MCP_ENDPOINT, {
-    method: "POST",
-    headers: {
-      Authorization: apiKey,
-      "Content-Type": "application/json",
-      Accept: "application/json, text/event-stream",
-      "MCP-Protocol-Version": "2025-03-26",
-      "User-Agent": "cmb-kyc-platform/1.0",
-      ...(sessionId ? { "Mcp-Session-Id": sessionId } : {})
-    },
-    body: JSON.stringify({
-      jsonrpc: "2.0",
-      id: `${Date.now()}-${method}`,
-      method,
-      params
-    })
-  });
-
-  const raw = await response.text();
-  if (!response.ok) {
-    if (response.status === 418) {
-      throw new Error("天眼查 MCP 网关拒绝了服务端请求（HTTP 418）。请联系天眼支持确认该 API Key 是否允许 Vercel Serverless 出网调用");
-    }
-    throw new Error(`天眼查服务请求失败（${response.status}）：${raw.slice(0, 160)}`);
-  }
-  const payload = parseMcpResponse(raw);
-  if (payload.error) throw new Error(payload.error.message || "天眼查服务返回错误");
-  return { result: payload.result, sessionId: response.headers.get("mcp-session-id") || sessionId };
-}
-
-async function mcpNotify(apiKey, method, params, sessionId) {
-  const response = await fetch(MCP_ENDPOINT, {
-    method: "POST",
-    headers: {
-      Authorization: apiKey,
-      "Content-Type": "application/json",
-      Accept: "application/json, text/event-stream",
-      "MCP-Protocol-Version": "2025-03-26",
-      "User-Agent": "cmb-kyc-platform/1.0",
-      "Mcp-Session-Id": sessionId
-    },
-    body: JSON.stringify({ jsonrpc: "2.0", method, params })
-  });
-  if (!response.ok) throw new Error(`天眼查 MCP 通知失败（${response.status}）`);
-}
-
-function findTool(tools, preferredNames, descriptionPattern) {
-  const normalized = tools || [];
-  const exact = normalized.find(tool => preferredNames.includes(tool.name));
-  if (exact) return exact.name;
-  const partial = normalized.find(tool => preferredNames.some(name => tool.name?.includes(name.replace("get_", ""))));
-  if (partial) return partial.name;
-  return normalized.find(tool => descriptionPattern.test(`${tool.name || ""} ${tool.description || ""}`))?.name;
-}
-
-async function createMcpSession(apiKey) {
-  const initialized = await mcpRequest(apiKey, "initialize", {
-    protocolVersion: "2025-03-26",
-    capabilities: {},
-    clientInfo: { name: "cmb-kyc-platform", version: "1.0.0" }
-  });
-  if (!initialized.sessionId) throw new Error("天眼查 MCP 未返回会话标识");
-  await mcpNotify(apiKey, "notifications/initialized", {}, initialized.sessionId);
-  const listed = await mcpRequest(apiKey, "tools/list", {}, initialized.sessionId);
-  return { apiKey, sessionId: initialized.sessionId, tools: listed.result?.tools || [] };
-}
-
-async function callTool(session, toolName, argumentsObject) {
-  if (!toolName) return {};
-  const response = await mcpRequest(session.apiKey, "tools/call", { name: toolName, arguments: argumentsObject }, session.sessionId);
-  return readToolPayload(response.result);
-}
-
-function buildLiveProfile(registration, shareholders, risks) {
-  const shareholderRows = asArray(shareholders).slice(0, 8).map(item => ({
-    name: item.name || item.shareholderName || "股东信息待核实",
-    pct: Number(String(item.percent || item.ratio || item.shareholderRatio || "0").replace("%", "")) || 0,
-    color: "#2B6CB0"
+function buildLiveProfile(query, analysis, searchResults) {
+  const basic = analysis?.basic || {};
+  const risk = analysis?.risk || {};
+  const sources = asArray(searchResults).slice(0, 8).map(item => ({
+    name: cleanText(item.title, "公开网页资料"),
+    url: cleanText(item.url, ""),
+    detail: `Tavily 联网检索，查询时间：${new Date().toLocaleString("zh-CN")}`
   }));
-  const sourceNames = ["天眼查企业工商登记"];
-  if (shareholderRows.length) sourceNames.push("天眼查股东结构");
-  if (risks && Object.keys(risks).length) sourceNames.push("天眼查风险总览");
-  const riskSummary = risks?._summary || risks?.summary || "风险数据待进一步核验";
+  const shareholders = asArray(analysis?.shareholders).slice(0, 8).map((item, index) => ({
+    name: cleanText(item.name, "股东信息待核实"),
+    pct: Number(item.pct) || 0,
+    color: ["#2B6CB0", "#38A169", "#D69E2E", "#805AD5"][index % 4]
+  }));
+  const reviewItems = asArray(analysis?.manual_review_items).filter(Boolean);
 
   return {
-    id: `tyc_${registration.creditCode || registration.name || "company"}`,
-    name: registration.name || "企业名称待核实",
-    code: registration.creditCode || registration.regNumber || "待核实",
+    id: `web_${encodeURIComponent(query)}`,
+    name: cleanText(analysis?.company_name, query),
+    code: cleanText(basic.credit_code),
     basic: {
-      legal: registration.legalPersonName || "待核实",
-      date: formatDate(registration.estiblishTime || registration.establishTime),
-      capital: registration.regCapital || "待核实",
-      status: registration.regStatus || "待核实",
-      scope: registration.businessScope || "待核实",
-      industry: registration.industry || registration.industryName || "待核实",
-      type: registration.companyType || "企业类型待核实",
-      term: registration.businessTerm || "待核实"
+      legal: cleanText(basic.legal),
+      date: cleanText(basic.established_date),
+      capital: cleanText(basic.registered_capital),
+      status: cleanText(basic.status),
+      scope: cleanText(basic.business_scope),
+      industry: cleanText(basic.industry),
+      type: cleanText(basic.company_type),
+      term: cleanText(basic.business_term)
     },
-    shareholders: shareholderRows,
+    shareholders,
     risk: {
-      level: "medium",
-      lawsuit: "以天眼查风险总览为准",
-      penalty: "以天眼查风险总览为准",
-      abnormal: "以天眼查风险总览为准",
-      dishonest: "以天眼查风险总览为准",
-      related: riskSummary,
-      checks: [riskSummary]
+      level: normalizeRiskLevel(risk.level),
+      lawsuit: cleanText(risk.lawsuit),
+      penalty: cleanText(risk.penalty),
+      abnormal: cleanText(risk.abnormal),
+      dishonest: cleanText(risk.dishonest),
+      related: cleanText(risk.summary),
+      checks: asArray(risk.checks).map(text => ({ text, status: "warn" }))
     },
-    finance: { revenueData: [], debtData: { debtRatio: "待取得财务报表核验" } },
-    products: [
-      { name: "企业结算与账户服务", fit: "待访谈", reason: "需结合真实结算链路和账户体系核验" },
-      { name: "现金管理", fit: "待访谈", reason: "需结合资金归集、支付和闲置资金管理需求核验" }
-    ],
-    actions: ["核对天眼查工商登记与客户营业执照原件", "围绕经营、结算、资金流与融资安排开展首访", "按行内制度完成KYC、反洗钱与必要的风险核验"],
-    sources: sourceNames.map(name => ({ name, detail: `查询时间：${new Date().toLocaleString("zh-CN")}` })),
-    manual_review_items: ["财务报表、纳税与流水未通过本次公开查询获取", "实际控制人、受益所有人及授权链路需以客户材料和行内KYC核验"],
+    finance: { revenueData: [], debtData: { debtRatio: "需以财务报表核验" } },
+    products: asArray(analysis?.products).map(item => ({
+      name: cleanText(item.name),
+      fit: cleanText(item.fit, "待访谈"),
+      reason: cleanText(item.reason)
+    })),
+    actions: asArray(analysis?.actions).filter(Boolean),
+    sources,
+    manual_review_items: reviewItems.length ? reviewItems : ["公开资料不足，需补充营业执照、财务报表及行内KYC材料核验"],
     data_quality: {
-      source_count: sourceNames.length,
-      coverage_rate: shareholderRows.length ? 60 : 45,
-      verification_rate: 80,
-      pending_review_count: 2
+      source_count: sources.length,
+      coverage_rate: Math.min(85, 30 + sources.length * 8),
+      verification_rate: sources.length >= 3 ? 80 : 65,
+      pending_review_count: reviewItems.length || 1
     }
   };
+}
+
+async function searchWithTavily(apiKey, query) {
+  const response = await fetch(TAVILY_ENDPOINT, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      api_key: apiKey,
+      query: `${query} 企业 工商信息 主营业务 风险 公开资料`,
+      search_depth: "advanced",
+      topic: "general",
+      max_results: 8,
+      include_answer: false,
+      include_raw_content: false
+    })
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(payload.detail || payload.error || `Tavily 搜索失败（${response.status}）`);
+  const results = asArray(payload.results).filter(item => item.url && item.content);
+  if (!results.length) throw new Error("Tavily 未返回可引用的公开资料，请使用完整企业名称或统一社会信用代码重试");
+  return results;
+}
+
+function buildAnalysisPrompt(query, results) {
+  const evidence = results.map((item, index) => ({
+    id: index + 1,
+    title: item.title,
+    url: item.url,
+    content: String(item.content || "").slice(0, 3500)
+  }));
+  return `请根据以下联网检索到的公开资料，为招商银行对公客户经理生成可验证的企业访前画像。\n\n严格规则：\n1. 只能使用资料中明确出现的事实；缺失字段写“待核实”，不得猜测。\n2. 不要输出身份证号、银行账号、密码等个人敏感信息。\n3. 不得给出授信审批结论、额度或利率承诺。\n4. 风险结论必须谨慎，并把需要人工复核的内容列出。\n5. 只输出 JSON，不要 Markdown。\n\n企业查询词：${query}\n\n返回 JSON Schema：\n{\n  "company_name":"",\n  "basic":{"credit_code":"","legal":"","established_date":"","registered_capital":"","status":"","business_scope":"","industry":"","company_type":"","business_term":""},\n  "shareholders":[{"name":"","pct":0}],\n  "risk":{"level":"low|medium|high","lawsuit":"","penalty":"","abnormal":"","dishonest":"","summary":"","checks":[""]},\n  "products":[{"name":"","fit":"待访谈|中适配|高适配","reason":""}],\n  "actions":[""],\n  "manual_review_items":[""]\n}\n\n公开资料：\n${JSON.stringify(evidence)}`;
+}
+
+async function analyzeWithDeepSeek(apiKey, query, results) {
+  const response = await fetch(DEEPSEEK_ENDPOINT, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${apiKey}`
+    },
+    body: JSON.stringify({
+      model: "deepseek-v4-flash",
+      temperature: 0.1,
+      response_format: { type: "json_object" },
+      messages: [
+        { role: "system", content: "你是合规审慎的招商银行对公客户经理智能体，只基于提供的公开资料输出 JSON。" },
+        { role: "user", content: buildAnalysisPrompt(query, results) }
+      ]
+    })
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(payload.error?.message || `DeepSeek 分析失败（${response.status}）`);
+  const content = payload.choices?.[0]?.message?.content;
+  if (!content) throw new Error("DeepSeek 未返回分析内容");
+  try {
+    return JSON.parse(content);
+  } catch (_error) {
+    throw new Error("DeepSeek 返回内容不是有效的结构化数据");
+  }
 }
 
 async function handler(req, res) {
   if (req.method !== "GET") return res.status(405).json({ error: "method not allowed" });
   const query = String(req.query?.query || "").trim();
   if (!query) return res.status(400).json({ error: "请提供企业名称或统一社会信用代码" });
-  const apiKey = process.env.TYC_API_KEY;
-  if (!apiKey) return res.status(503).json({ error: "未配置企业数据服务，请联系系统管理员" });
+  const tavilyKey = process.env.TAVILY_API_KEY;
+  const deepseekKey = process.env.DEEPSEEK_API_KEY;
+  if (!tavilyKey || !deepseekKey) {
+    return res.status(503).json({ error: "未配置联网搜索或 AI 分析服务，请检查 Vercel 环境变量" });
+  }
 
   try {
-    const session = await createMcpSession(apiKey);
-    const searchTool = findTool(session.tools, ["get_companies", "search_companies", "companies"], /实体|候选|企业搜索|company.*search/i);
-    const registrationTool = findTool(session.tools, ["get_registration_info", "registration_info"], /工商|登记|registration/i);
-    const shareholderTool = findTool(session.tools, ["get_shareholder_info", "shareholder_info"], /股东|shareholder/i);
-    const riskTool = findTool(session.tools, ["get_risk_overview", "risk_overview"], /风险总览|风险.*摘要|risk.*overview/i);
-    if (!registrationTool) throw new Error("天眼查 MCP 未提供工商登记查询工具");
-    const candidatesPayload = await callTool(session, searchTool, { searchKey: query });
-    const candidates = asArray(candidatesPayload);
-    const entity = candidates[0] || {};
-    const searchKey = entity.creditCode || entity.name || query;
-    const registration = await callTool(session, registrationTool, { searchKey });
-    const [shareholders, risks] = await Promise.all([
-      callTool(session, shareholderTool, { searchKey }).catch(() => []),
-      callTool(session, riskTool, { searchKey }).catch(() => ({}))
-    ]);
-    return res.status(200).json(buildLiveProfile(registration, shareholders, risks));
+    const results = await searchWithTavily(tavilyKey, query);
+    const analysis = await analyzeWithDeepSeek(deepseekKey, query, results);
+    return res.status(200).json(buildLiveProfile(query, analysis, results));
   } catch (error) {
-    return res.status(502).json({ error: error.message || "企业数据查询暂不可用" });
+    return res.status(502).json({ error: error.message || "企业公开资料查询暂不可用" });
   }
 }
 

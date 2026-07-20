@@ -11,24 +11,18 @@ const source = fs.readFileSync(apiPath, "utf8");
 assert.strictEqual(typeof api, "function", "Vercel Node functions must export the request handler directly");
 assert.strictEqual(typeof api.handler, "function", "live endpoint should export a handler");
 assert.strictEqual(typeof api.buildLiveProfile, "function", "live endpoint should normalize verified company data");
-assert(source.includes("process.env.TYC_API_KEY"), "API key should be read from Vercel environment variables");
-assert(source.includes("tools/list"), "MCP tool names should be discovered from the live server");
-assert(source.includes("async function mcpNotify"), "MCP notifications should not expect a JSON response body");
-assert(source.includes('"MCP-Protocol-Version": "2025-03-26"'), "MCP requests should include the Streamable HTTP protocol version");
-assert(source.includes('"User-Agent": "cmb-kyc-platform/1.0"'), "MCP requests should identify the Vercel client to the upstream gateway");
+assert(source.includes("process.env.TAVILY_API_KEY"), "live search should use a Tavily server-side key");
+assert(source.includes("process.env.DEEPSEEK_API_KEY"), "report generation should use a DeepSeek server-side key");
+assert(source.includes("deepseek-v4-flash"), "live report generation should use the current DeepSeek Flash model");
 
-const profile = api.buildLiveProfile({
-  name: "测试企业有限公司",
-  creditCode: "91310000TEST000001",
-  regStatus: "存续",
-  legalPersonName: "法定代表人",
-  regCapital: "1000万人民币",
-  estiblishTime: 1704067200000,
-  businessScope: "企业管理咨询"
-}, [], []);
+const profile = api.buildLiveProfile("测试企业有限公司", {
+  basic: { legal: "待核实", industry: "企业服务" },
+  risk: { level: "medium" },
+  shareholders: []
+}, [{ title: "官网", url: "https://example.com", content: "测试资料" }]);
 
 assert.strictEqual(profile.name, "测试企业有限公司");
-assert.strictEqual(profile.basic.legal, "法定代表人");
+assert.strictEqual(profile.basic.legal, "待核实");
 assert.strictEqual(profile.data_quality.source_count, 1);
 
 console.log("Tianyancha live API structure ok");
