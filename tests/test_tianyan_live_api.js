@@ -8,6 +8,7 @@ assert(fs.existsSync(apiPath), "Vercel should expose a live Tianyancha query end
 const api = require(`../${apiPath}`);
 const source = fs.readFileSync(apiPath, "utf8");
 
+assert.strictEqual(typeof api, "function", "Vercel Node functions must export the request handler directly");
 assert.strictEqual(typeof api.handler, "function", "live endpoint should export a handler");
 assert.strictEqual(typeof api.buildLiveProfile, "function", "live endpoint should normalize verified company data");
 assert(source.includes("process.env.TYC_API_KEY"), "API key should be read from Vercel environment variables");

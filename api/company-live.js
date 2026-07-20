@@ -176,4 +176,6 @@ async function handler(req, res) {
   }
 }
 
-module.exports = { handler, buildLiveProfile };
+module.exports = handler;
+module.exports.handler = handler;
+module.exports.buildLiveProfile = buildLiveProfile;
