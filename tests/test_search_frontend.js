@@ -42,4 +42,9 @@ assert(
   "unlisted companies should query the Tianyancha live endpoint before falling back"
 );
 
+assert(
+  html.includes("天眼查实时查询未完成"),
+  "live query errors should be shown instead of silently appearing as missing local data"
+);
+
 console.log("search frontend fallback structure ok");

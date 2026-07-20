@@ -54,6 +54,20 @@ async function mcpRequest(apiKey, method, params, sessionId) {
   return { result: payload.result, sessionId: response.headers.get("mcp-session-id") || sessionId };
 }
 
+async function mcpNotify(apiKey, method, params, sessionId) {
+  const response = await fetch(MCP_ENDPOINT, {
+    method: "POST",
+    headers: {
+      Authorization: apiKey,
+      "Content-Type": "application/json",
+      Accept: "application/json, text/event-stream",
+      "Mcp-Session-Id": sessionId
+    },
+    body: JSON.stringify({ jsonrpc: "2.0", method, params })
+  });
+  if (!response.ok) throw new Error(`天眼查 MCP 通知失败（${response.status}）`);
+}
+
 function findTool(tools, preferredNames, descriptionPattern) {
   const normalized = tools || [];
   const exact = normalized.find(tool => preferredNames.includes(tool.name));
@@ -70,7 +84,7 @@ async function createMcpSession(apiKey) {
     clientInfo: { name: "cmb-kyc-platform", version: "1.0.0" }
   });
   if (!initialized.sessionId) throw new Error("天眼查 MCP 未返回会话标识");
-  await mcpRequest(apiKey, "notifications/initialized", {}, initialized.sessionId);
+  await mcpNotify(apiKey, "notifications/initialized", {}, initialized.sessionId);
   const listed = await mcpRequest(apiKey, "tools/list", {}, initialized.sessionId);
   return { apiKey, sessionId: initialized.sessionId, tools: listed.result?.tools || [] };
 }

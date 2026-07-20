@@ -3694,6 +3694,7 @@ function renderUnlistedCompanyNotice(query) {
 
 async function doSearch() {
     const query = document.getElementById('searchInput').value.trim();
+    let liveQueryError = '';
     if (!query) {
         alert('请输入企业名称、统一社会信用代码或客户编号');
         return;
@@ -3719,7 +3720,7 @@ async function doSearch() {
             return;
         }
     } catch (error) {
-        // 天眼查服务不可用时继续使用既有公开资料核验流程。
+        liveQueryError = error.message || '请检查天眼查密钥、额度与 Vercel 环境变量';
     }
 
     const publicClient = tryLocalPublicRecordSearch(query);
@@ -3741,6 +3742,11 @@ async function doSearch() {
     });
 
     if (matched.length === 0) {
+        if (liveQueryError) {
+            showSearchHint(`⚠️ 天眼查实时查询未完成：${escapeHtml(liveQueryError)}。已切换至公开资料核验模式。`, 'orange');
+            renderClient(attachPublicEvidence(buildUnlistedCompanyClient(query)));
+            return;
+        }
         renderUnlistedCompanyNotice(query);
         return;
     }

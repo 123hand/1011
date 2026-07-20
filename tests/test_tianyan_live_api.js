@@ -12,6 +12,7 @@ assert.strictEqual(typeof api.handler, "function", "live endpoint should export 
 assert.strictEqual(typeof api.buildLiveProfile, "function", "live endpoint should normalize verified company data");
 assert(source.includes("process.env.TYC_API_KEY"), "API key should be read from Vercel environment variables");
 assert(source.includes("tools/list"), "MCP tool names should be discovered from the live server");
+assert(source.includes("async function mcpNotify"), "MCP notifications should not expect a JSON response body");
 
 const profile = api.buildLiveProfile({
   name: "测试企业有限公司",
