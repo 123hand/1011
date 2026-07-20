@@ -37,6 +37,8 @@ async function mcpRequest(apiKey, method, params, sessionId) {
       Authorization: apiKey,
       "Content-Type": "application/json",
       Accept: "application/json, text/event-stream",
+      "MCP-Protocol-Version": "2025-03-26",
+      "User-Agent": "cmb-kyc-platform/1.0",
       ...(sessionId ? { "Mcp-Session-Id": sessionId } : {})
     },
     body: JSON.stringify({
@@ -48,7 +50,12 @@ async function mcpRequest(apiKey, method, params, sessionId) {
   });
 
   const raw = await response.text();
-  if (!response.ok) throw new Error(`天眼查服务请求失败（${response.status}）：${raw.slice(0, 160)}`);
+  if (!response.ok) {
+    if (response.status === 418) {
+      throw new Error("天眼查 MCP 网关拒绝了服务端请求（HTTP 418）。请联系天眼支持确认该 API Key 是否允许 Vercel Serverless 出网调用");
+    }
+    throw new Error(`天眼查服务请求失败（${response.status}）：${raw.slice(0, 160)}`);
+  }
   const payload = parseMcpResponse(raw);
   if (payload.error) throw new Error(payload.error.message || "天眼查服务返回错误");
   return { result: payload.result, sessionId: response.headers.get("mcp-session-id") || sessionId };
@@ -61,6 +68,8 @@ async function mcpNotify(apiKey, method, params, sessionId) {
       Authorization: apiKey,
       "Content-Type": "application/json",
       Accept: "application/json, text/event-stream",
+      "MCP-Protocol-Version": "2025-03-26",
+      "User-Agent": "cmb-kyc-platform/1.0",
       "Mcp-Session-Id": sessionId
     },
     body: JSON.stringify({ jsonrpc: "2.0", method, params })

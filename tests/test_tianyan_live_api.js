@@ -14,6 +14,8 @@ assert.strictEqual(typeof api.buildLiveProfile, "function", "live endpoint shoul
 assert(source.includes("process.env.TYC_API_KEY"), "API key should be read from Vercel environment variables");
 assert(source.includes("tools/list"), "MCP tool names should be discovered from the live server");
 assert(source.includes("async function mcpNotify"), "MCP notifications should not expect a JSON response body");
+assert(source.includes('"MCP-Protocol-Version": "2025-03-26"'), "MCP requests should include the Streamable HTTP protocol version");
+assert(source.includes('"User-Agent": "cmb-kyc-platform/1.0"'), "MCP requests should identify the Vercel client to the upstream gateway");
 
 const profile = api.buildLiveProfile({
   name: "测试企业有限公司",
