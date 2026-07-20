@@ -4135,7 +4135,11 @@ function drawRevenueChart(client) {
     const canvas = document.getElementById('chartRevenue');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    const data = client.revenueData;
+    const data = (client.revenueData || []).map(item => ({
+        ...item,
+        revenue: Number(item.revenue),
+        profit: Number(item.profit)
+    })).filter(item => Number.isFinite(item.revenue) && Number.isFinite(item.profit));
 
     canvas.width = canvas.parentElement.offsetWidth;
     canvas.height = 220;
@@ -4148,10 +4152,18 @@ function drawRevenueChart(client) {
 
     ctx.clearRect(0, 0, w, h);
 
+    if (!data.length || data.every(item => item.revenue <= 0 && item.profit <= 0)) {
+        ctx.fillStyle = '#718096';
+        ctx.font = '14px PingFang SC';
+        ctx.textAlign = 'center';
+        ctx.fillText('暂无可视化财务数据', w / 2, h / 2);
+        return;
+    }
+
     // 最大值
     const maxRevenue = Math.max(...data.map(d => d.revenue));
     const maxProfit = Math.max(...data.map(d => d.profit));
-    const maxY = Math.ceil(maxRevenue / 10000) * 10000;
+    const maxY = Math.ceil(Math.max(maxRevenue, maxProfit) / 10000) * 10000;
 
     // Y轴刻度
     ctx.fillStyle = '#718096';
@@ -4236,7 +4248,7 @@ function drawDebtChart(client) {
     const canvas = document.getElementById('chartDebt');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    const data = client.debtData;
+    const data = client.debtData || {};
 
     canvas.width = canvas.parentElement.offsetWidth;
     canvas.height = 220;
@@ -4246,14 +4258,26 @@ function drawDebtChart(client) {
 
     ctx.clearRect(0, 0, w, h);
 
+    const totalAssets = Number(data.totalAssets);
+    const totalDebt = Number(data.totalDebt);
+    const equity = Number(data.equity);
+    const currentRatio = Number(data.currentRatio);
+    if (![totalAssets, totalDebt, equity, currentRatio].every(Number.isFinite) || totalAssets <= 0) {
+        ctx.fillStyle = '#718096';
+        ctx.font = '14px PingFang SC';
+        ctx.textAlign = 'center';
+        ctx.fillText('暂无可视化财务数据', w / 2, h / 2);
+        return;
+    }
+
     // 资产负债饼图
     const cx = w * 0.3;
     const cy = h / 2;
     const r = Math.min(cx - 20, cy - 20);
 
-    const total = data.totalAssets;
-    const debtPct = data.totalDebt / total;
-    const equityPct = data.equity / total;
+    const total = totalAssets;
+    const debtPct = totalDebt / total;
+    const equityPct = equity / total;
 
     // 负债扇区
     ctx.beginPath();
@@ -4289,10 +4313,10 @@ function drawDebtChart(client) {
     // 右侧指标面板
     const panelX = w * 0.55;
     const indicators = [
-        {label: '总资产', value: (data.totalAssets / 10000).toFixed(1) + '亿', color: '#2D3748'},
-        {label: '总负债', value: (data.totalDebt / 10000).toFixed(1) + '亿', color: '#C41230'},
-        {label: '净资产', value: (data.equity / 10000).toFixed(1) + '亿', color: '#38A169'},
-        {label: '流动比率', value: data.currentRatio.toFixed(2), color: '#2B6CB0'},
+        {label: '总资产', value: (totalAssets / 10000).toFixed(1) + '亿', color: '#2D3748'},
+        {label: '总负债', value: (totalDebt / 10000).toFixed(1) + '亿', color: '#C41230'},
+        {label: '净资产', value: (equity / 10000).toFixed(1) + '亿', color: '#38A169'},
+        {label: '流动比率', value: currentRatio.toFixed(2), color: '#2B6CB0'},
         {label: '负债率', value: data.debtRatio, color: '#C41230'}
     ];
 

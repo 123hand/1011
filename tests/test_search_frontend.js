@@ -47,4 +47,14 @@ assert(
   "live query errors should be shown instead of silently appearing as missing local data"
 );
 
+assert(
+  html.includes("暂无可视化财务数据"),
+  "live profiles without financial statements should not crash the revenue chart"
+);
+
+assert(
+  html.includes("Math.max(maxRevenue, maxProfit)"),
+  "revenue charts should scale from whichever financial series has usable data"
+);
+
 console.log("search frontend fallback structure ok");
