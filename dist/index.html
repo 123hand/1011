@@ -1378,6 +1378,14 @@
             color: var(--cmb-red);
         }
 
+        .report-preview-modal { position: fixed; inset: 0; z-index: 400; display: none; flex-direction: column; padding: 18px; background: rgba(15, 23, 42, 0.72); }
+        .report-preview-modal.active { display: flex; }
+        .report-preview-shell { width: min(1080px, 100%); height: 100%; margin: 0 auto; display: flex; flex-direction: column; overflow: hidden; border-radius: var(--cmb-radius-sm); background: #FFFFFF; box-shadow: 0 24px 60px rgba(15, 23, 42, 0.3); }
+        .report-preview-toolbar { min-height: 52px; padding: 8px 12px 8px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--cmb-border); color: var(--cmb-text); font-size: 14px; font-weight: 700; }
+        .report-preview-close { width: 36px; height: 36px; border: 0; border-radius: var(--cmb-radius-sm); background: transparent; color: var(--cmb-text); font-size: 25px; line-height: 1; cursor: pointer; }
+        .report-preview-close:hover { background: var(--cmb-bg); color: var(--cmb-red); }
+        .report-preview-frame { width: 100%; flex: 1; border: 0; background: #FFFFFF; }
+
         .report-block {
             margin-bottom: 24px;
         }
@@ -1672,6 +1680,9 @@
                 flex: 1 1 140px;
             }
 
+            .report-preview-modal { padding: 0; }
+            .report-preview-shell { width: 100%; border-radius: 0; }
+
             table,
             .table-wrapper,
             .chart-container {
@@ -1919,6 +1930,12 @@
     <div class="diary-list" id="diaryList"></div>
 </section>
 <div class="diary-photo-modal" id="diaryPhotoModal" onclick="closeDiaryPhoto(event)"><button class="diary-photo-close" type="button" aria-label="关闭图片预览" onclick="closeDiaryPhoto()">×</button><img id="diaryPhotoModalImage" alt="工作留痕照片大图"></div>
+<div class="report-preview-modal" id="reportPreviewModal" role="dialog" aria-modal="true" aria-label="尽职调查报告预览">
+    <div class="report-preview-shell">
+        <div class="report-preview-toolbar"><span>尽职调查报告预览</span><button class="report-preview-close" type="button" aria-label="关闭报告预览" onclick="closeReportPreview()">×</button></div>
+        <iframe class="report-preview-frame" id="reportPreviewFrame" title="尽职调查报告预览"></iframe>
+    </div>
+</div>
 <div class="search-section" id="searchSection">
     <span class="search-label">🔍 客户查询</span>
     <div class="search-input-wrapper">
@@ -2292,6 +2309,10 @@
             <div class="report-header">
                 <div class="report-title">KYC尽职调查报告</div>
                 <div class="report-actions">
+                    <button class="report-btn report-btn-outline" type="button" onclick="previewReport()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 5c-5.5 0-9.5 4.7-10.8 7 1.3 2.3 5.3 7 10.8 7s9.5-4.7 10.8-7C21.5 9.7 17.5 5 12 5zm0 11.5A4.5 4.5 0 1 1 12 7a4.5 4.5 0 0 1 0 9.5zm0-2A2.5 2.5 0 1 0 12 9a2.5 2.5 0 0 0 0 5.5z"/></svg>
+                        报告预览
+                    </button>
                     <button class="report-btn report-btn-primary" onclick="exportReport()">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
                         导出PDF
@@ -3269,6 +3290,16 @@ function showSearchHint(message, tone = 'orange') {
     document.getElementById('searchSection').after(searchHint);
 }
 
+function formatDataQualityPercent(value) {
+    const numeric = Number(value);
+    return Number.isFinite(numeric) && numeric > 0 ? `${Math.round(numeric)}%` : '待人工核验';
+}
+
+function hasMeasuredDataQuality(value, threshold) {
+    const numeric = Number(value);
+    return Number.isFinite(numeric) && numeric > 0 && numeric >= threshold;
+}
+
 function mapApiProfileToClient(profile) {
     const profileScores = calculateProfileScores(profile);
     const reviewItems = profile.manual_review_items || [];
@@ -3294,7 +3325,7 @@ function mapApiProfileToClient(profile) {
         term: basic.term || '待核实',
         tags: [
             {text: basic.industry || '企业客户', cls: 'blue'},
-            {text: `覆盖率${dataQuality.coverage_rate || 0}%`, cls: 'green'},
+            {text: `覆盖率${formatDataQualityPercent(dataQuality.coverage_rate)}`, cls: 'green'},
             {text: `${sources.length}个数据源`, cls: 'orange'},
             {text: `${reviewItems.length}项待复核`, cls: reviewItems.length <= 3 ? 'green' : 'red'}
         ],
@@ -3307,12 +3338,8 @@ function mapApiProfileToClient(profile) {
         scores: profileScores,
         products: products,
         actions: actions,
-        revenueData: finance.revenueData || [
-            {year: '2022', revenue: 0, profit: 0},
-            {year: '2023', revenue: 0, profit: 0},
-            {year: '2024', revenue: 0, profit: 0}
-        ],
-        debtData: finance.debtData || {totalAssets: 0, totalDebt: 0, equity: 0, currentRatio: 0, debtRatio: '待核实'},
+        revenueData: finance.revenueData || [],
+        debtData: finance.debtData || {debtRatio: '待核实'},
         fitItems: products.map(p => ({
             icon: '▣',
             name: p.name,
@@ -3331,8 +3358,8 @@ function mapApiProfileToClient(profile) {
             {text: `人工复核项：${reviewItems.length}项`, status: reviewItems.length <= 3 ? 'pass' : 'warn'}
         ],
         financeChecks: [
-            {text: `数据采集覆盖率：${dataQuality.coverage_rate || 0}%`, status: (dataQuality.coverage_rate || 0) >= 90 ? 'pass' : 'warn'},
-            {text: `核验准确度评分：${dataQuality.verification_rate || 0}%`, status: (dataQuality.verification_rate || 0) >= 85 ? 'pass' : 'warn'},
+            {text: `数据采集覆盖率：${formatDataQualityPercent(dataQuality.coverage_rate)}`, status: hasMeasuredDataQuality(dataQuality.coverage_rate, 90) ? 'pass' : 'warn'},
+            {text: `核验准确度评分：${formatDataQualityPercent(dataQuality.verification_rate)}`, status: hasMeasuredDataQuality(dataQuality.verification_rate, 85) ? 'pass' : 'warn'},
             {text: `资产负债率：${(finance.debtData || {}).debtRatio || '待核实'}`, status: 'warn'}
         ],
         riskChecks: risk.checks || [],
@@ -4369,6 +4396,32 @@ async function exportReport() {
     openPrintableReport(html);
 }
 
+function previewReport() {
+    if (!currentClient) {
+        alert('请先查询并加载企业画像，再预览KYC尽职调查报告。');
+        return;
+    }
+    openReportPreview(buildPrintableReportHtml(currentClient));
+}
+
+function openReportPreview(html) {
+    const modal = document.getElementById('reportPreviewModal');
+    const frame = document.getElementById('reportPreviewFrame');
+    if (!modal || !frame) return;
+    frame.srcdoc = html;
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeReportPreview() {
+    const modal = document.getElementById('reportPreviewModal');
+    const frame = document.getElementById('reportPreviewFrame');
+    if (!modal || !frame) return;
+    frame.removeAttribute('srcdoc');
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
 async function downloadPdfReport(html) {
     const safeName = (currentClient?.name || 'KYC尽职调查报告').replace(/[\\/:*?"<>|]/g, '_');
     const holder = document.createElement('div');
@@ -4428,6 +4481,37 @@ function printReport() {
     exportReport();
 }
 
+function buildEfficiencyDashboard(client) {
+    const quality = client.data_quality || {};
+    const sources = (client.sources || []).filter(Boolean);
+    const reviews = (client.manual_review_items || []).filter(Boolean);
+    const measuredValue = value => {
+        const numeric = Number(value);
+        return sources.length && Number.isFinite(numeric) && numeric > 0 ? Math.round(numeric) : null;
+    };
+    const hasValue = value => Boolean(value) && !['待核实', '待补充', '待评估'].includes(String(value).trim());
+    const completedModules = [
+        client.name,
+        client.code,
+        client.scope,
+        (client.shareholders || []).length,
+        (client.revenueData || []).length,
+        (client.products || []).length,
+        (client.actions || []).length,
+        sources.length
+    ].filter(hasValue).length;
+
+    return {
+        savedMinutes: measuredValue(quality.coverage_rate) >= 90 ? 285 : 235,
+        coverage: measuredValue(quality.coverage_rate),
+        verification: measuredValue(quality.verification_rate),
+        reviewCount: reviews.length || (sources.length ? 0 : null),
+        completeness: completedModules ? Math.round(completedModules / 8 * 100) : null,
+        sourceReuse: sources.length ? `${Math.max(1, sources.length >= 3 ? 4.2 : sources.length).toFixed(1)}次` : null,
+        sourceCount: sources.length
+    };
+}
+
 function buildPrintableReportHtml(client) {
     const today = new Date().toLocaleDateString('zh-CN');
     const quality = client.data_quality || {};
@@ -4438,14 +4522,7 @@ function buildPrintableReportHtml(client) {
     const plan = getDevelopmentPlan(client);
     const projectReport = getProjectReportOverride(client);
     if (projectReport) return buildProjectPrintableReportHtml(client, projectReport, today);
-    const dashboard = {
-        savedMinutes: quality.coverage_rate >= 90 ? 285 : 235,
-        coverage: quality.coverage_rate || 0,
-        verification: quality.verification_rate || 0,
-        reviewCount: quality.pending_review_count ?? reviews.length,
-        completeness: (quality.pending_review_count ?? reviews.length) <= 3 ? 100 : 88,
-        sourceReuse: sources.length >= 3 ? '4.2次' : '2.0次'
-    };
+    const dashboard = buildEfficiencyDashboard(client);
 
     return `<!DOCTYPE html>
 <html lang="zh-CN">
@@ -4855,14 +4932,17 @@ function renderPrintableReviewRows(reviews) {
 }
 
 function renderPrintableKpiRows(dashboard) {
-    const status = value => value ? '达标' : '待提升';
+    const pending = 'KPI数据待人工核验';
+    const percent = value => Number.isFinite(value) ? `${value}%` : pending;
+    const reviewCount = Number.isFinite(dashboard.reviewCount) ? `${dashboard.reviewCount}项` : pending;
+    const status = (value, predicate) => Number.isFinite(value) ? (predicate(value) ? '达标' : '待提升') : '待核验';
     return [
-        ['节省时间', `${dashboard.savedMinutes}分钟`, '≥180分钟', status(dashboard.savedMinutes >= 180), '人工完成同等报告约需4-6小时，系统生成后客户经理重点复核'],
-        ['数据采集覆盖率', `${dashboard.coverage}%`, '≥90%', status(dashboard.coverage >= 90), '覆盖工商、财务、司法、舆情、行业等维度'],
-        ['信息源复用次数', dashboard.sourceReuse, '≥3次', status(parseFloat(dashboard.sourceReuse) >= 3), '同一信息源在基础信息、风险、合作机会等章节复用'],
-        ['核验准确度评分', `${dashboard.verification}%`, '≥85%', status(dashboard.verification >= 85), '基于可信来源数量和交叉验证情况估算'],
-        ['人工复核项', `${dashboard.reviewCount}项`, '≤3项', status(dashboard.reviewCount <= 3), '需客户经理重点补充或复核的资料缺口'],
-        ['报告完整度评分', `${dashboard.completeness}%`, '≥95%', status(dashboard.completeness >= 95), '十个报告模块覆盖情况']
+        ['节省时间', `${dashboard.savedMinutes}分钟`, '≥180分钟', status(dashboard.savedMinutes, value => value >= 180), '人工完成同等报告约需4-6小时，系统生成后客户经理重点复核'],
+        ['数据采集覆盖率', percent(dashboard.coverage), '≥90%', status(dashboard.coverage, value => value >= 90), '覆盖工商、财务、司法、舆情、行业等维度；未取得数据时不以0%替代'],
+        ['信息源复用次数', dashboard.sourceReuse || pending, '≥3次', dashboard.sourceReuse ? (parseFloat(dashboard.sourceReuse) >= 3 ? '达标' : '待提升') : '待核验', '同一信息源在基础信息、风险、合作机会等章节交叉复用'],
+        ['核验准确度评分', percent(dashboard.verification), '≥85%', status(dashboard.verification, value => value >= 85), '仅在已有可信来源交叉核验后计分；未核验不以0%展示'],
+        ['人工复核项', reviewCount, '≤3项', status(dashboard.reviewCount, value => value <= 3), '需客户经理重点补充或复核的资料缺口'],
+        ['报告完整度评分', percent(dashboard.completeness), '≥95%', status(dashboard.completeness, value => value >= 95), '按已获得的企业资料模块测算，不以报告模板章节数量替代']
     ].map(row => `
         <tr>
             <td>${escapeHtml(row[0])}</td>

@@ -5,6 +5,9 @@ const html = fs.readFileSync("kyc_platform.html", "utf8");
 
 [
   "function exportReport",
+  "function previewReport",
+  "function openReportPreview",
+  "function closeReportPreview",
   "function printReport",
   "function buildPrintableReportHtml",
   "function openPrintableReport",
@@ -96,6 +99,16 @@ assert(
 assert(
   html.includes("setTimeout(() => URL.revokeObjectURL(url), 30000)"),
   "mobile report download should keep its blob URL alive long enough for the browser to finish"
+);
+
+assert(
+  html.includes("KPI数据待人工核验"),
+  "unmeasured KPI fields should not be presented as zero values"
+);
+
+assert(
+  html.includes("报告预览"),
+  "mobile users should be able to preview the due diligence report without downloading it"
 );
 
 console.log("report export frontend structure ok");
