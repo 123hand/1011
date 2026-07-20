@@ -6,6 +6,7 @@ const html = fs.readFileSync("kyc_platform.html", "utf8");
 [
   "function renderUnlistedCompanyNotice",
   "function buildUnlistedCompanyClient",
+  "function tryTianyanLiveSearch",
   "publicSourceLookup",
   "function buildPublicSourceLinks",
   "function savePublicEvidence",
@@ -34,6 +35,11 @@ assert(
 assert(
   !html.includes("profile.risk.level === 'medium' ? 72"),
   "medium-risk profiles should not be forced to a fixed 72-point score"
+);
+
+assert(
+  html.includes("/api/company-live?query="),
+  "unlisted companies should query the Tianyancha live endpoint before falling back"
 );
 
 console.log("search frontend fallback structure ok");

@@ -3412,6 +3412,15 @@ async function tryApiSearch(query) {
     return mapApiProfileToClient(profile);
 }
 
+async function tryTianyanLiveSearch(query) {
+    const response = await fetch(`/api/company-live?query=${encodeURIComponent(query)}`);
+    if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        throw new Error(payload.error || '天眼查实时查询暂不可用');
+    }
+    return mapApiProfileToClient(await response.json());
+}
+
 function tryLocalPublicRecordSearch(query) {
     const records = (window.COMPANY_RECORDS && window.COMPANY_RECORDS.companies) || [];
     if (!records.length) return null;
@@ -3700,6 +3709,17 @@ async function doSearch() {
         showSearchHint('⚠️ 后端接口未找到匹配企业，继续检索本地公开披露数据包。', 'orange');
     } catch (error) {
         // 静默降级到本地公开披露数据包，避免向用户暴露不存在的后端状态。
+    }
+
+    try {
+        const liveClient = await tryTianyanLiveSearch(query);
+        if (liveClient) {
+            showSearchHint(`✅ 已通过天眼查实时查询加载 <strong>${liveClient.name}</strong> 的企业资料，数据源：${liveClient.apiProfile.sources.length}个，仍需按提示复核。`, 'green');
+            renderClient(liveClient);
+            return;
+        }
+    } catch (error) {
+        // 天眼查服务不可用时继续使用既有公开资料核验流程。
     }
 
     const publicClient = tryLocalPublicRecordSearch(query);
