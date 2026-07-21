@@ -62,6 +62,10 @@ assert(
   "function saveClientFieldEdit",
   "function getClientFieldEdits",
   "data-edit-field",
+  "function openFinanceEditor",
+  "function saveFinancialData",
+  "补充财务数据",
+  "补充待核实资料",
 ].forEach((needle) => {
   assert(html.includes(needle), `Pending client fields should support verified field edits: ${needle}`);
 });

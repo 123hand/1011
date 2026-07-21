@@ -899,6 +899,17 @@
         .field-edit-save, .field-edit-cancel { min-height: 32px; border: 0; border-radius: var(--cmb-radius-sm); padding: 0 10px; cursor: pointer; font: inherit; font-size: 12px; }
         .field-edit-save { background: var(--cmb-red); color: #FFFFFF; }
         .field-edit-cancel { background: var(--cmb-bg); color: var(--cmb-text); }
+        .finance-editor-modal { position: fixed; inset: 0; z-index: 410; display: none; align-items: center; justify-content: center; padding: 20px; background: rgba(15, 23, 42, 0.68); }
+        .finance-editor-modal.active { display: flex; }
+        .finance-editor { width: min(620px, 100%); max-height: calc(100vh - 40px); overflow: auto; padding: 22px; border-radius: var(--cmb-radius-sm); background: #FFFFFF; box-shadow: 0 20px 56px rgba(15, 23, 42, 0.28); }
+        .finance-editor-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; font-size: 17px; font-weight: 700; }
+        .finance-editor-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+        .finance-editor-grid label { display: grid; gap: 5px; color: var(--cmb-text-light); font-size: 12px; }
+        .finance-editor-grid input { min-width: 0; border: 1px solid var(--cmb-border); border-radius: var(--cmb-radius-sm); padding: 9px; font: inherit; color: var(--cmb-text); }
+        .finance-editor-help { margin: 14px 0; color: var(--cmb-text-light); font-size: 12px; line-height: 1.6; }
+        .finance-editor-actions { display: flex; justify-content: flex-end; gap: 8px; }
+        .chart-empty-action { display: grid; place-items: center; gap: 10px; height: 100%; color: var(--cmb-text-light); font-size: 14px; }
+        .chart-empty-action .report-btn { min-height: 36px; }
 
         .info-tags {
             display: flex;
@@ -1767,6 +1778,7 @@
 
             .report-btn { flex-basis: 100%; }
             .field-edit-form { grid-template-columns: 1fr; }
+            .finance-editor-grid { grid-template-columns: 1fr; }
         }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
@@ -1965,6 +1977,7 @@
         <iframe class="report-preview-frame" id="reportPreviewFrame" title="尽职调查报告预览"></iframe>
     </div>
 </div>
+<div class="finance-editor-modal" id="financeEditorModal" role="dialog" aria-modal="true" aria-label="补充财务数据"></div>
 <div class="search-section" id="searchSection">
     <span class="search-label">🔍 客户查询</span>
     <div class="search-input-wrapper">
@@ -2035,6 +2048,7 @@
 
     <!-- ===== 企业基本信息 ===== -->
     <div class="tab-panel active" id="panelBasic">
+        <div class="report-actions" style="margin:0 32px 16px; justify-content:flex-end;"><button class="report-btn report-btn-outline" type="button" onclick="focusNextPendingField()"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>补充待核实资料</button></div>
         <div class="info-grid">
             <!-- 核心登记信息 -->
             <div class="info-card">
@@ -3564,6 +3578,10 @@ function clientFieldEditStorageKey(client) {
     return `kyc-client-field-edits:${encodeURIComponent(client.id || client.code || client.name || 'unknown')}`;
 }
 
+function clientFinancialDataStorageKey(client) {
+    return `kyc-client-financial-data:${encodeURIComponent(client.id || client.code || client.name || 'unknown')}`;
+}
+
 function getClientFieldEdits(client) {
     try {
         return JSON.parse(localStorage.getItem(clientFieldEditStorageKey(client)) || '{}');
@@ -3575,7 +3593,13 @@ function getClientFieldEdits(client) {
 function applyClientFieldEdits(client) {
     const edits = getClientFieldEdits(client);
     const values = Object.fromEntries(Object.entries(edits).map(([field, record]) => [field, record.value]));
-    return { ...client, ...values, fieldEdits: edits };
+    let financialData = {};
+    try {
+        financialData = JSON.parse(localStorage.getItem(clientFinancialDataStorageKey(client)) || '{}');
+    } catch (_error) {
+        financialData = {};
+    }
+    return { ...client, ...values, ...financialData, fieldEdits: edits };
 }
 
 function isPendingClientField(value) {
@@ -3617,6 +3641,59 @@ function saveClientFieldEdit(field) {
     currentClient[field] = value;
     currentClient.fieldEdits = edits;
     fillBasicInfo(currentClient);
+}
+
+function focusNextPendingField() {
+    if (!currentClient) return;
+    const pendingField = Object.keys(EDITABLE_CLIENT_FIELDS).find(field => isPendingClientField(currentClient[field]));
+    if (!pendingField) {
+        alert('当前基础资料没有待核实字段。财务数据仍可在客户智能分析页补充。');
+        return;
+    }
+    document.getElementById(EDITABLE_CLIENT_FIELDS[pendingField].elementId)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => startClientFieldEdit(pendingField), 300);
+}
+
+function openFinanceEditor() {
+    if (!currentClient) return;
+    const modal = document.getElementById('financeEditorModal');
+    const current = currentClient.revenueData || [];
+    const rows = [0, 1, 2].map(index => {
+        const item = current[index] || {};
+        return `<div class="finance-editor-grid"><label>年度<input id="financeYear${index}" value="${escapeHtml(item.year || String(new Date().getFullYear() - (2 - index)))}"></label><label>营业收入（万元）<input id="financeRevenue${index}" inputmode="decimal" value="${Number(item.revenue) || ''}"></label><label>净利润（万元）<input id="financeProfit${index}" inputmode="decimal" value="${Number(item.profit) || ''}"></label></div>`;
+    }).join('');
+    const debt = currentClient.debtData || {};
+    modal.innerHTML = `<div class="finance-editor"><div class="finance-editor-head"><span>补充财务数据</span><button class="report-preview-close" type="button" aria-label="关闭" onclick="closeFinanceEditor()">×</button></div>${rows}<div class="finance-editor-grid" style="margin-top:12px;"><label>总资产（万元）<input id="financeAssets" inputmode="decimal" value="${Number(debt.totalAssets) || ''}"></label><label>总负债（万元）<input id="financeDebt" inputmode="decimal" value="${Number(debt.totalDebt) || ''}"></label><label>净资产（万元）<input id="financeEquity" inputmode="decimal" value="${Number(debt.equity) || ''}"></label></div><div class="finance-editor-help">请按已核验的财务报表、审计报告或纳税资料填写。数据仅保存在当前浏览器，并会更新当前图表和报告预览。</div><div class="finance-editor-actions"><button class="report-btn report-btn-outline" type="button" onclick="closeFinanceEditor()">取消</button><button class="report-btn report-btn-primary" type="button" onclick="saveFinancialData()">保存并绘图</button></div></div>`;
+    modal.classList.add('active');
+}
+
+function closeFinanceEditor() {
+    document.getElementById('financeEditorModal')?.classList.remove('active');
+}
+
+function saveFinancialData() {
+    const revenueData = [0, 1, 2].map(index => ({
+        year: document.getElementById(`financeYear${index}`)?.value.trim(),
+        revenue: Number(document.getElementById(`financeRevenue${index}`)?.value),
+        profit: Number(document.getElementById(`financeProfit${index}`)?.value)
+    })).filter(item => item.year && Number.isFinite(item.revenue) && Number.isFinite(item.profit));
+    if (!revenueData.length) {
+        alert('请至少填写一条完整的年度、营业收入和净利润数据。');
+        return;
+    }
+    const totalAssets = Number(document.getElementById('financeAssets')?.value);
+    const totalDebt = Number(document.getElementById('financeDebt')?.value);
+    const equity = Number(document.getElementById('financeEquity')?.value);
+    const debtData = [totalAssets, totalDebt, equity].every(Number.isFinite) && totalAssets > 0
+        ? { totalAssets, totalDebt, equity, currentRatio: 0, debtRatio: `${(totalDebt / totalAssets * 100).toFixed(1)}%` }
+        : currentClient.debtData;
+    const record = { revenueData, debtData, financialUpdatedAt: new Date().toLocaleString('zh-CN') };
+    localStorage.setItem(clientFinancialDataStorageKey(currentClient), JSON.stringify(record));
+    currentClient = { ...currentClient, ...record };
+    closeFinanceEditor();
+    fillAnalysis(currentClient);
+    drawRevenueChart(currentClient);
+    drawDebtChart(currentClient);
 }
 
 function renderClient(client) {
@@ -4055,9 +4132,33 @@ function fillAnalysis(client) {
     const actHtml = client.actions.map(a => `<li>${a}</li>`).join('');
     document.getElementById('actionSteps').innerHTML = actHtml;
 
-    // 财务结论
-    document.getElementById('revenueConclusion').innerHTML = '✅ 近三年营收复合增长率约13%，利润同步增长，经营趋势稳健向好。客户处于产能扩张期，资金需求有望持续增加。';
-    document.getElementById('debtConclusion').innerHTML = '⚠️ 资产负债率44.7%处于制造业合理区间，但应收账款周转率微降需关注。有息负债占比及期限结构需进一步核实，防范短期集中偿付压力。';
+    // 财务结论只基于当前可核验的数据生成，避免无数据时沿用示例口径。
+    const financialSeries = (client.revenueData || []).filter(item => Number.isFinite(Number(item.revenue)) && Number.isFinite(Number(item.profit)));
+    const revenueConclusion = document.getElementById('revenueConclusion');
+    if (financialSeries.length) {
+        const latest = financialSeries[financialSeries.length - 1];
+        const previous = financialSeries[financialSeries.length - 2];
+        const trend = previous && Number(previous.revenue) > 0
+            ? `较上年${Number(latest.revenue) >= Number(previous.revenue) ? '增长' : '下降'}${Math.abs((Number(latest.revenue) / Number(previous.revenue) - 1) * 100).toFixed(1)}%`
+            : '已录入可视化财务数据';
+        revenueConclusion.className = 'chart-conclusion good';
+        revenueConclusion.textContent = `最新年度营收${Number(latest.revenue).toLocaleString()}万元、净利润${Number(latest.profit).toLocaleString()}万元，${trend}。`;
+    } else {
+        revenueConclusion.className = 'chart-conclusion info';
+        revenueConclusion.innerHTML = '尚未录入经核验的营收和利润数据。<button class="report-btn report-btn-outline" type="button" onclick="openFinanceEditor()">补充财务数据</button>';
+    }
+
+    const debt = client.debtData || {};
+    const hasDebt = [debt.totalAssets, debt.totalDebt, debt.equity].every(value => Number.isFinite(Number(value))) && Number(debt.totalAssets) > 0;
+    const debtConclusion = document.getElementById('debtConclusion');
+    if (hasDebt) {
+        const debtRatio = (Number(debt.totalDebt) / Number(debt.totalAssets) * 100).toFixed(1);
+        debtConclusion.className = 'chart-conclusion warning';
+        debtConclusion.textContent = `总资产${Number(debt.totalAssets).toLocaleString()}万元，资产负债率${debtRatio}%。需结合审计报告、流水及有息负债期限结构继续核验。`;
+    } else {
+        debtConclusion.className = 'chart-conclusion info';
+        debtConclusion.innerHTML = '尚未录入经核验的资产负债数据。<button class="report-btn report-btn-outline" type="button" onclick="openFinanceEditor()">补充财务数据</button>';
+    }
 
     // 适配性
     const fitHtml = client.fitItems.map(f => `
@@ -4365,10 +4466,28 @@ function drawRadar(client) {
 }
 
 // ========== 财务图表绘制（纯Canvas） ==========
+function clearChartEmptyAction(canvas) {
+    const holder = canvas?.parentElement;
+    holder?.querySelector('.chart-empty-action')?.remove();
+    if (canvas) canvas.style.display = 'block';
+}
+
+function renderChartEmptyAction(canvas, message) {
+    const holder = canvas?.parentElement;
+    if (!holder) return;
+    clearChartEmptyAction(canvas);
+    canvas.style.display = 'none';
+    const action = document.createElement('div');
+    action.className = 'chart-empty-action';
+    action.innerHTML = `<span>${escapeHtml(message)}</span><button class="report-btn report-btn-outline" type="button" onclick="openFinanceEditor()">补充财务数据</button>`;
+    holder.appendChild(action);
+}
+
 function drawRevenueChart(client) {
     const canvas = document.getElementById('chartRevenue');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
+    clearChartEmptyAction(canvas);
     const data = (client.revenueData || []).map(item => ({
         ...item,
         revenue: Number(item.revenue),
@@ -4387,10 +4506,7 @@ function drawRevenueChart(client) {
     ctx.clearRect(0, 0, w, h);
 
     if (!data.length || data.every(item => item.revenue <= 0 && item.profit <= 0)) {
-        ctx.fillStyle = '#718096';
-        ctx.font = '14px PingFang SC';
-        ctx.textAlign = 'center';
-        ctx.fillText('暂无可视化财务数据', w / 2, h / 2);
+        renderChartEmptyAction(canvas, '暂无可视化财务数据');
         return;
     }
 
@@ -4482,6 +4598,7 @@ function drawDebtChart(client) {
     const canvas = document.getElementById('chartDebt');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
+    clearChartEmptyAction(canvas);
     const data = client.debtData || {};
 
     canvas.width = canvas.parentElement.offsetWidth;
@@ -4497,10 +4614,7 @@ function drawDebtChart(client) {
     const equity = Number(data.equity);
     const currentRatio = Number(data.currentRatio);
     if (![totalAssets, totalDebt, equity, currentRatio].every(Number.isFinite) || totalAssets <= 0) {
-        ctx.fillStyle = '#718096';
-        ctx.font = '14px PingFang SC';
-        ctx.textAlign = 'center';
-        ctx.fillText('暂无可视化财务数据', w / 2, h / 2);
+        renderChartEmptyAction(canvas, '暂无可视化财务数据');
         return;
     }
 
