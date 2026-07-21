@@ -889,6 +889,17 @@
             color: var(--cmb-red);
         }
 
+        .editable-field { display: flex; align-items: center; gap: 8px; min-width: 0; }
+        .editable-field-value { min-width: 0; overflow-wrap: anywhere; }
+        .editable-field-pending { color: var(--cmb-orange); }
+        .field-edit-btn { flex: 0 0 auto; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--cmb-border); border-radius: var(--cmb-radius-sm); background: #FFFFFF; color: var(--cmb-text-light); cursor: pointer; }
+        .field-edit-btn:hover { color: var(--cmb-red); border-color: var(--cmb-red); }
+        .field-edit-form { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 6px; width: 100%; }
+        .field-edit-input { min-width: 0; border: 1px solid var(--cmb-border); border-radius: var(--cmb-radius-sm); padding: 7px 8px; font: inherit; color: var(--cmb-text); }
+        .field-edit-save, .field-edit-cancel { min-height: 32px; border: 0; border-radius: var(--cmb-radius-sm); padding: 0 10px; cursor: pointer; font: inherit; font-size: 12px; }
+        .field-edit-save { background: var(--cmb-red); color: #FFFFFF; }
+        .field-edit-cancel { background: var(--cmb-bg); color: var(--cmb-text); }
+
         .info-tags {
             display: flex;
             gap: 6px;
@@ -1755,6 +1766,7 @@
             .report-title { font-size: 18px; }
 
             .report-btn { flex-basis: 100%; }
+            .field-edit-form { grid-template-columns: 1fr; }
         }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
@@ -3532,8 +3544,83 @@ function calculateProfileScores(profile) {
     };
 }
 
+const EDITABLE_CLIENT_FIELDS = {
+    legal: { elementId: 'entLegal', label: '法定代表人' },
+    date: { elementId: 'entDate', label: '成立日期' },
+    capital: { elementId: 'entCapital', label: '注册资本' },
+    status: { elementId: 'entStatus', label: '登记状态' },
+    scope: { elementId: 'entScope', label: '经营范围' },
+    industry: { elementId: 'entIndustry', label: '所属行业' },
+    type: { elementId: 'entType', label: '企业类型' },
+    term: { elementId: 'entTerm', label: '经营期限' },
+    lawsuit: { elementId: 'entLawsuit', label: '司法诉讼' },
+    penalty: { elementId: 'entPenalty', label: '行政处罚' },
+    abnormal: { elementId: 'entAbnormal', label: '经营异常' },
+    dishonest: { elementId: 'entDishonest', label: '失信记录' },
+    related: { elementId: 'entRelated', label: '关联企业' }
+};
+
+function clientFieldEditStorageKey(client) {
+    return `kyc-client-field-edits:${encodeURIComponent(client.id || client.code || client.name || 'unknown')}`;
+}
+
+function getClientFieldEdits(client) {
+    try {
+        return JSON.parse(localStorage.getItem(clientFieldEditStorageKey(client)) || '{}');
+    } catch (_error) {
+        return {};
+    }
+}
+
+function applyClientFieldEdits(client) {
+    const edits = getClientFieldEdits(client);
+    const values = Object.fromEntries(Object.entries(edits).map(([field, record]) => [field, record.value]));
+    return { ...client, ...values, fieldEdits: edits };
+}
+
+function isPendingClientField(value) {
+    return /待核实|待补充|待人工核验|待复核/.test(String(value || ''));
+}
+
+function renderEditableField(field, client) {
+    const config = EDITABLE_CLIENT_FIELDS[field];
+    const element = document.getElementById(config.elementId);
+    if (!element) return;
+    const value = client[field] || '待核实';
+    if (!isPendingClientField(value)) {
+        element.textContent = value;
+        return;
+    }
+    element.innerHTML = `<span class="editable-field"><span class="editable-field-value editable-field-pending">${escapeHtml(value)}</span><button type="button" class="field-edit-btn" data-edit-field="${field}" aria-label="补充${escapeHtml(config.label)}" title="补充${escapeHtml(config.label)}" onclick="startClientFieldEdit('${field}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button></span>`;
+}
+
+function startClientFieldEdit(field) {
+    const config = EDITABLE_CLIENT_FIELDS[field];
+    const element = document.getElementById(config.elementId);
+    if (!currentClient || !element) return;
+    const currentValue = currentClient[field] || '';
+    element.innerHTML = `<div class="field-edit-form"><input class="field-edit-input" id="fieldEditInput" value="${escapeHtml(isPendingClientField(currentValue) ? '' : currentValue)}" placeholder="填写已核实的${escapeHtml(config.label)}"><button class="field-edit-save" type="button" onclick="saveClientFieldEdit('${field}')">保存</button><button class="field-edit-cancel" type="button" onclick="fillBasicInfo(currentClient)">取消</button></div>`;
+    element.querySelector('#fieldEditInput').focus();
+}
+
+function saveClientFieldEdit(field) {
+    const config = EDITABLE_CLIENT_FIELDS[field];
+    const input = document.getElementById('fieldEditInput');
+    const value = input?.value.trim();
+    if (!value) {
+        alert(`请填写已核实的${config.label}`);
+        return;
+    }
+    const edits = getClientFieldEdits(currentClient);
+    edits[field] = { value, label: config.label, updatedAt: new Date().toLocaleString('zh-CN') };
+    localStorage.setItem(clientFieldEditStorageKey(currentClient), JSON.stringify(edits));
+    currentClient[field] = value;
+    currentClient.fieldEdits = edits;
+    fillBasicInfo(currentClient);
+}
+
 function renderClient(client) {
-    currentClient = client;
+    currentClient = applyClientFieldEdits(client);
     document.getElementById('emptyState').style.display = 'none';
     document.getElementById('mainContent').classList.add('active');
     document.getElementById('mainContent').classList.add('fade-in');
@@ -3916,14 +4003,7 @@ async function doSearch() {
 function fillBasicInfo(client) {
     document.getElementById('entName').textContent = client.name;
     document.getElementById('entCode').textContent = client.code;
-    document.getElementById('entLegal').textContent = client.legal;
-    document.getElementById('entDate').textContent = client.date;
-    document.getElementById('entCapital').textContent = client.capital;
-    document.getElementById('entStatus').textContent = client.status;
-    document.getElementById('entScope').textContent = client.scope;
-    document.getElementById('entIndustry').textContent = client.industry;
-    document.getElementById('entType').textContent = client.type;
-    document.getElementById('entTerm').textContent = client.term;
+    Object.keys(EDITABLE_CLIENT_FIELDS).slice(0, 8).forEach(field => renderEditableField(field, client));
 
     // 标签
     const tagsHtml = client.tags.map(t => `<span class="info-tag ${t.cls}">${t.text}</span>`).join('');
@@ -3941,11 +4021,7 @@ function fillBasicInfo(client) {
     document.getElementById('shareholderList').innerHTML = listHtml;
 
     // 关联风险
-    document.getElementById('entLawsuit').textContent = client.lawsuit;
-    document.getElementById('entPenalty').textContent = client.penalty;
-    document.getElementById('entAbnormal').textContent = client.abnormal;
-    document.getElementById('entDishonest').textContent = client.dishonest;
-    document.getElementById('entRelated').textContent = client.related;
+    Object.keys(EDITABLE_CLIENT_FIELDS).slice(8).forEach(field => renderEditableField(field, client));
 }
 
 function fillAnalysis(client) {

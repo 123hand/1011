@@ -57,4 +57,13 @@ assert(
   "revenue charts should scale from whichever financial series has usable data"
 );
 
+[
+  "function renderEditableField",
+  "function saveClientFieldEdit",
+  "function getClientFieldEdits",
+  "data-edit-field",
+].forEach((needle) => {
+  assert(html.includes(needle), `Pending client fields should support verified field edits: ${needle}`);
+});
+
 console.log("search frontend fallback structure ok");
