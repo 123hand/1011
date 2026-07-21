@@ -894,6 +894,8 @@
         .editable-field-pending { color: var(--cmb-orange); }
         .field-edit-btn { flex: 0 0 auto; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--cmb-border); border-radius: var(--cmb-radius-sm); background: #FFFFFF; color: var(--cmb-text-light); cursor: pointer; }
         .field-edit-btn:hover { color: var(--cmb-red); border-color: var(--cmb-red); }
+        .field-edit-label { display: none; }
+        .basic-edit-actions { margin: 0 32px 16px; justify-content: flex-end; }
         .field-edit-form { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 6px; width: 100%; }
         .field-edit-input { min-width: 0; border: 1px solid var(--cmb-border); border-radius: var(--cmb-radius-sm); padding: 7px 8px; font: inherit; color: var(--cmb-text); }
         .field-edit-save, .field-edit-cancel { min-height: 32px; border: 0; border-radius: var(--cmb-radius-sm); padding: 0 10px; cursor: pointer; font: inherit; font-size: 12px; }
@@ -1719,6 +1721,10 @@
 
             .report-preview-modal { padding: 0; }
             .report-preview-shell { width: 100%; border-radius: 0; }
+            .basic-edit-actions { margin: 0 16px 12px; }
+            .basic-edit-actions .report-btn { width: 100%; }
+            .field-edit-btn { width: auto; min-height: 44px; padding: 0 10px; color: var(--cmb-red); border-color: var(--cmb-red); }
+            .field-edit-label { display: inline; font-size: 12px; font-weight: 700; }
 
             table,
             .table-wrapper,
@@ -2048,7 +2054,7 @@
 
     <!-- ===== 企业基本信息 ===== -->
     <div class="tab-panel active" id="panelBasic">
-        <div class="report-actions" style="margin:0 32px 16px; justify-content:flex-end;"><button class="report-btn report-btn-outline" type="button" onclick="focusNextPendingField()"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>补充待核实资料</button></div>
+        <div class="report-actions basic-edit-actions"><button class="report-btn report-btn-outline" type="button" onclick="focusNextPendingField()"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>补充待核实资料</button></div>
         <div class="info-grid">
             <!-- 核心登记信息 -->
             <div class="info-card">
@@ -3615,7 +3621,7 @@ function renderEditableField(field, client) {
         element.textContent = value;
         return;
     }
-    element.innerHTML = `<span class="editable-field"><span class="editable-field-value editable-field-pending">${escapeHtml(value)}</span><button type="button" class="field-edit-btn" data-edit-field="${field}" aria-label="补充${escapeHtml(config.label)}" title="补充${escapeHtml(config.label)}" onclick="startClientFieldEdit('${field}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button></span>`;
+    element.innerHTML = `<span class="editable-field"><span class="editable-field-value editable-field-pending">${escapeHtml(value)}</span><button type="button" class="field-edit-btn" data-edit-field="${field}" aria-label="补充${escapeHtml(config.label)}" title="补充${escapeHtml(config.label)}" onclick="startClientFieldEdit('${field}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg><span class="field-edit-label">补充</span></button></span>`;
 }
 
 function startClientFieldEdit(field) {

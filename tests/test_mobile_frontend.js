@@ -21,6 +21,8 @@ const html = fs.readFileSync("kyc_platform.html", "utf8");
   ".training-module-grid",
   ".training-quiz-group",
   ".field-edit-form",
+  ".field-edit-label",
+  ".basic-edit-actions",
   ".report-actions",
   "overflow-x: auto",
   "grid-template-columns: 1fr",
