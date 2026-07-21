@@ -14,6 +14,9 @@ assert.strictEqual(typeof api.buildLiveProfile, "function", "live endpoint shoul
 assert(source.includes("process.env.TAVILY_API_KEY"), "live search should use a Tavily server-side key");
 assert(source.includes("process.env.DEEPSEEK_API_KEY"), "report generation should use a DeepSeek server-side key");
 assert(source.includes("deepseek-v4-flash"), "live report generation should use the current DeepSeek Flash model");
+assert(source.includes("RECENT_SENTIMENT_DAYS"), "live search should define a recent sentiment window");
+assert(source.includes("recent_sentiment"), "live search should include a recent sentiment evidence category");
+assert(source.includes("financial_disclosures"), "live search should retrieve financial disclosure evidence separately");
 
 const profile = api.buildLiveProfile("测试企业有限公司", {
   basic: { legal: "待核实", industry: "企业服务" },

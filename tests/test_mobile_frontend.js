@@ -19,6 +19,7 @@ const html = fs.readFileSync("kyc_platform.html", "utf8");
   ".analysis-grid",
   ".development-grid",
   ".training-module-grid",
+  ".training-quiz-group",
   ".report-actions",
   "overflow-x: auto",
   "grid-template-columns: 1fr",

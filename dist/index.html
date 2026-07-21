@@ -477,6 +477,11 @@
             margin-top: 12px;
         }
 
+        .training-quiz-group {
+            display: grid;
+            gap: 8px;
+        }
+
         .training-quiz-option {
             border: 1px solid var(--cmb-border);
             background: #FFFFFF;
@@ -1907,7 +1912,7 @@
         </div>
 
         <div class="training-panel">
-            <div class="training-panel-title">拜访话术</div>
+            <div class="training-panel-title">拜访与异议处理话术</div>
             <div class="training-script" id="trainingScript">--</div>
             <div class="training-panel-title" style="margin-top:16px;">情景判断</div>
             <div class="training-script" id="trainingQuiz">--</div>
@@ -1950,12 +1955,6 @@
             <span class="search-tag" onclick="quickSearch('中国建筑')">中国建筑</span>
             <span class="search-tag" onclick="quickSearch('顺丰')">顺丰</span>
             <span class="search-tag" onclick="quickSearch('中国移动')">中国移动</span>
-            <span class="search-tag" onclick="quickSearch('制造业')">制造业</span>
-            <span class="search-tag" onclick="quickSearch('商贸')">商贸</span>
-            <span class="search-tag" onclick="quickSearch('建筑')">建筑</span>
-            <span class="search-tag" onclick="quickSearch('物流')">物流</span>
-            <span class="search-tag" onclick="quickSearch('政府')">政府平台</span>
-            <span class="search-tag" onclick="quickSearch('小微')">小微企业</span>
         </div>
     </div>
     <button class="search-btn" onclick="doSearch()">查询分析</button>
@@ -3058,6 +3057,32 @@ const MOCK_CLIENTS = [
 // ========== 对公客户经理培训课程 ==========
 const TRAINING_MODULES = [
     {
+        tag: '访前准备',
+        title: '访前准备与情报核验',
+        summary: '按照搜索、选择、采集、验证的顺序，形成可追溯的访前画像、资料缺口和问题清单。',
+        scenario: '你即将拜访一家首次接触的企业。公开资料显示企业近期有项目动态，但法定代表人、股权和财务信息在不同来源中不一致。',
+        checklist: [
+            '确认企业全称、统一社会信用代码或证券代码，避免同名主体误判',
+            '分别核对官网、年报/公告、工商公开信息、司法风险与近30天新闻来源',
+            '将已验证事实、来源冲突和待核实资料分开记录，不用推测补全空白字段',
+            '围绕经营、资金、决策链路、产品使用和风险信号形成不超过十项的问题清单'
+        ],
+        script: [
+            '开场：您好，我是招商银行负责企业服务的客户经理。拜访前我做了公开资料梳理，今天想先向您核实几个基础信息，避免后续沟通出现偏差。',
+            '追问：我看到贵司近期有项目动态，想确认这是否属于今年的重点经营安排？对应的收付款和资金安排由哪位同事负责？',
+            '回应：公开资料之间有几处口径不一致，我会以您提供的正式材料和可信公开披露为准，不会把未核实内容写入结论。',
+            '收口：我会把今天确认的信息和待补充事项整理成清单，发您确认后再进入下一步方案讨论。'
+        ],
+        quiz: {
+            question: '两个公开来源对企业股权信息表述不一致，正确的访前处理是什么？',
+            options: [
+                { text: '标注来源冲突并准备核验问题，后续以正式披露或客户材料确认', correct: true, feedback: '判断正确。关键字段存在矛盾时必须保留来源并挂起核验，不能擅自选择其中一个。' },
+                { text: '选择搜索结果排名最高的内容直接写入报告', correct: false, feedback: '不严谨。搜索排序不等于数据可信度，关键股权信息需要权威披露或客户材料核验。' },
+                { text: '为了报告完整，按行业常见结构补齐缺失股东', correct: false, feedback: '不合规。不得用行业假设替代真实客户数据。' }
+            ]
+        }
+    },
+    {
         tag: '存量经营',
         title: '存量客户深耕',
         summary: '从已开户企业出发，围绕结算、代发、票据、贷款、保函、供应链和员工个人业务联动挖掘新增需求。',
@@ -3069,8 +3094,10 @@ const TRAINING_MODULES = [
             '形成一页式跟进记录，明确需求状态、下一次触达时间和需补充资料'
         ],
         script: [
-            '您近期订单增长后，回款周期和备货资金压力有没有变化？我们先不急着谈产品，先把现金流节点和结算链路梳理清楚。',
-            '工资、报销、供应商付款如果目前分散在多家银行，我可以帮您做一版结算效率和员工服务联动方案，先看能不能减少财务操作成本。'
+            '开场：王总，您好。我是招商银行负责贵司服务的客户经理。今天主要想了解订单、回款和资金安排的变化，不占用您太多时间。',
+            '追问：您刚提到回款周期拉长，能否请您举一个最近的订单例子？从发货、开票到回款通常分别需要多久？',
+            '回应：明白了。这个问题先不急着定产品，我先把结算节点、应收账期和付款节奏整理出来，再给您一版可比较的服务方案。',
+            '收口：我会在两个工作日内把访谈纪要和需补充资料清单发给您。下次我们重点确认代发和供应商付款场景，可以吗？'
         ],
         quiz: {
             question: '客户只在我行做结算，财务提到回款慢。客户经理的第一步更适合怎么做？',
@@ -3093,8 +3120,10 @@ const TRAINING_MODULES = [
             '建立渠道台账，记录园区、商会、市场管委会、招投标平台和老客户转介绍来源'
         ],
         script: [
-            '这次对接我会先了解企业主营业务和结算链路，不会一上来推产品。符合准入条件的企业，我们再按结算、融资、票据或工资代发分别设计方案。',
-            '如果园区能提供企业行业、成立时间和联系人，我们可以先做一轮名单分层，把拜访顺序排出来，提高对接效率。'
+            '开场：您好，我是招商银行对公客户经理。了解到贵司刚入驻园区，想用十分钟了解主营业务和日常收付款安排，看看银行服务能否帮您减少财务操作。',
+            '追问：贵司当前主要客户和供应商的结算方式是什么？回款、付款和工资发放分别由谁负责？',
+            '回应：感谢您介绍。我们不会先承诺融资或额度，先把真实业务场景和基础资料核对清楚，再给您匹配结算、票据或代发服务。',
+            '收口：我先把今天的情况记下来，明天向您发送一份简要资料清单；您方便时我们再约财务负责人做一次专题沟通。'
         ],
         quiz: {
             question: '园区给到一批新企业名单，客户经理更应优先做哪件事？',
@@ -3117,8 +3146,10 @@ const TRAINING_MODULES = [
             '缺失核心资料时标注待核实，不输出确定性授信结论'
         ],
         script: [
-            '为了判断企业经营真实性，我们需要把合同、发票、流水和纳税记录对应起来看。资料完整后，才能更准确地判断适配的结算或融资服务。',
-            '如果暂时无法提供核心资料，我会先把缺口列清楚，避免后续审批或开户环节反复补件。'
+            '开场：为了让后续开户或业务办理更顺畅，我先和您确认一下企业基本情况和资料准备进度，避免您后面重复补件。',
+            '追问：这笔周转需求对应的是哪一类真实交易？能否提供对应合同、发票、回款记录和纳税资料，方便我们交叉核验？',
+            '回应：资料齐全后，我们才能更准确判断适配的结算或融资服务。暂缺的部分我会逐项标注，不会让您来回猜需要准备什么。',
+            '收口：今天先确认四项优先资料：营业执照、近年财务或纳税、主要流水和合同。收到后我会反馈下一步核验安排。'
         ],
         quiz: {
             question: '企业要求尽快给融资判断，但无法提供流水和纳税材料。客户经理应怎么处理？',
@@ -3126,6 +3157,32 @@ const TRAINING_MODULES = [
                 { text: '明确列出缺失资料和待核实事项，暂不做确定性判断', correct: true, feedback: '判断正确。核心经营数据缺失时，只能输出资料清单和关注要点，不能代替审批结论。' },
                 { text: '根据企业口头描述先判断可以合作，资料后补', correct: false, feedback: '不合规。尽调必须基于真实资料和可追溯数据，不能用口头描述替代核验。' },
                 { text: '只看企业成立年限，超过三年即可直接进入授信流程', correct: false, feedback: '不完整。成立年限不能替代经营真实性、负债、征信和行业风险核查。' }
+            ]
+        }
+    },
+    {
+        tag: '需求深挖',
+        title: '首次拜访需求深挖',
+        summary: '围绕经营、资金、结算和决策链路做分层追问，把“有需求”转化为可验证的业务场景。',
+        scenario: '首次拜访中，财务负责人表示“今年想和银行多合作”，但没有说明具体产品或痛点，企业主暂未参加会议。',
+        checklist: [
+            '先问经营变化：订单、客户结构、回款周期、采购账期和项目计划',
+            '再问资金链路：账户分布、归集方式、付款审批、日均余额和融资安排',
+            '确认决策链路：谁提出需求、谁使用、谁审批、谁最终决策',
+            '每个需求都对应到时间、金额级别、交易背景和下一项可核验材料'
+        ],
+        script: [
+            '开场：感谢您安排时间。今天我先不急着介绍产品，想从贵司最近的经营变化和资金安排开始，看看哪些环节最占用财务精力。',
+            '追问：您提到想加强合作，最希望优先改善的是收款、付款、工资发放，还是资金周转？这个问题通常在什么业务节点出现？',
+            '追问：这项安排最终由谁审批？如果需要进一步沟通，您建议我下次邀请哪位同事一起参加？',
+            '收口：我理解今天优先事项是两项。我会按每项的业务背景、资料清单和时间表整理，下一次和您确认后再给方案。'
+        ],
+        quiz: {
+            question: '客户说“想多合作”但未说明需求，最有效的下一句是什么？',
+            options: [
+                { text: '您最希望优先改善收款、付款、工资发放还是资金周转？这个问题通常发生在什么业务节点？', correct: true, feedback: '判断正确。用具体场景和时间节点把泛泛表态转化为可分析的真实需求。' },
+                { text: '我们产品很全面，您需要什么都可以办', correct: false, feedback: '不够专业。泛化承诺没有帮助客户澄清真实痛点。' },
+                { text: '那我先给您开一个最高级别的产品套餐', correct: false, feedback: '不合适。产品应建立在需求和合规条件明确之后。' }
             ]
         }
     },
@@ -3141,8 +3198,10 @@ const TRAINING_MODULES = [
             '对涉及授信或保函的部分，提醒落实贷款三查和行内审批流程'
         ],
         script: [
-            '这个项目不是单一融资问题，我们可以按项目全周期拆开看：投标或履约保证、回款账户、工资代发、供应商付款和闲置资金管理分别配置。',
-            '员工工资如果集中代发，后续员工个人服务也能衔接起来，企业和员工两端的体验都会更顺。'
+            '开场：您这次项目涉及保函、回款、代发和资金管理，我们可以按项目全周期逐项梳理，先把最急的环节排出来。',
+            '追问：项目的投标、履约、回款节点分别在什么时间？工资发放和供应商付款是否需要独立账户或审批流程？',
+            '回应：我理解您最关注的是项目不停工和资金使用效率。我们会把保证、账户、代发和现金管理放在一张方案里，但授信和保函仍需按资料核验与审批流程推进。',
+            '收口：我先给您形成场景清单，您确认优先级后，我们再安排产品和审批同事一起做专题沟通。'
         ],
         quiz: {
             question: '客户同时有保函、代发、闲置资金和员工服务需求时，最合适的处理方式是什么？',
@@ -3150,6 +3209,32 @@ const TRAINING_MODULES = [
                 { text: '形成产品组合方案，并明确授信类事项需按行内审批和贷款三查推进', correct: true, feedback: '判断正确。产品组合要服务业务场景，授信与保函类事项必须守住流程边界。' },
                 { text: '只推荐理财，因为闲置资金收益最直观', correct: false, feedback: '不完整。单点产品无法覆盖项目保证、结算效率和公私联动价值。' },
                 { text: '先承诺保函额度，再让客户补材料', correct: false, feedback: '不合规。额度和保函不能先承诺，必须经过资料核验和审批流程。' }
+            ]
+        }
+    },
+    {
+        tag: '贷后管理',
+        title: '贷后回访与风险预警',
+        summary: '围绕经营、财务、信用、行业和联系人变化建立贷后检查、预警升级和服务跟进节奏。',
+        scenario: '已合作客户近两个月结算流水下降，财务负责人更换，公开新闻显示所在行业价格竞争加剧。客户暂未主动说明原因。',
+        checklist: [
+            '核对结算、回款、贷款使用、账户余额和逾期等业务变化，区分季节性与异常变化',
+            '更新关键联系人、实际控制人、主要客户供应商和重大项目变动',
+            '查看近30天舆情、司法、行政处罚和行业动态，并记录来源和发布日期',
+            '对异常信号形成核查事项、责任人和完成时点；涉及授信按制度落实贷后检查'
+        ],
+        script: [
+            '开场：您好，我是招商银行客户经理。这次联系主要是做常规服务回访，想了解近期订单、回款和资金安排有没有变化，方便我们及时配合。',
+            '追问：我们注意到近期结算节奏和前期有些不同，这是季节性安排、客户结构变化，还是项目回款节点调整造成的？',
+            '回应：财务负责人调整很常见。为保证服务不断档，我想和您确认新的资金与结算对接人，并把现有事项逐项交接清楚。',
+            '收口：我会把今天确认的变化、需要补充的材料和下次回访时间发您确认；涉及授信的事项仍按贷后管理要求跟进。'
+        ],
+        quiz: {
+            question: '发现客户结算下降且联系人变更，客户经理首先应做什么？',
+            options: [
+                { text: '核实经营和资金变化原因、更新对接链路，并按制度记录和跟进风险信号', correct: true, feedback: '判断正确。贷后管理既要核实异常，也要保持服务连续和留痕。' },
+                { text: '立即要求客户提前归还全部融资', correct: false, feedback: '不当。需先核实事实并按行内制度评估，客户经理不能越权处置。' },
+                { text: '等待客户主动解释，避免打扰', correct: false, feedback: '不充分。结算下降和联系人变更均是应核验的预警信号。' }
             ]
         }
     },
@@ -3165,8 +3250,9 @@ const TRAINING_MODULES = [
             '对可疑交易或重大风险信号按行内制度报告和留痕'
         ],
         script: [
-            '资料必须反映企业真实经营，不能包装或调整成审批偏好的样子。我们可以帮您梳理真实材料清单，但不能代替审批或规避流程。',
-            '涉及授信的事项，我会按贷前调查、贷中审查和贷后检查要求推进，最终结论以行内审批为准。'
+            '回应：我理解您希望尽快推进，但资料必须反映真实经营，不能包装或走特殊通道。我们可以一起梳理真实材料清单，帮您减少反复补件。',
+            '说明：涉及授信的事项，我会按贷前调查、贷中审查和贷后检查要求推进；是否获批、额度和利率都以行内审批结论为准。',
+            '收口：您先把真实合同、流水和用途材料准备好。我收到后会明确哪些已满足、哪些仍需补充，并按流程协助推进。'
         ],
         quiz: {
             question: '客户要求“包装材料、走特殊通道”，客户经理应如何回应？',
@@ -3178,6 +3264,19 @@ const TRAINING_MODULES = [
         }
     }
 ];
+
+const TRAINING_REVIEW_QUIZ = {
+    question: '客户希望你当场给出审批结论或承诺额度，但核心资料尚未核实，正确的处理是什么？',
+    options: [
+        { text: '说明需以真实资料和行内审批为准，明确下一步核验清单与沟通时间', correct: true, feedback: '判断正确。客户经理应提供清晰的流程与资料指引，但不能越权承诺审批结论。' },
+        { text: '为了维持客户关系，先口头承诺后续再补材料', correct: false, feedback: '不合规。任何授信审批、额度或利率均不能脱离真实资料和行内流程承诺。' },
+        { text: '不回应客户问题，直接结束沟通', correct: false, feedback: '不够专业。应说明合规边界，并给出可执行的资料准备和后续沟通安排。' }
+    ]
+};
+
+TRAINING_MODULES.forEach(module => {
+    module.quizzes = [module.quiz, TRAINING_REVIEW_QUIZ];
+});
 
 // ========== 页面交互逻辑 ==========
 let currentClient = null;
@@ -3218,9 +3317,14 @@ function renderTrainingModule(index = activeTrainingModule) {
     document.getElementById('trainingScenario').textContent = module.scenario;
     document.getElementById('trainingChecklist').innerHTML = module.checklist.map(item => `<li>${escapeHtml(item)}</li>`).join('');
     document.getElementById('trainingScript').innerHTML = module.script.map(item => `<p>${escapeHtml(item)}</p>`).join('');
-    document.getElementById('trainingQuiz').textContent = module.quiz.question;
-    document.getElementById('trainingQuizOptions').innerHTML = module.quiz.options.map((option, optionIndex) => `
-        <button type="button" class="training-quiz-option" onclick="evaluateTrainingQuiz(${optionIndex})">${escapeHtml(option.text)}</button>
+    const quizzes = module.quizzes || [module.quiz];
+    document.getElementById('trainingQuiz').innerHTML = quizzes.map((quiz, quizIndex) => `
+        <p><strong>判断题 ${quizIndex + 1}</strong>：${escapeHtml(quiz.question)}</p>
+    `).join('');
+    document.getElementById('trainingQuizOptions').innerHTML = quizzes.map((quiz, quizIndex) => `
+        <div class="training-quiz-group">${quiz.options.map((option, optionIndex) => `
+            <button type="button" class="training-quiz-option" data-quiz-index="${quizIndex}" onclick="evaluateTrainingQuiz(${quizIndex}, ${optionIndex})">${escapeHtml(option.text)}</button>
+        `).join('')}</div>
     `).join('');
 
     const feedback = document.getElementById('trainingFeedback');
@@ -3232,18 +3336,20 @@ function selectTrainingModule(index) {
     renderTrainingModule(index);
 }
 
-function evaluateTrainingQuiz(selectedIndex) {
+function evaluateTrainingQuiz(quizIndex, selectedIndex) {
     const module = TRAINING_MODULES[activeTrainingModule] || TRAINING_MODULES[0];
-    const selected = module.quiz.options[selectedIndex];
+    const quizzes = module.quizzes || [module.quiz];
+    const quiz = quizzes[quizIndex];
+    const selected = quiz?.options[selectedIndex];
     if (!selected) return;
 
-    document.querySelectorAll('#trainingQuizOptions .training-quiz-option').forEach((button, buttonIndex) => {
+    document.querySelectorAll(`#trainingQuizOptions .training-quiz-option[data-quiz-index="${quizIndex}"]`).forEach((button, buttonIndex) => {
         button.classList.toggle('active', buttonIndex === selectedIndex);
     });
 
     const feedback = document.getElementById('trainingFeedback');
     feedback.className = `training-feedback ${selected.correct ? 'good' : 'warn'}`;
-    feedback.textContent = selected.feedback;
+    feedback.textContent = `判断题 ${quizIndex + 1}：${selected.feedback}`;
 }
 
 function quickSearch(keyword) {
