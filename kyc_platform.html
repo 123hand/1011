@@ -606,6 +606,30 @@
             transform: translateY(-1px);
         }
 
+        .search-btn.is-loading,
+        .search-btn:disabled {
+            cursor: wait;
+            opacity: 0.82;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .search-loading-spinner {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            margin-right: 8px;
+            border: 2px solid rgba(255,255,255,0.42);
+            border-top-color: #FFFFFF;
+            border-radius: 50%;
+            vertical-align: -2px;
+            animation: company-search-spin 0.75s linear infinite;
+        }
+
+        @keyframes company-search-spin {
+            to { transform: rotate(360deg); }
+        }
+
         .search-tags {
             display: flex;
             gap: 8px;
@@ -2000,7 +2024,7 @@
             <span class="search-tag" onclick="quickSearch('中国移动')">中国移动</span>
         </div>
     </div>
-    <button class="search-btn" onclick="doSearch()">查询分析</button>
+    <button class="search-btn" id="companySearchButton" type="button" onclick="doSearch()">查询分析</button>
 </div>
 
 <section class="public-source-lookup" id="publicSourceLookup" aria-live="polite">
@@ -4020,6 +4044,18 @@ function renderUnlistedCompanyNotice(query) {
     renderClient(attachPublicEvidence(buildUnlistedCompanyClient(query)));
 }
 
+function setCompanySearchLoading(isLoading) {
+    const button = document.getElementById('companySearchButton');
+    if (!button) return;
+
+    button.disabled = isLoading;
+    button.classList.toggle('is-loading', isLoading);
+    button.setAttribute('aria-busy', String(isLoading));
+    button.innerHTML = isLoading
+        ? '<span class="search-loading-spinner" aria-hidden="true"></span>正在查询…'
+        : '查询分析';
+}
+
 async function doSearch() {
     const query = document.getElementById('searchInput').value.trim();
     let liveQueryError = '';
@@ -4028,6 +4064,11 @@ async function doSearch() {
         return;
     }
 
+    const searchButton = document.getElementById('companySearchButton');
+    if (searchButton && searchButton.disabled) return;
+    setCompanySearchLoading(true);
+
+    try {
     try {
         const apiClient = await tryApiSearch(query);
         if (apiClient) {
@@ -4081,6 +4122,9 @@ async function doSearch() {
 
     currentClient = matched[0];
     renderClient(currentClient);
+    } finally {
+        setCompanySearchLoading(false);
+    }
 }
 
 function fillBasicInfo(client) {

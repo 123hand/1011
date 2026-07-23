@@ -58,6 +58,20 @@ assert(
 );
 
 [
+  'id="companySearchButton"',
+  ".search-btn.is-loading",
+  ".search-loading-spinner",
+  "function setCompanySearchLoading",
+].forEach((needle) => {
+  assert(html.includes(needle), `Enterprise search should expose a visible loading state: ${needle}`);
+});
+
+assert(
+  /async function doSearch\(\)\s*\{[\s\S]*setCompanySearchLoading\(true\)[\s\S]*finally\s*\{\s*setCompanySearchLoading\(false\)/.test(html),
+  "Enterprise search should always restore its loading state after the query lifecycle"
+);
+
+[
   "function renderEditableField",
   "function saveClientFieldEdit",
   "function getClientFieldEdits",
